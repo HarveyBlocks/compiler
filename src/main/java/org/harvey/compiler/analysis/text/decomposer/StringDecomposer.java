@@ -1,8 +1,7 @@
 package org.harvey.compiler.analysis.text.decomposer;
 
 import org.harvey.compiler.analysis.text.context.SourceTextContext;
-import org.harvey.compiler.common.entity.SourceString;
-import org.harvey.compiler.common.entity.SourceStringType;
+import org.harvey.compiler.io.source.SourceString;
 
 /**
  * TODO
@@ -11,21 +10,17 @@ import org.harvey.compiler.common.entity.SourceStringType;
  * @version 1.0
  * @date 2024-11-17 20:16
  */
+@Deprecated
 public class StringDecomposer implements TextDecomposer {
     @Override
     public SourceTextContext decompose(SourceString source) {
-        if (source.getType() != SourceStringType.STRING) {
-            // 不用做操作
-            return null;
-        }
-        // TODO
         /*StringBuilder sb = new StringBuilder();
         // value 解析转义字符
         // 去除前后的引号
         for (StringIterator sit = new StringIterator(text.getValue()); sit.hasNext(); ) {
             char c = sit.next();
-            if (PropertyConstant.ESCAPE_CHARACTER_MAP.containsKey(c)) {
-                c = PropertyConstant.ESCAPE_CHARACTER_MAP.get(c);
+            if (SourceFileConstant.ESCAPE_CHARACTER_MAP.containsKey(c)) {
+                c = SourceFileConstant.ESCAPE_CHARACTER_MAP.get(c);
             } else if (c == 'u') {
 
             }else if (c=='x'){

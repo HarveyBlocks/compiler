@@ -1,7 +1,7 @@
 package org.harvey.compiler.analysis;
 
 
-import org.harvey.compiler.common.entity.StringIterator;
+import org.harvey.compiler.common.util.StringIterator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,11 +10,9 @@ import org.junit.Test;
 public class StringIteratorTest {
     private final String text = "Hello the fucking world";
     private final int textLength = text.length();
-    private final StringIterator it = new StringIterator(text);
-
-
-    private final char[] fore = text.toCharArray();
     private final char[] back = new char[textLength];
+    private final StringIterator it = new StringIterator(text);
+    private final char[] fore = text.toCharArray();
 
     @Before
     public void initBack() {
@@ -22,8 +20,9 @@ public class StringIteratorTest {
             back[i] = fore[textLength - i - 1];
         }
     }
+
     @Test
-    public void testEach(){
+    public void testEach() {
         it.toBegin();
         Character n = it.next();
         it.previous();
@@ -35,6 +34,7 @@ public class StringIteratorTest {
         Character pnp = it.previous();
         Assert.assertEquals(p, pnp);
     }
+
     @Test
     public void testTraverse() {
         it.toBegin();

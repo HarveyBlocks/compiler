@@ -1,8 +1,8 @@
 package org.harvey.compiler.analysis.text.decomposer;
 
 
-import org.harvey.compiler.common.entity.SourceString;
 import org.harvey.compiler.analysis.text.context.SourceTextContext;
+import org.harvey.compiler.io.source.SourceString;
 
 /**
  * TODO

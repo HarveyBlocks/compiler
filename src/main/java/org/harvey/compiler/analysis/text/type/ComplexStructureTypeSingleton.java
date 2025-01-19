@@ -1,5 +1,8 @@
 package org.harvey.compiler.analysis.text.type;
 
+import lombok.Getter;
+import org.harvey.compiler.declare.phaser.visitor.Environment;
+
 /**
  * class<br>
  * interface<br>
@@ -11,31 +14,16 @@ package org.harvey.compiler.analysis.text.type;
  * @version 1.0
  * @date 2024-11-23 21:25
  */
+@Getter
 public enum ComplexStructureTypeSingleton {
-    CLASS(new Type()),
-    STRUCT(new Type()),
-    INTERFACE(new Type()),
-    ENUM(new Type()),
-    ABSTRACT_CLASS(new Type());
-    private final Type type;
+    CLASS(Environment.CLASS),
+    STRUCT(Environment.STRUCT),
+    INTERFACE(Environment.INTERFACE),
+    ENUM(Environment.ENUM),
+    ABSTRACT_CLASS(null);
+    private final Environment environment;
 
-    public static class Type extends SourceType {
-    }
-
-    ComplexStructureTypeSingleton(Type type) {
-        this.type = type;
-    }
-
-    public static ComplexStructureTypeSingleton get(SourceType type) {
-        for (ComplexStructureTypeSingleton value : ComplexStructureTypeSingleton.values()) {
-            if (value.type == type) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    public SourceType getType() {
-        return type;
+    ComplexStructureTypeSingleton(Environment environment) {
+        this.environment = environment;
     }
 }

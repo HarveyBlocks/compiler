@@ -1,9 +1,9 @@
 package org.harvey.compiler.analysis.text.decomposer;
 
 import org.harvey.compiler.analysis.text.context.SourceTextContext;
-import org.harvey.compiler.common.entity.SourcePosition;
-import org.harvey.compiler.common.entity.SourceString;
 import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.io.source.SourceString;
 
 import java.io.PrintStream;
 

@@ -1,7 +1,8 @@
 package org.harvey.compiler.analysis.core;
 
-import lombok.Getter;
 import org.harvey.compiler.exception.CompilerException;
+
+import java.util.Objects;
 
 /**
  * <h3 id='访问控制'><span>访问控制</span></h3>
@@ -20,58 +21,28 @@ import org.harvey.compiler.exception.CompilerException;
  * @date 2024-11-22 21:30
  */
 public class AccessControl {
-    @Getter
-    public enum Permission {
-        // 访问控制权限
-        PUBLIC(Keyword.PUBLIC),
-        PROTECTED(Keyword.PROTECTED),
-        PRIVATE(Keyword.PRIVATE),
-        INTERNAL(Keyword.INTERNAL),
-        FILE(Keyword.FILE),
-        PACKAGE(Keyword.PACKAGE);
-        private final Keyword keyword;
 
-        Permission(Keyword keyword) {
-            this.keyword = keyword;
-        }
+    public static final AccessControl PRIVATE = buildDefault(Permission.PRIVATE);
+    private static final byte SELF_CLASS_BIT = 0x01;
+    private static final byte FILE_BIT = SELF_CLASS_BIT << 1;
+    private static final byte CHILDREN_CLASS_BIT = SELF_CLASS_BIT << 2;
+    private static final byte CHILDREN_CLASS_INTERNAL_BIT = SELF_CLASS_BIT << 3;
+    private static final byte CHILDREN_PACKAGE_BIT = SELF_CLASS_BIT << 4;
+    private static final byte PACKAGE_BIT = SELF_CLASS_BIT << 5;
+    private static final byte PUBLIC_BIT = SELF_CLASS_BIT << 6;
+    private byte permission = 0;
 
-        // 全局 1BIt
-        // 当前包 1Bit
-        // 子包  1Bit
-        // 子类 1Bit
-        // 文件 1Bit
-        // 当前类 1Bit
-        // 内部类 1Bit
-        public static Permission get(Keyword keyword) {
-            for (Permission value : Permission.values()) {
-                if (value.keyword == keyword) {
-                    return value;
-                }
-            }
-            return null;
-        }
+    public AccessControl(int code) {
 
-        public static Permission get(String keyword) {
-            return get(Keyword.get(keyword));
-        }
-
-        public static boolean is(String keyword) {
-            return get(keyword) != null;
-        }
-
-        public static boolean is(Keyword keyword) {
-            return get(keyword) != null;
-        }
     }
 
-    private static final byte INNER_CLASS_BIT = 0x01;
-    private static final byte SELF_CLASS_BIT = INNER_CLASS_BIT << 1;
-    private static final byte FILE_BIT = INNER_CLASS_BIT << 2;
-    private static final byte CHILDREN_CLASS_BIT = INNER_CLASS_BIT << 3;
-    private static final byte CHILDREN_PACKAGE_BIT = INNER_CLASS_BIT << 4;
-    private static final byte PACKAGE_BIT = INNER_CLASS_BIT << 5;
-    private static final byte PUBLIC_BIT = INNER_CLASS_BIT << 6;
-    private byte permission = 0;
+    private AccessControl() {
+
+    }
+
+    private static AccessControl buildDefault(Permission permission) {
+        return new Builder().addPermission(permission).build();
+    }
 
     private void setPublic() {
         permission |= PUBLIC_BIT;
@@ -97,8 +68,8 @@ public class AccessControl {
         permission |= SELF_CLASS_BIT;
     }
 
-    private void setInternalClass() {
-        permission |= INNER_CLASS_BIT;
+    private void setChildClassInternal() {
+        permission |= CHILDREN_CLASS_INTERNAL_BIT;
     }
 
     private void unsetPublic() {
@@ -125,8 +96,8 @@ public class AccessControl {
         permission &= ~SELF_CLASS_BIT;
     }
 
-    private void unsetInternalClass() {
-        permission &= ~INNER_CLASS_BIT;
+    private void unsetChildClassInternal() {
+        permission &= ~CHILDREN_CLASS_INTERNAL_BIT;
     }
 
     public boolean canPublic() {
@@ -153,11 +124,11 @@ public class AccessControl {
         return (permission & SELF_CLASS_BIT) != 0;
     }
 
-    public boolean canInternalClass() {
-        return (permission & INNER_CLASS_BIT) != 0;
+    public boolean canChildInternalClass() {
+        return (permission & CHILDREN_CLASS_INTERNAL_BIT) != 0;
     }
 
-    public AccessControl addPermission(Permission permission) {
+    private AccessControl addPermission(Permission permission) {
         switch (permission) {
             case PUBLIC:
                 configPublic();
@@ -181,15 +152,14 @@ public class AccessControl {
     }
 
 
-    public AccessControl addInternalPermission(Permission permission) {
+    private AccessControl addInternalPermission(Permission permission) {
         switch (permission) {
             case PROTECTED:
+                // 本类, 本类内部类, 子类, 子类内部类
                 configInternalProtected();
                 break;
-            case PRIVATE:
-                configInternalPrivate();
-                break;
             case PACKAGE:
+                // 本文件, 本类内部类
                 configInternalPackage();
                 break;
             default:
@@ -198,15 +168,24 @@ public class AccessControl {
         return this;
     }
 
-    private void configPublic() {
-        this.setPublic();
-        configInternalProtected();
-        configInternalPackage();
+
+    private void configPrivate() {
+        this.setSelfClass();
     }
 
-    private void configInternalPackage() {
-        this.setChildrenPackage();
-        configPackage();
+    private void configProtected() {
+        this.setChildrenClass();
+        configPrivate();
+    }
+
+    private void configInternalProtected() {
+        configProtected();
+        this.setChildClassInternal();
+    }
+
+    private void configFile() {
+        this.setFile();
+        configPrivate();
     }
 
     private void configPackage() {
@@ -214,31 +193,17 @@ public class AccessControl {
         configFile();
     }
 
-    private void configFile() {
-        this.setFile();
-        this.setInternalClass();
-        this.setSelfClass();
+    private void configInternalPackage() {
+        this.setChildrenPackage();
+        configPackage();
     }
 
-    private void configInternalPrivate() {
-        configPrivate();
-        this.setInternalClass();
+    private void configPublic() {
+        this.setPublic();
+        configInternalProtected();
+        configInternalPackage();
     }
 
-    private void configInternalProtected() {
-        configProtected();
-        this.setInternalClass();
-    }
-
-
-    private void configProtected() {
-        this.setChildrenClass();
-        this.setSelfClass();
-    }
-
-    private void configPrivate() {
-        this.setSelfClass();
-    }
 
     public byte getByte() {
         return permission;
@@ -251,5 +216,83 @@ public class AccessControl {
                 "0".repeat(7 - binary.length()) +
                 binary +
                 ')';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AccessControl)) {
+            return false;
+        }
+        AccessControl that = (AccessControl) o;
+        return permission == that.permission;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(permission);
+    }
+
+    /**
+     * 和自身冲突<br>
+     * public 和所有的冲突<br>
+     * protected 和 protected , private , internal protected, internal private 两两冲突<br>
+     * file 和 package 和 internal package 两两<br>
+     */
+    public static class Builder {
+        private final AccessControl product;
+        private Permission addedPublic = null;
+        private Permission addedInherit = null;
+        private Permission addedResource = null;
+
+        public Builder() {
+            product = new AccessControl();
+        }
+
+        public Builder addPermission(Permission permission) {
+            checkConflict(permission);
+            product.addPermission(permission);
+            return this;
+        }
+
+
+        public Builder addInternalPermission(Permission permission) {
+            checkConflict(permission);
+            product.addInternalPermission(permission);
+            return this;
+        }
+
+        private void checkConflict(Permission permission) {
+            if (addedPublic != null) {
+                throw new IllegalArgumentException("public");
+            }
+            switch (permission) {
+                case PUBLIC:
+                    addedPublic = permission;
+                    break;
+                case PROTECTED:
+                case PRIVATE:
+                    if (addedInherit != null) {
+                        throw new IllegalArgumentException("inherit");
+                    }
+                    addedInherit = permission;
+                    break;
+                case FILE:
+                case PACKAGE:
+                    if (addedResource != null) {
+                        throw new IllegalArgumentException("resource");
+                    }
+                    addedResource = permission;
+                    break;
+                default:
+                    throw new CompilerException("Unexpected permission here");
+            }
+        }
+
+        public AccessControl build() {
+            return product;
+        }
     }
 }

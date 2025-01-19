@@ -1,7 +1,7 @@
 package org.harvey.compiler.exception.analysis;
 
-import org.harvey.compiler.common.entity.SourcePosition;
 import org.harvey.compiler.exception.CompileException;
+import org.harvey.compiler.io.source.SourcePosition;
 
 /**
  * 编译的分析过程中产生的异常

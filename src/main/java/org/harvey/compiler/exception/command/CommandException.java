@@ -1,6 +1,6 @@
 package org.harvey.compiler.exception.command;
 
-import org.harvey.compiler.exception.HarveyCompilerException;
+import org.harvey.compiler.exception.VieCompilerException;
 
 /**
  * TODO
@@ -9,7 +9,7 @@ import org.harvey.compiler.exception.HarveyCompilerException;
  * @version 1.0
  * @date 2024-11-21 15:12
  */
-public class CommandException extends HarveyCompilerException {
+public class CommandException extends VieCompilerException {
     public CommandException(String message) {
         super(message);
     }

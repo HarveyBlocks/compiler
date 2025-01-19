@@ -1,8 +1,5 @@
 package org.harvey.compiler.common.util;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -19,14 +16,29 @@ import java.util.stream.Stream;
  */
 public class CollectionUtil {
 
-    @Getter
-    @AllArgsConstructor
-    public static class Result<E> {
-        private int index;
-        private E element;
+    private CollectionUtil() {
     }
 
-    private CollectionUtil() {
+    public static <K, V> Map<K, V> union(Map<K, V> map1, Map<K, V> map2) {
+        Map<K, V> union = new HashMap<>(map1);
+        union.putAll(map2);
+        return union;
+    }
+
+    public static <E> Set<E> union(Set<E> set1, Set<E> set2) {
+        Set<E> union = new HashSet<>(set1);
+        union.addAll(set2);
+        return union;
+    }
+
+    /**
+     * 不忽略重复元素
+     */
+    public static <E> List<E> union(List<E> list1, List<E> list2) {
+        List<E> union = new ArrayList<>(list1.size() + list2.size());
+        union.addAll(list1);
+        union.addAll(list2);
+        return union;
     }
 
     public static <E> LinkedList<E> unmodifiableLinkedList(LinkedList<E> ll) {
@@ -34,24 +46,24 @@ public class CollectionUtil {
     }
 
     public static <E> int indexOf(List<E> list, Predicate<E> predicate) {
-        Result<E> result = find(list, predicate, 0);
-        return result == null ? -1 : result.getIndex();
+        ListPoint<E> listPoint = find(list, predicate, 0);
+        return listPoint == null ? -1 : listPoint.getIndex();
     }
 
     public static <E> E elementOf(List<E> list, Predicate<E> predicate) {
-        Result<E> result = find(list, predicate, 0);
-        return result == null ? null : result.getElement();
+        ListPoint<E> listPoint = find(list, predicate, 0);
+        return listPoint == null ? null : listPoint.getElement();
     }
 
-    public static <E> Result<E> find(List<E> list, Predicate<E> predicate) {
+    public static <E> ListPoint<E> find(List<E> list, Predicate<E> predicate) {
         return find(list, predicate, 0);
     }
 
-    public static <E> Result<E> find(List<E> list, Predicate<E> predicate, int fromIndex) {
+    public static <E> ListPoint<E> find(List<E> list, Predicate<E> predicate, int fromIndex) {
         for (int i = fromIndex; i < list.size(); i++) {
             E element = list.get(i);
             if (predicate.test(element)) {
-                return new Result<>(i, element);
+                return new ListPoint<>(i, element);
             }
         }
         return null;
@@ -66,15 +78,36 @@ public class CollectionUtil {
         return false;
     }
 
+    /**
+     * 迭代器不移动
+     */
     public static <E> boolean nextIs(ListIterator<E> it, Predicate<E> predicate) {
         // 解析作用域 一定是关键字 一定是作用域关键字
+        E next = getNext(it);
+        return next != null && predicate.test(next);
+    }
+
+    public static <E> E getNext(ListIterator<E> it) {
         if (!it.hasNext()) {
-            return false;
+            return null;
         }
         E next = it.next();
-        boolean test = predicate.test(next);
         it.previous();
-        return test;
+        return next;
+    }
+
+    public static <T> EncirclePair<T> getEncirclePair(ArrayList<T> src, int index) {
+        T pre = null;
+        T post = null;
+        if (index - 1 >= 0) {
+            pre = src.get(index - 1);
+        }
+        if (index + 1 >= src.size()) {
+            // 只有前了
+            post = src.get(index + 1);
+        }
+        // 包围
+        return new EncirclePair<>(pre, post);
     }
 
     private static class UnmodifiableLinkedList<E> extends LinkedList<E> {

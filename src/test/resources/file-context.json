@@ -1,0 +1,1315 @@
+{
+  "importTable": {
+    "A": {
+      "path": [
+        {
+          "position": {
+            "raw": 0,
+            "column": 7
+          },
+          "value": "A"
+        }
+      ],
+      "position": {
+        "raw": 0,
+        "column": 7
+      },
+      "target": {
+        "position": {
+          "raw": 0,
+          "column": 7
+        },
+        "value": "A"
+      },
+      "stringPath": [
+        "A"
+      ],
+      "packagePath": "A",
+      "dictionaryPath": "A"
+    },
+    "B": {
+      "path": [
+        {
+          "position": {
+            "raw": 1,
+            "column": 7
+          },
+          "value": "B"
+        }
+      ],
+      "position": {
+        "raw": 1,
+        "column": 7
+      },
+      "target": {
+        "position": {
+          "raw": 1,
+          "column": 7
+        },
+        "value": "B"
+      },
+      "stringPath": [
+        "B"
+      ],
+      "packagePath": "B",
+      "dictionaryPath": "B"
+    }
+  },
+  "aliasList": [
+    {
+      "accessControl": {
+        "byte": 127
+      },
+      "aliasNameReference": 0,
+      "aliasGenericMessage": null,
+      "origin": [
+        {
+          "position": {
+            "raw": 24,
+            "column": 17
+          },
+          "value": "A"
+        }
+      ]
+    },
+    {
+      "accessControl": {
+        "byte": 127
+      },
+      "aliasNameReference": 1,
+      "aliasGenericMessage": null,
+      "origin": [
+        {
+          "position": {
+            "raw": 25,
+            "column": 17
+          },
+          "value": "A"
+        }
+      ]
+    },
+    {
+      "accessControl": {
+        "byte": 3
+      },
+      "aliasNameReference": 2,
+      "aliasGenericMessage": null,
+      "origin": [
+        {
+          "position": {
+            "raw": 25,
+            "column": 24
+          },
+          "value": "Y"
+        }
+      ]
+    },
+    {
+      "accessControl": {
+        "byte": 3
+      },
+      "aliasNameReference": 3,
+      "aliasGenericMessage": null,
+      "origin": [
+        {
+          "position": {
+            "raw": 25,
+            "column": 31
+          },
+          "value": "Z"
+        }
+      ]
+    },
+    {
+      "accessControl": {
+        "byte": 127
+      },
+      "aliasNameReference": 4,
+      "aliasGenericMessage": null,
+      "origin": [
+        {
+          "position": {
+            "raw": 27,
+            "column": 21
+          },
+          "value": "A"
+        }
+      ]
+    },
+    {
+      "accessControl": {
+        "byte": 3
+      },
+      "aliasNameReference": 5,
+      "aliasGenericMessage": null,
+      "origin": [
+        {
+          "position": {
+            "raw": 27,
+            "column": 21
+          },
+          "value": "A"
+        }
+      ]
+    },
+    {
+      "accessControl": {
+        "byte": 127
+      },
+      "aliasNameReference": 6,
+      "aliasGenericMessage": [
+        {
+          "position": {
+            "raw": 28,
+            "column": 15
+          },
+          "value": "T1"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 17
+          },
+          "value": "COMMA"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 18
+          },
+          "value": "T2"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 20
+          },
+          "value": "GENERIC_LIST_POST"
+        }
+      ],
+      "origin": [
+        {
+          "position": {
+            "raw": 28,
+            "column": 24
+          },
+          "value": "A"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 26
+          },
+          "value": "T1"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 28
+          },
+          "value": "COMMA"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 29
+          },
+          "value": "T2"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 31
+          },
+          "value": "COMMA"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 32
+          },
+          "value": "T1"
+        },
+        {
+          "position": {
+            "raw": 28,
+            "column": 34
+          },
+          "value": "GENERIC_LIST_POST"
+        }
+      ]
+    }
+  ],
+  "identifierTable": [
+    "X",
+    "Z",
+    "A",
+    "Y",
+    "L",
+    "M",
+    "N",
+    "func1",
+    "func2",
+    "a",
+    "E",
+    "E#X",
+    "E#A",
+    "E#B",
+    "E#C",
+    "E#N",
+    "E#M",
+    "ObjectExample",
+    "X#a",
+    "X#x",
+    "X#f1",
+    "X#f2",
+    "X#f3",
+    "X#f4",
+    "X#f5",
+    "Mmm",
+    "AbstractType"
+  ],
+  "executableBodyFactory": {
+    "pool": [
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ],
+      [
+        {
+          "bodyEnd": 1
+        },
+        {
+          "start": 0
+        }
+      ]
+    ]
+  },
+  "complexStructureTable": [
+    {
+      "identifierReference": 10,
+      "accessControl": {
+        "byte": 3
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "methodTable": [],
+      "fieldTable": [],
+      "pool": [],
+      "executableBodyFactory": {
+        "pool": []
+      },
+      "enumConstants": [
+        {
+          "identifier": {
+            "position": {
+              "raw": 4,
+              "column": 4
+            },
+            "value": "A"
+          },
+          "arguments": null
+        }
+      ],
+      "typeAliases": [
+        {
+          "accessControl": {
+            "byte": 1
+          },
+          "aliasNameReference": 11,
+          "aliasGenericMessage": null,
+          "origin": [
+            {
+              "position": {
+                "raw": 6,
+                "column": 21
+              },
+              "value": "A"
+            }
+          ]
+        },
+        {
+          "accessControl": {
+            "byte": 1
+          },
+          "aliasNameReference": 12,
+          "aliasGenericMessage": null,
+          "origin": [
+            {
+              "position": {
+                "raw": 7,
+                "column": 21
+              },
+              "value": "A"
+            }
+          ]
+        },
+        {
+          "accessControl": {
+            "byte": 1
+          },
+          "aliasNameReference": 13,
+          "aliasGenericMessage": null,
+          "origin": [
+            {
+              "position": {
+                "raw": 7,
+                "column": 28
+              },
+              "value": "Y"
+            }
+          ]
+        },
+        {
+          "accessControl": {
+            "byte": 1
+          },
+          "aliasNameReference": 14,
+          "aliasGenericMessage": null,
+          "origin": [
+            {
+              "position": {
+                "raw": 7,
+                "column": 35
+              },
+              "value": "Z"
+            }
+          ]
+        },
+        {
+          "accessControl": {
+            "byte": 1
+          },
+          "aliasNameReference": 15,
+          "aliasGenericMessage": null,
+          "origin": [
+            {
+              "position": {
+                "raw": 8,
+                "column": 25
+              },
+              "value": "A"
+            }
+          ]
+        },
+        {
+          "accessControl": {
+            "byte": 1
+          },
+          "aliasNameReference": 16,
+          "aliasGenericMessage": null,
+          "origin": [
+            {
+              "position": {
+                "raw": 8,
+                "column": 25
+              },
+              "value": "A"
+            }
+          ]
+        }
+      ],
+      "outerReference": 0,
+      "type": "ENUM",
+      "genericMessage": [],
+      "superComplexStructure": [],
+      "implementsList": [],
+      "blocks": [],
+      "staticBlocks": [],
+      "innerStructureReferences": [],
+      "outerStructure": -1,
+      "environment": "ENUM"
+    },
+    {
+      "identifierReference": 17,
+      "accessControl": {
+        "byte": 3
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "methodTable": [],
+      "fieldTable": [
+        {
+          "identifierReference": -1,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 0,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": false,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": [
+            {
+              "position": {
+                "raw": 13,
+                "column": 11
+              },
+              "value": "String"
+            }
+          ],
+          "assignList": [
+            {
+              "18": [
+                {
+                  "position": {
+                    "raw": 13,
+                    "column": 18
+                  },
+                  "value": "a"
+                },
+                {
+                  "position": {
+                    "raw": 13,
+                    "column": 22
+                  },
+                  "data": "",
+                  "type": "STRING"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifierReference": -1,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 0,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": false,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": [
+            {
+              "position": {
+                "raw": 14,
+                "column": 11
+              },
+              "value": "String"
+            }
+          ],
+          "assignList": [
+            {
+              "19": [
+                {
+                  "position": {
+                    "raw": 14,
+                    "column": 18
+                  },
+                  "value": "x"
+                },
+                {
+                  "position": {
+                    "raw": 14,
+                    "column": 22
+                  },
+                  "value": "a"
+                },
+                {
+                  "position": {
+                    "raw": 14,
+                    "column": 24
+                  },
+                  "value": "substring"
+                },
+                {
+                  "position": {
+                    "raw": 14,
+                    "column": 34
+                  },
+                  "data": "AAAAAQ==",
+                  "type": "INT32"
+                },
+                {
+                  "position": {
+                    "raw": 14,
+                    "column": 36
+                  },
+                  "data": "AAAAAg==",
+                  "type": "INT32"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifierReference": -1,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 0,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": false,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": [
+            {
+              "position": {
+                "raw": 15,
+                "column": 11
+              },
+              "value": "float8"
+            }
+          ],
+          "assignList": [
+            {
+              "20": [
+                {
+                  "position": {
+                    "raw": 15,
+                    "column": 18
+                  },
+                  "value": "f1"
+                },
+                {
+                  "position": {
+                    "raw": 15,
+                    "column": 23
+                  },
+                  "data": "QJ2wAAAAAAA=",
+                  "type": "FLOAT64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifierReference": -1,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 0,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": false,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": [
+            {
+              "position": {
+                "raw": 16,
+                "column": 11
+              },
+              "value": "float8"
+            }
+          ],
+          "assignList": [
+            {
+              "21": [
+                {
+                  "position": {
+                    "raw": 16,
+                    "column": 18
+                  },
+                  "value": "f2"
+                },
+                {
+                  "position": {
+                    "raw": 16,
+                    "column": 23
+                  },
+                  "data": "RqK8RjjFKJY=",
+                  "type": "FLOAT64"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifierReference": -1,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 0,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": false,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": [
+            {
+              "position": {
+                "raw": 17,
+                "column": 11
+              },
+              "value": "float8"
+            }
+          ],
+          "assignList": [
+            {
+              "22": [
+                {
+                  "position": {
+                    "raw": 17,
+                    "column": 18
+                  },
+                  "value": "f3"
+                },
+                {
+                  "position": {
+                    "raw": 17,
+                    "column": 23
+                  },
+                  "data": "AAAAAQ==",
+                  "type": "INT32"
+                },
+                {
+                  "position": {
+                    "raw": 17,
+                    "column": 25
+                  },
+                  "value": "e3e"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifierReference": -1,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 0,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": false,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": [
+            {
+              "position": {
+                "raw": 18,
+                "column": 11
+              },
+              "value": "float8"
+            }
+          ],
+          "assignList": [
+            {
+              "23": [
+                {
+                  "position": {
+                    "raw": 18,
+                    "column": 18
+                  },
+                  "value": "f4"
+                },
+                {
+                  "position": {
+                    "raw": 18,
+                    "column": 23
+                  },
+                  "data": "AAAAAQ==",
+                  "type": "INT32"
+                },
+                {
+                  "position": {
+                    "raw": 18,
+                    "column": 25
+                  },
+                  "value": "e3E"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "identifierReference": -1,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 0,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": false,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": [
+            {
+              "position": {
+                "raw": 19,
+                "column": 11
+              },
+              "value": "float8"
+            }
+          ],
+          "assignList": [
+            {
+              "24": [
+                {
+                  "position": {
+                    "raw": 19,
+                    "column": 18
+                  },
+                  "value": "f5"
+                },
+                {
+                  "position": {
+                    "raw": 19,
+                    "column": 23
+                  },
+                  "data": "AAAAAQ==",
+                  "type": "INT32"
+                },
+                {
+                  "position": {
+                    "raw": 19,
+                    "column": 25
+                  },
+                  "value": "E3E"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pool": [],
+      "executableBodyFactory": {
+        "pool": []
+      },
+      "enumConstants": [],
+      "typeAliases": [],
+      "outerReference": 0,
+      "type": "CLASS",
+      "genericMessage": [],
+      "superComplexStructure": [],
+      "implementsList": [],
+      "blocks": [],
+      "staticBlocks": [],
+      "innerStructureReferences": [],
+      "outerStructure": -1,
+      "environment": "CLASS"
+    },
+    {
+      "identifierReference": 25,
+      "accessControl": {
+        "byte": 3
+      },
+      "embellish": {
+        "code": 16,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": true,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "methodTable": [
+        {
+          "identifierReference": -3,
+          "accessControl": {
+            "byte": 127
+          },
+          "embellish": {
+            "code": 16,
+            "markedConstant": false,
+            "markedStatic": false,
+            "markedAbstract": true,
+            "markedFinal": false,
+            "markedSealed": false
+          },
+          "type": "CAST_OPERATOR",
+          "returnType": {
+            "single": true,
+            "none": false
+          },
+          "genericMessage": [],
+          "paramList": [
+            {
+              "markedConst": false,
+              "markedFinal": false,
+              "type": [
+                {
+                  "position": {
+                    "raw": 22,
+                    "column": 27
+                  },
+                  "value": "int"
+                }
+              ],
+              "identifier": {
+                "position": {
+                  "raw": 22,
+                  "column": 31
+                },
+                "value": "a"
+              },
+              "assign": []
+            }
+          ],
+          "body": -1,
+          "throwsExceptions": []
+        }
+      ],
+      "fieldTable": [],
+      "pool": [],
+      "executableBodyFactory": {
+        "pool": []
+      },
+      "enumConstants": [],
+      "typeAliases": [],
+      "outerReference": 0,
+      "type": "ABSTRACT_CLASS",
+      "genericMessage": [],
+      "superComplexStructure": [],
+      "implementsList": [],
+      "blocks": [],
+      "staticBlocks": [],
+      "innerStructureReferences": [],
+      "outerStructure": -1,
+      "environment": "ABSTRACT_CLASS"
+    },
+    {
+      "identifierReference": 26,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 16,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": true,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "methodTable": [],
+      "fieldTable": [],
+      "pool": [],
+      "executableBodyFactory": {
+        "pool": []
+      },
+      "enumConstants": [],
+      "typeAliases": [],
+      "outerReference": 0,
+      "type": "ABSTRACT_CLASS",
+      "genericMessage": [],
+      "superComplexStructure": [],
+      "implementsList": [],
+      "blocks": [],
+      "staticBlocks": [],
+      "innerStructureReferences": [],
+      "outerStructure": -1,
+      "environment": "ABSTRACT_CLASS"
+    }
+  ],
+  "functionTable": [
+    {
+      "identifierReference": 7,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "FUNCTION",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [],
+      "paramList": [],
+      "body": 0,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": 8,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "FUNCTION",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [
+        {
+          "position": {
+            "raw": 32,
+            "column": 18
+          },
+          "value": "T"
+        },
+        {
+          "position": {
+            "raw": 32,
+            "column": 19
+          },
+          "value": "GENERIC_LIST_POST"
+        }
+      ],
+      "paramList": [],
+      "body": 1,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": 8,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "FUNCTION",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [
+        {
+          "position": {
+            "raw": 33,
+            "column": 27
+          },
+          "value": "T"
+        },
+        {
+          "position": {
+            "raw": 33,
+            "column": 28
+          },
+          "value": "GENERIC_LIST_POST"
+        }
+      ],
+      "paramList": [],
+      "body": 2,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": 8,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "FUNCTION",
+      "returnType": {
+        "single": false,
+        "none": false
+      },
+      "genericMessage": [
+        {
+          "position": {
+            "raw": 34,
+            "column": 31
+          },
+          "value": "T"
+        },
+        {
+          "position": {
+            "raw": 34,
+            "column": 32
+          },
+          "value": "GENERIC_LIST_POST"
+        }
+      ],
+      "paramList": [],
+      "body": 3,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": -3,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "CAST_OPERATOR",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [],
+      "paramList": [],
+      "body": 4,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": -3,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "CAST_OPERATOR",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [],
+      "paramList": [],
+      "body": 5,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": -10,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "OPERATOR",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [],
+      "paramList": [],
+      "body": 6,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": -10,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "OPERATOR",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [
+        {
+          "position": {
+            "raw": 39,
+            "column": 18
+          },
+          "value": "T"
+        },
+        {
+          "position": {
+            "raw": 39,
+            "column": 19
+          },
+          "value": "GENERIC_LIST_POST"
+        }
+      ],
+      "paramList": [],
+      "body": 7,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": -23,
+      "accessControl": {
+        "byte": 3
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "OPERATOR",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [],
+      "paramList": [],
+      "body": 8,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": 9,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "FUNCTION",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [],
+      "paramList": [],
+      "body": 9,
+      "throwsExceptions": []
+    },
+    {
+      "identifierReference": 9,
+      "accessControl": {
+        "byte": 127
+      },
+      "embellish": {
+        "code": 0,
+        "markedConstant": false,
+        "markedStatic": false,
+        "markedAbstract": false,
+        "markedFinal": false,
+        "markedSealed": false
+      },
+      "type": "FUNCTION",
+      "returnType": {
+        "single": true,
+        "none": false
+      },
+      "genericMessage": [],
+      "paramList": [],
+      "body": 10,
+      "throwsExceptions": []
+    }
+  ]
+}

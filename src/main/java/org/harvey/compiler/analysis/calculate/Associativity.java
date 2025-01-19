@@ -14,5 +14,5 @@ public enum Associativity {
     // 左结合(自左向右)
     LEFT,
     // 右结合(自右向左)
-    RIGHT
+    RIGHT,
 }

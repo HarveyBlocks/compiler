@@ -14,10 +14,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UnsureType extends SourceType {
+    private volatile static UnsureType single = null;
+
     private UnsureType() {
     }
-
-    private volatile static UnsureType single = null;
 
     public static UnsureType instance() {
         if (single != null) {

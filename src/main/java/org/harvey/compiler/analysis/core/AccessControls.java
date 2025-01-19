@@ -1,10 +1,11 @@
 package org.harvey.compiler.analysis.core;
 
-import org.harvey.compiler.analysis.stmt.meta.mv.MetaFileVariable;
 import org.harvey.compiler.analysis.text.context.SourceTextContext;
-import org.harvey.compiler.common.entity.SourcePosition;
-import org.harvey.compiler.common.entity.SourceString;
+import org.harvey.compiler.declare.phaser.visitor.Environment;
+import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.io.source.SourceString;
 
 /**
  * 工具类<br>
@@ -34,45 +35,127 @@ import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
  * @date 2024-11-23 21:15
  */
 public class AccessControls {
-    public static AccessControl buildFileAccessControl(SourceTextContext permissions, String tobeBuild) {
-        AccessControl control = new AccessControl();
+    public static final AccessControl UNSURE_ACCESS_CONTROL = UnsureAccessControl.instance();
+
+    public static AccessControl buildFileAccessControl(SourceTextContext permissions, String tobeBuilt,
+                                                       Permission defaultPermission) {
+        AccessControl.Builder control = new AccessControl.Builder();
         if (permissions.isEmpty()) {
             // 使用默认值
-            control.addPermission(MetaFileVariable.DEFAULT_ACCESS_CONTROL_PERMISSION);
-            return control;
+            return control.addPermission(defaultPermission).build();
         }
-        int size = permissions.size();
-        if (size == 1) {
-            // 一定是public或package
-            SourceString first = permissions.pollFirst();
-            if (Keyword.PUBLIC.equals(first.getValue())) {
-                control.addPermission(AccessControl.Permission.PUBLIC);
-            } else if (Keyword.PACKAGE.equals(first.getValue())) {
-                control.addPermission(AccessControl.Permission.PACKAGE);
-            } else if (Keyword.FILE.equals(first.getValue())) {
-                control.addPermission(AccessControl.Permission.FILE);
-            } else {
+        SourcePosition sp = SourcePosition.UNKNOWN;
+        try {
+            while (!permissions.isEmpty()) {
+                SourceString first = permissions.pollFirst();
+                sp = first.getPosition();
+                addEachFilePermission(permissions, first, control, tobeBuilt);
+            }
+        } catch (IllegalArgumentException iae) {
+            throw new AnalysisExpressionException(sp, "Can be conflict at the " + iae.getMessage() + " layer");
+        }
+        return control.build();
+    }
+
+    private static void addEachFilePermission(
+            SourceTextContext permissions, SourceString first,
+            AccessControl.Builder control, String tobeBuilt) {
+        Permission value = Permission.get(first.getValue());
+        switch (value) {
+            case INTERNAL:
+                // 一定是package
+                if (!permissions.isEmpty()) {
+                    SourceString afterInternal = permissions.pollFirst();
+                    if (!Keyword.PACKAGE.equals(afterInternal.getValue())) {
+                        throw new AnalysisExpressionException(afterInternal.getPosition(),
+                                " is illegal here.");
+                    }
+                }
+                control.addInternalPermission(Permission.PACKAGE);
+                break;
+            case PUBLIC:
+            case PACKAGE:
+            case FILE:
+                control.addPermission(value);
+                break;
+            default:
                 throw new AnalysisExpressionException(first.getPosition(),
-                        " is not allowed to be the access control of " + tobeBuild);
-            }
-        } else if (size == 2) {
-            // 一定是inner package
-            SourceString pre = permissions.pollFirst();
-            SourceString post = permissions.pollFirst();
-            assert pre != null;
-            assert post != null;
-            if (Keyword.INTERNAL.equals(pre.getValue()) && Keyword.PACKAGE.equals(post.getValue())) {
-                control.addInternalPermission(AccessControl.Permission.PACKAGE);
-            } else {
-                throw new AnalysisExpressionException(pre.getPosition(),
-                        SourcePosition.moveToEnd(post.getPosition(), post.getValue()),
-                        " is not allowed to be the access control of " + tobeBuild);
-            }
+                        " is not allowed to be the access control of " + tobeBuilt);
         }
+    }
+
+
+    public static AccessControl buildMemberAccessControl(
+            SourceTextContext permissions, Permission defaultPermission) {
+        // 有哪些情况?
+        AccessControl.Builder control = new AccessControl.Builder();
+        // public
+        // protected
+        // private
+        // file
+        // private
+        // package
+        // internal private
+        // internal package
+        // internal protected
+        if (permissions.isEmpty()) {
+            // 使用默认值
+            return control.addPermission(defaultPermission).build();
+        }
+        SourcePosition sp = SourcePosition.UNKNOWN;
+        try {
+            while (!permissions.isEmpty()) {
+                SourceString first = permissions.pollFirst();
+                sp = first.getPosition();
+                addEachMemberPermission(permissions, first, control);
+            }
+        } catch (IllegalArgumentException iae) {
+            throw new AnalysisExpressionException(sp, "Can be conflict at the " + iae.getMessage() + " layer");
+        }
+        return control.build();
+    }
+
+    private static void addEachMemberPermission(
+            SourceTextContext permissions, SourceString first,
+            AccessControl.Builder control) {
+        if (!Keyword.INTERNAL.equals(first.getValue())) {
+            // 没有internal, 直接返回了
+            control.addPermission(Permission.get(first.getValue()));
+            return;
+        }
+        // 如果省略, 那就是package
+        Permission internalAblePermission = Permission.PACKAGE;
         if (!permissions.isEmpty()) {
-            // 如果还有剩余, 全部都错
-            permissions.throwAllAsCompileException(" is not allowed to be the access control of " + tobeBuild, AnalysisExpressionException.class);
+            // 不省略, 那需要是InternalAble
+            SourceString afterInternal = permissions.pollFirst();
+            internalAblePermission = Permission.getInternalAble(afterInternal.getValue());
+            if (internalAblePermission == null) {
+                throw new AnalysisExpressionException(afterInternal.getPosition(), " is illegal after internal");
+            }
         }
-        return control;
+        control.addInternalPermission(internalAblePermission);
+    }
+
+    public static void abstractEmbellish(AccessControl control, SourcePosition position) {
+        if (AccessControl.PRIVATE.equals(control)) {
+            throw new AnalysisExpressionException(position, " Private is conflict with abstract");
+        }
+    }
+
+    public static Permission getDefaultPermission(Environment environment) {
+        switch (environment) {
+            case FILE:
+                return Permission.FILE;
+            case ENUM:
+            case CLASS:
+            case STRUCT:
+            case ABSTRACT_CLASS:
+            case ABSTRACT_STRUCT:
+                return Permission.PRIVATE;
+            case INTERFACE:
+                return Permission.PUBLIC;
+            default:
+                throw new CompilerException("Unknown environment");
+        }
     }
 }

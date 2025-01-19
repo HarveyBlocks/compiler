@@ -1,6 +1,6 @@
 package org.harvey.compiler.exception.analysis;
 
-import org.harvey.compiler.common.entity.SourcePosition;
+import org.harvey.compiler.io.source.SourcePosition;
 
 /**
  * TODO
@@ -9,7 +9,7 @@ import org.harvey.compiler.common.entity.SourcePosition;
  * @version 1.0
  * @date 2024-11-19 01:05
  */
-public class ConstantException extends AnalysisException{
+public class ConstantException extends AnalysisException {
     public ConstantException(SourcePosition errorPosition, String message) {
         super(errorPosition, message);
     }

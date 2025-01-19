@@ -1,5 +1,52 @@
+  import java.io
+  .IOException;
+ import org.harvey.compiler.analysis.text.context.SourceTextContext;
+ import org.harvey.compiler.io.source.SourcePosition;
+ import org.harvey.compiler.analysis.text.decomposer.TextDecomposerChain;
+/**
+ * 源码中的每一个部分
+ *
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @version 1.0
+ * @date 2024-11-16 15:26
+ */
+ // asdadasasd sadas
+  // sadasdas
+ import java.io.FileReader;
+ import java.io.IOException;
+ import java.io
+ .IOException;
 
-float x = 1.2ff;
+         import java.io.File;/**
+                              * 源码中的每一个部分
+                              *
+                              * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+                              * @version 1.0
+                              * @date 2024-11-16 15:26
+                              */
+         import java.io.FileNotFoundException;
+         import java.io.FileReader;
+         import java.io.IOException;
+         import java.util.Properties;  // sadasdas
+         import java.util.Random;
+import org.junit.Test;
+
+/**
+ * 源码中的每一个部分
+ *
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @version 1.0
+ * @date 2024-11-16 15:26
+ */
+import java.util.LinkedList;/**
+                             * 源码中的每一个部分
+                             *
+                             * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+                             * @version 1.0
+                             * @date 2024-11-16 15:26
+                             */
+
+
 /**
  * 源码中的每一个部分
  *
@@ -30,18 +77,6 @@ public enum SourceStringType {
     MULTI_LINE_COMMENTS // 源码中是多行注释
 }
 
- import org.harvey.compiler.analysis.text.context.SourceTextContext;
- import org.harvey.compiler.common.entity.SourcePosition;
- import org.harvey.compiler.analysis.text.decomposer.TextDecomposerChain;
- import org.harvey.compiler.analysis.text.decomposer.CommitClearChecker;
- import org.harvey.compiler.analysis.text.decomposer.SourceFileRebuilder;
- import org.harvey.compiler.analysis.text.decomposer.StringDecomposer;
- import org.harvey.compiler.exception.CompileException;
- import org.harvey.compiler.exception.warn.CompileWarning;
- import org.harvey.compiler.io.SourceFileReader;
-
- import java.io.FileReader;
- import java.io.IOException;
 
  /**
   * 应用启动
@@ -53,6 +88,110 @@ public enum SourceStringType {
  public class Application {
      public static void main(String[] args) {
          globalExceptionHandler();
+         package org.harvey.compiler;
+
+
+         /**
+          * 应用启动
+          *
+          * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+          * @version 1.0
+          * @date 2024-11-17 20:08
+          */
+         public class Application {
+
+             public static void main(String[] args) {
+
+             }
+
+             private static String randomString() {
+                 Random random = new Random(System.currentTimeMillis());
+                 byte[] a = new byte[1024];
+                 for (int i = 0; i < a.length; i++) {
+                     a[i] = (byte) (random.nextInt() % 256 - 128);
+                 }
+                 return new String(a);
+             }
+
+             public static void main0(String[] args) {
+                 if (args.length == 0) {
+                     throw new CommandException("Need text file path");
+                 }
+                 String filename = args[0];
+                 Properties properties = new Properties();
+                 for (int i = 1; i < args.length; i++) {
+                     String arg = args[i];
+                     int depart = arg.indexOf('=');
+                     if (depart == -1) {
+                         throw new CommandException("Illegal command argument:" + arg);
+                     }
+                     properties.setProperty(arg.substring(0, depart), arg.substring(depart + 1));
+                 }
+                 globalExceptionHandler(new File(filename));
+                 // HBC text target=targetPath base=BasePath
+                 //
+             }
+
+             private static void globalExceptionHandler(File file) {
+                 try {
+                     if (file.isDirectory()) {
+                         // 编译所有子目录文件
+                         compileDirectory(file.getAbsolutePath());
+                     } else if (file.isFile()) {
+                         compileFile(file.getAbsolutePath());
+                     } else {
+                         throw new FileNotFoundException(file.getAbsolutePath());
+                     }
+                 } catch (IOException | CompileException ce) {
+                     System.err.println("[ERROR] " + ce.getMessage());
+                 } catch (Exception e) {
+                     throw new RuntimeException("编译器内部异常, 建议上报[mailto:harvey.blocks@outlook.com]", e);
+                 }
+             }
+
+             private static void compileDirectory(String absolutePath) {
+
+             }
+
+             private static void compileFile(String filename) throws Exception {
+                 TextDecomposerChain decomposerChain = registerChain();
+                 SourceTextContext context = decomposerChain.execute(new SourceFileReader<>(FileReader.class).read(filename));
+                 DepartedFileBody departedBody = DepartedFileBody.depart(context);
+                 StatementContextBuilder builder = new StatementContextBuilder(ImportPhaser::new);
+                 builder.registerPhaser(FileVariablePhaser::new);
+                 builder.build(departedBody);
+                 System.out.println("end");
+                 //      Package nowP = pp.phase(context);
+                 //      SourceFile sf = new SourceFile(nowP,filename);
+                 //      ImportTablePhaser itp =  new ImportTablePhaser();
+                 //      ImportTable it = itp.phase(context);
+                 //      SourceContext srcContext = new sc(bool checked = false,sf,it,context);
+                 //      FileContext statContext = StatementContextAdapter.adapt(sc);
+                 //      StatementFileWriter.write(statContext);
+                 //      it.map(new Function{
+                 //          public Queue taskQueue = new Queue();
+                 //          public Set<String> checkedFile;
+                 //          public R apply(){
+                 //              f->taskQueue.pull(new SourceFileReader<>(FileReader.class).read(f.getFilename(),(Checked File)sf)
+                 //          }
+                 //      });
+
+             }
+
+             private static TextDecomposerChain registerChain() {
+                 TextDecomposerChain chain = new TextDecomposerChain();
+                 chain.register(new CommitClearChecker())
+                         //.register(new SourceFileRebuilder())
+                         .register(new MixedTextDecomposer())
+                         //.register(new SourceFileRebuilder())
+                         .register(new StringDecomposer())
+                 ;//.register(new SourceFileRebuilder());
+                 return chain;
+             }
+
+
+         }
+
      }
 
      private static void globalExceptionHandler() {
@@ -86,10 +225,6 @@ public enum SourceStringType {
 
  }
 
-import org.junit.Test;
-
-import java.util.LinkedList;
-import java.util.ListIterator;
 
 public class TextDecomposerChainTest {
     @Test
@@ -109,14 +244,6 @@ public class TextDecomposerChainTest {
         }
         System.out.println(ll);
     }
-
-import org.harvey.compiler.analysis.text.context.SourceTextContext;
-import org.harvey.compiler.common.PropertyConstant;
-import org.harvey.compiler.common.SystemConstant;
-import org.harvey.compiler.exception.analysis.AnalysisException;
-
-import java.util.LinkedList;
-import java.util.function.BiFunction;
 
 /**
  * 文本分解器, 去除注释, 构建元素是空格分割的链表

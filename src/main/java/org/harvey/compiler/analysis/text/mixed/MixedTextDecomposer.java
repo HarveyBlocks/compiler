@@ -1,12 +1,11 @@
 package org.harvey.compiler.analysis.text.mixed;
 
 import org.harvey.compiler.analysis.text.context.SourceTextContext;
-import org.harvey.compiler.common.entity.SourceString;
-import org.harvey.compiler.common.entity.SourceStringType;
 import org.harvey.compiler.analysis.text.decomposer.TextDecomposer;
+import org.harvey.compiler.io.source.SourceString;
+import org.harvey.compiler.io.source.SourceStringType;
 
 import java.util.ListIterator;
-import java.util.Objects;
 
 /**
  * 解析属性是Mixed的字段
@@ -22,12 +21,18 @@ public class MixedTextDecomposer implements TextDecomposer {
         if (source.getType() != SourceStringType.MIXED) {
             return null;
         }
-        SourceTextContext phaseString = new MixedStringDecomposer(source).phase();
+        SourceTextContext phaseString = new MixedSourceDecomposer(source).phase();
         for (ListIterator<SourceString> it = phaseString.listIterator(); it.hasNext(); ) {
             SourceString item = it.next();
-            if (Objects.requireNonNull(item.getType()) == SourceStringType.ITEM) {
+            if (item.getType() == SourceStringType.ITEM) {
                 it.remove();
                 SourceTextContext phasedItemContext = new MixedItemDecomposer(item).phase();
+                for (SourceString phasedItem : phasedItemContext) {
+                    it.add(phasedItem);
+                }
+            } else if (item.getType() == SourceStringType.OPERATOR) {
+                it.remove();
+                SourceTextContext phasedItemContext = new MixedOperatorDecomposer(item).phase();
                 for (SourceString phasedItem : phasedItemContext) {
                     it.add(phasedItem);
                 }

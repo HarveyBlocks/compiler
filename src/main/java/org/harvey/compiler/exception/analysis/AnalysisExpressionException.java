@@ -1,6 +1,6 @@
 package org.harvey.compiler.exception.analysis;
 
-import org.harvey.compiler.common.entity.SourcePosition;
+import org.harvey.compiler.io.source.SourcePosition;
 
 /**
  * 分析表达式产生的异常
@@ -15,7 +15,8 @@ public class AnalysisExpressionException extends AnalysisException {
         super(errorPosition, message);
     }
 
-    public AnalysisExpressionException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd, String message) {
+    public AnalysisExpressionException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
+                                       String message) {
         super(errorPositionBegin, errorPositionEnd, message);
     }
 }

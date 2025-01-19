@@ -1,11 +1,9 @@
 package org.harvey.compiler.analysis.core;
 
-import org.harvey.compiler.common.util.CollectionUtil;
+import org.harvey.compiler.analysis.calculate.Operator;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * TODO
@@ -15,22 +13,12 @@ import java.util.stream.Collectors;
  * @date 2024-11-19 16:58
  */
 public class Keywords {
-    private Keywords() {
-    }
-
-    public static final Map<String, Keyword> KEYWORD_TABLE;
-
-    static {
-        KEYWORD_TABLE = Arrays.stream(Keyword.values()).collect(Collectors.toMap(
-                Keyword::getValue, v -> v
-        ));
-    }
-
-    public static final Set<String> KEYWORD_SET = KEYWORD_TABLE.keySet();
-
-
     public static final Set<Keyword> BASIC_TYPE;
-
+    public static final Set<Keyword> ACCESS_CONTROL;
+    public static final Keyword ACCESS_CONTROL_EMBELLISH = Keyword.INTERNAL;
+    public static final Set<Keyword> CONTROL_STRUCTURE;
+    public static final Set<Keyword> COMPLEX_STRUCTURE;
+    public static final Map<Keyword, Operator> OPERATOR_KEYWORD_MAP;
 
     static {
         BASIC_TYPE = Set.of(
@@ -42,33 +30,14 @@ public class Keywords {
                 Keyword.INT16,
                 Keyword.INT32,
                 Keyword.INT64,
-                Keyword.VOID
+                Keyword.UINT8,
+                Keyword.UINT16,
+                Keyword.UINT32,
+                Keyword.UINT64,
+                Keyword.VOID,
+                Keyword.VAR
         );
     }
-
-    public static final Set<Keyword> BASIC_TYPE_EMBELLISH;
-
-    static {
-        BASIC_TYPE_EMBELLISH = Set.of(
-                Keyword.SIGNED,
-                Keyword.UNSIGNED
-        );
-    }
-
-    public static final Set<Keyword> BASIC_EMBELLISH_ABLE_TYPE;
-
-    static {
-        // 可以被修饰的
-        BASIC_EMBELLISH_ABLE_TYPE = Set.of(
-                Keyword.INT8,
-                Keyword.INT16,
-                Keyword.INT32,
-                Keyword.INT64
-        );
-    }
-
-    public static final Set<Keyword> ACCESS_CONTROL;
-    public static final Keyword ACCESS_CONTROL_EMBELLISH = Keyword.INTERNAL;
 
     static {
         ACCESS_CONTROL = Set.of(
@@ -80,49 +49,97 @@ public class Keywords {
         );
     }
 
-    public static final Set<Keyword> INTERNAL_ABLE_ACCESS_CONTROL;
-
     static {
-        INTERNAL_ABLE_ACCESS_CONTROL = Set.of(
-                Keyword.PRIVATE,
-                Keyword.FILE,
-                Keyword.PACKAGE
+        CONTROL_STRUCTURE = Set.of(
+                Keyword.IF,
+                Keyword.ELSE,
+                Keyword.SWITCH,
+                Keyword.CASE,
+                Keyword.DEFAULT,
+                Keyword.DO,
+                Keyword.WHILE,
+                Keyword.FOR,
+                Keyword.BREAK,
+                Keyword.CONTINUE,
+                Keyword.TRY,
+                Keyword.CATCH,
+                Keyword.FINALLY
         );
     }
 
-    public static int size() {
-        return KEYWORD_SET.size();
+    static {
+        COMPLEX_STRUCTURE = Set.of(
+                Keyword.STRUCT,
+                Keyword.CLASS,
+                Keyword.ENUM,
+                Keyword.INTERFACE);
+        // Keyword.CALLABLE
+    }
+
+    static {
+        OPERATOR_KEYWORD_MAP = Map.of(Keyword.IS, Operator.IS, Keyword.IN, Operator.IN);
+    }
+
+    private Keywords() {
     }
 
     public static boolean isKeyword(String s) {
-        return KEYWORD_SET.contains(s);
+        return Keyword.get(s) != null;
     }
 
     public static boolean isBasicType(String name) {
-        return CollectionUtil.contains(BASIC_TYPE, kw -> kw.equals(name));
-    }
-
-    public static boolean isBasicEmbellishAbleType(String name) {
-        return CollectionUtil.contains(BASIC_EMBELLISH_ABLE_TYPE, kw -> kw.equals(name));
-    }
-
-    public static boolean isBasicTypeEmbellish(String name) {
-        return CollectionUtil.contains(BASIC_TYPE_EMBELLISH, kw -> kw.equals(name));
+        return isBasicType(Keyword.get(name));
     }
 
     public static boolean isBasicType(Keyword keyword) {
-        return CollectionUtil.contains(BASIC_TYPE, kw -> kw == keyword);
-    }
-
-    public static boolean isBasicEmbellishAbleType(Keyword keyword) {
-        return CollectionUtil.contains(BASIC_EMBELLISH_ABLE_TYPE, kw -> kw == keyword);
-    }
-
-    public static boolean isBasicTypeEmbellish(Keyword keyword) {
-        return CollectionUtil.contains(BASIC_TYPE_EMBELLISH, kw -> kw == keyword);
+        return keyword != null && BASIC_TYPE.contains(keyword);
     }
 
     public static boolean isAccessControl(Keyword keyword) {
-        return CollectionUtil.contains(ACCESS_CONTROL, kw -> kw == keyword);
+        return keyword != null && ACCESS_CONTROL.contains(keyword);
+    }
+
+    public static boolean isControlStructure(Keyword keyword) {
+        return keyword != null && CONTROL_STRUCTURE.contains(keyword);
+    }
+
+    public static boolean isControlStructure(String name) {
+        return isControlStructure(Keyword.get(name));
+    }
+
+    public static boolean isBoolConstant(String source) {
+        return Keyword.TRUE.equals(source) || Keyword.FALSE.equals(source);
+    }
+
+    public static boolean isBoolConstant(Keyword source) {
+        return Keyword.TRUE == source || Keyword.FALSE == source;
+    }
+
+    public static boolean isComplexStructure(String name) {
+        return isComplexStructure(Keyword.get(name));
+    }
+
+    public static boolean isComplexStructure(Keyword keyword) {
+        return keyword != null && COMPLEX_STRUCTURE.contains(keyword);
+    }
+
+    public static boolean isOperator(Keyword keyword) {
+        /*
+         如何获取字节码对象?
+         Type.instance<int>();->Type<int>
+         Type.instance<Object>();->Type<int>
+         Type.instance<List<String>>();->Type<List<String>>
+         public class Type<T>{
+              public static native Type<T> instance<T>();
+              public static native Type<T> of(Reference r);
+         }
+         List<String> l = new().clone();// 报错
+         var l = new ArrayList<String>();
+         Type.of(l);
+        */
+
+        return keyword != null && OPERATOR_KEYWORD_MAP.containsKey(keyword) ||
+                // 类型转换
+                (Keyword.VOID != keyword && BASIC_TYPE.contains(keyword));
     }
 }

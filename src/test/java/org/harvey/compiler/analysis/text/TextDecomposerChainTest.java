@@ -8,7 +8,7 @@ import java.util.ListIterator;
 public class TextDecomposerChainTest {
     @Test
     public void testIterator() {
-        LinkedList<String> ll = new LinkedList<String>();
+        LinkedList<String> ll = new LinkedList<>();
         ll.add("A");
         ll.add("B");
         ll.add("C");

@@ -1,6 +1,6 @@
 package org.harvey.compiler.exception.analysis;
 
-import org.harvey.compiler.common.entity.SourcePosition;
+import org.harvey.compiler.io.source.SourcePosition;
 
 /**
  * 构建声明文件而产生的异常
@@ -14,7 +14,8 @@ public class StatementFileBuildException extends AnalysisException {
         super(errorPosition, message);
     }
 
-    public StatementFileBuildException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd, String message) {
+    public StatementFileBuildException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
+                                       String message) {
         super(errorPositionBegin, errorPositionEnd, message);
     }
 }

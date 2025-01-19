@@ -1,13 +1,31 @@
 package org.harvey.compiler.analysis.text.mixed;
 
-import org.harvey.compiler.common.entity.SourcePosition;
-import org.harvey.compiler.common.entity.SourceString;
-import org.harvey.compiler.common.entity.SourceStringType;
 import org.harvey.compiler.common.util.StringUtil;
+import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.io.source.SourceString;
+import org.harvey.compiler.io.source.SourceStringType;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MixedItemDecomposerTest {
+
+    private static void phase(String src, SourceStringType type, boolean removeLast) {
+        MixedItemDecomposer decomposer = new MixedItemDecomposer(
+                new SourceString(SourceStringType.ITEM, src, new SourcePosition(0, 0)));
+        SourceString sourceString;
+        try {
+            sourceString = decomposer.phase().get(0);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+        if (removeLast) {
+            src = StringUtil.substring(src, -1);
+        }
+
+        Assert.assertEquals(type, sourceString.getType());
+        Assert.assertEquals(src, sourceString.getValue());
+    }
 
     @Test
     public void phase() {
@@ -30,23 +48,5 @@ public class MixedItemDecomposerTest {
         phase("123l", SourceStringType.INT64, true);
         phase("0xffL", SourceStringType.INT64, true);
         phase("0Off", SourceStringType.INT32, true);
-    }
-
-    private static void phase(String src, SourceStringType type, boolean removeLast) {
-        MixedItemDecomposer decomposer = new MixedItemDecomposer(
-                new SourceString(SourceStringType.ITEM, src, new SourcePosition(0, 0)));
-        SourceString sourceString;
-        try {
-            sourceString = decomposer.phase().get(0);
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
-        if (removeLast) {
-            src = StringUtil.substring(src, -1);
-        }
-
-        Assert.assertEquals(type, sourceString.getType());
-        Assert.assertEquals(src, sourceString.getValue());
     }
 }

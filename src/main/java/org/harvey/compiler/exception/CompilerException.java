@@ -7,10 +7,10 @@ package org.harvey.compiler.exception;
  * @version 1.0
  * @date 2024-11-17 00:01
  */
-public class CompilerException extends HarveyCompilerException {
+public class CompilerException extends VieCompilerException {
 
-    public CompilerException( String message) {
-        super( message);
+    public CompilerException(String message) {
+        super(message);
     }
 
     public CompilerException(String message, Throwable cause) {
