@@ -104,7 +104,7 @@ public class ImportContext {
             IdentifierString[] path = src.path;
             int positionLen = SOURCE_POSITION_SERIALIZER.out(os, position);
             byte[] head = Serializes.makeHead(
-                    new HeadMap(path.length, PATH_SIZE_LIMIT)
+                    new HeadMap(path.length, PATH_SIZE_LIMIT).inRange(true,"import path length")
             ).data();
             try {
                 os.write(head);

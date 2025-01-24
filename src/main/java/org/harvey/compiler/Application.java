@@ -29,7 +29,14 @@ import java.util.Properties;
  */
 public class Application {
     public static void main(String[] args) {
-        application(args);
+        int[] a = new int[112];
+        a[1] = 2;
+        a[5] = 3;
+        a[2] = 1;
+        a[3] = 6;
+        a[11]++;
+        a[41]--;
+        // application(args);
     }
 
     public static void application(String[] args) {

@@ -13,7 +13,10 @@ import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceStringType;
+import org.harvey.compiler.io.ss.StreamSerializer;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -117,8 +120,13 @@ public class SourceVariableDeclare {
         if (it.hasNext()) {
             throw new AnalysisExpressionException(it.next().getPosition(), "expected end the type");
         }
-        return new LocalType(embellish.getConstMark(), embellish.getFinalMark(),
+        return new LocalType(getPositionIfNotNull(embellish.getConstMark()),
+                getPositionIfNotNull(embellish.getFinalMark()),
                 ExpressionFactory.type(sourceType));
+    }
+
+    private static SourcePosition getPositionIfNotNull(SourceString source) {
+        return source == null ? null : source.getPosition();
     }
 
     public static List<LocalType> phaseTypeList(ListIterator<SourceString> iterator,
@@ -159,16 +167,28 @@ public class SourceVariableDeclare {
     @AllArgsConstructor
     @Getter
     public static class LocalType {
-        private final SourceString constMark;
-        private final SourceString finalMark;
+        private final SourcePosition constPosition;
+        private final SourcePosition finalPosition;
         private final Expression sourceType;
 
         public boolean isConst() {
-            return constMark != null;
+            return constPosition != null;
         }
 
         public boolean isFinal() {
-            return finalMark != null;
+            return finalPosition != null;
+        }
+
+        public static class Serializer implements StreamSerializer<LocalType> {
+            @Override
+            public LocalType in(InputStream is) {
+                return null;
+            }
+
+            @Override
+            public int out(OutputStream os, LocalType src) {
+                return 0;
+            }
         }
     }
 }

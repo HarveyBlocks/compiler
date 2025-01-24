@@ -23,6 +23,7 @@ public abstract class DeclaredContext {
     protected AccessControl accessControl;
     protected Embellish embellish;
 
+
     protected static void assertNotNull(SourcePosition position, Object obj, String name) {
         if (obj == null) {
             throw new AnalysisExpressionException(position, name + " require not null");

@@ -24,7 +24,7 @@ public class StringSerializer extends AbstractSerializer<String> {
     public StringSerializer(InputStream is, OutputStream os, int sizeBitCount) {
         super(is, os);
         this.sizeBitCount = sizeBitCount;
-        this.maxSize = Serializes.maxValue(sizeBitCount);
+        this.maxSize = Serializes.unsignedMaxValue(sizeBitCount);
     }
 
     @Override

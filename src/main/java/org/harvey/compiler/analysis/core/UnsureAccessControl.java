@@ -13,12 +13,12 @@ import org.harvey.compiler.exception.CompilerException;
 public class UnsureAccessControl extends AccessControl {
     private static final Singleton<UnsureAccessControl> CONTROL_SINGLETON = new Singleton<>();
 
-    private UnsureAccessControl(int code) {
+    private UnsureAccessControl(byte code) {
         super(code);
     }
 
     public static UnsureAccessControl instance() {
-        return CONTROL_SINGLETON.instance(() -> new UnsureAccessControl(0));
+        return CONTROL_SINGLETON.instance(() -> new UnsureAccessControl((byte) 0));
     }
 
     @Override

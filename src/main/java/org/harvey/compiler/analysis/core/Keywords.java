@@ -142,4 +142,9 @@ public class Keywords {
                 // 类型转换
                 (Keyword.VOID != keyword && BASIC_TYPE.contains(keyword));
     }
+
+    public static boolean callable(Keyword keyword) {
+        // 形如super(), this(), typeof(), sizeof()
+        return keyword == Keyword.SUPER || keyword == Keyword.THIS;
+    }
 }

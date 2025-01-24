@@ -5,17 +5,26 @@ import lombok.Getter;
 import org.harvey.compiler.analysis.calculate.Operator;
 import org.harvey.compiler.analysis.core.AccessControl;
 import org.harvey.compiler.analysis.text.type.callable.ReturnType;
+import org.harvey.compiler.common.Serializes;
+import org.harvey.compiler.common.util.ArrayUtil;
 import org.harvey.compiler.declare.Embellish;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.io.CompilerFileReaderException;
+import org.harvey.compiler.exception.io.CompilerFileWriterException;
 import org.harvey.compiler.execute.control.ExecutableBodyFactory;
 import org.harvey.compiler.execute.expression.*;
+import org.harvey.compiler.io.serializer.HeadMap;
+import org.harvey.compiler.io.serializer.SerializableData;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.ss.StreamSerializer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.harvey.compiler.io.ss.StreamSerializer.*;
 
 /**
  * TODO
@@ -39,15 +48,12 @@ public class CallableContext extends DeclaredContext {
     // throws的要不要考虑const? catch的
     private List<SourceVariableDeclare.LocalType> throwsExceptions;
 
-    private CallableContext() {
-    }
 
     /**
      * @param patterns 声明的参数列表
      * @param params   调用的参数列表
      */
-    public static List<Expression> matchParam(List<LocalVariableDeclare> patterns,
-                                              List<LocalVariableDeclare> params) {
+    public static List<Expression> matchParam(List<LocalVariableDeclare> patterns, List<LocalVariableDeclare> params) {
         // paramList一定比pattern长
         // 只保留默认值和不定参数的功能
         // 含默认值参数只能写在不定参数之前
@@ -115,8 +121,7 @@ public class CallableContext extends DeclaredContext {
         return assign;
     }
 
-    private static boolean matchType(Expression pattern,
-                                     Expression valueType) {
+    private static boolean matchType(Expression pattern, Expression valueType) {
         // TODO
        /* if (valueType.isConst() && !pattern.isConst()) {
             return false;
@@ -258,22 +263,87 @@ public class CallableContext extends DeclaredContext {
         return data;
     }*/
     public static class Serializer implements StreamSerializer<CallableContext> {
+        public static final int[] HEAD_LENGTH_BITS = {8, 8, 8, 16, 16, 12, 12, 12, 12};
+        public static final int HEAD_BYTE = Serializes.bitCountToByteCount(ArrayUtil.sum(HEAD_LENGTH_BITS));
+
         static {
-            StreamSerializer.register(new Serializer());
+            register(new Serializer());
         }
 
         private Serializer() {
         }
 
+        private static final SourceVariableDeclare.LocalType.Serializer LOCAL_TYPE_SERIALIZER = StreamSerializer.get(
+                SourceVariableDeclare.LocalType.Serializer.class);
+        private static final ExpressionElement.Serializer EXPRESSION_ELEMENT_SERIALIZER = StreamSerializer.get(
+                ExpressionElement.Serializer.class);
+        private static final LocalVariableDeclare.Serializer LOCAL_VARIABLE_DECLARE_SERIALIZER = StreamSerializer.get(
+                LocalVariableDeclare.Serializer.class);
+
         @Override
         public CallableContext in(InputStream is) {
-            return null;
+            byte[] head;
+            try {
+                head = is.readNBytes(HEAD_BYTE);
+            } catch (IOException e) {
+                throw new CompilerFileReaderException(e);
+            }
+            HeadMap[] headMap = new SerializableData(head).phaseHeader(HEAD_LENGTH_BITS);
+            byte accessControl = (byte) headMap[0].getValue(); // 8
+            byte embellish = (byte) headMap[1].getValue(); // 8
+            int type = (int) headMap[2].getValue(); // 8
+            int bodyReference = (int) headMap[3].getValue(); // 16
+            int identifierReference = (int) headMap[4].getValue(); // 16
+            long returnTypeSize = headMap[5].getValue(); // 12
+            long genericMessageSize = headMap[6].getValue();// 12
+            long paramListSize = headMap[7].getValue(); // 12
+            long throwsExceptionsSize = headMap[8].getValue(); // 12
+            CallableContext result = new CallableContext();
+            result.accessControl = new AccessControl(accessControl);
+            result.embellish = new Embellish(embellish);
+            result.type = CallableType.values()[type];
+            result.identifierReference = identifierReference;
+            result.returnType = new ReturnType(readElements(is, returnTypeSize, LOCAL_TYPE_SERIALIZER));
+            result.genericMessage = new Expression(readElements(is, genericMessageSize, EXPRESSION_ELEMENT_SERIALIZER));
+            result.paramList = readElements(is, paramListSize, LOCAL_VARIABLE_DECLARE_SERIALIZER);
+            result.body = bodyReference;
+            result.throwsExceptions = readElements(is, throwsExceptionsSize, LOCAL_TYPE_SERIALIZER);
+            return result;
         }
+
 
         @Override
         public int out(OutputStream os, CallableContext src) {
-            return 0;
+            byte accessControl = src.accessControl.getByte();
+            byte embellish = src.embellish.getCode();
+            int type = src.type.ordinal();
+            int body = src.body;
+            int identifierReference = src.identifierReference;
+            List<SourceVariableDeclare.LocalType> returnType = src.returnType.getTypes();
+            Expression genericMessage = src.genericMessage;
+            List<LocalVariableDeclare> paramList = src.paramList;
+            List<SourceVariableDeclare.LocalType> throwsExceptions = src.throwsExceptions;
+            SerializableData head = Serializes.makeHead(new HeadMap(accessControl, HEAD_LENGTH_BITS[0]),
+                    new HeadMap(embellish, HEAD_LENGTH_BITS[1]),
+                    new HeadMap(type, HEAD_LENGTH_BITS[2]).inRange(true, "callable type ordinal"),
+                    new HeadMap(body, HEAD_LENGTH_BITS[3]).inRange(false, "body reference"),
+                    new HeadMap(identifierReference, HEAD_LENGTH_BITS[4]).inRange(false, "identifier reference"),
+                    new HeadMap(returnType.size(), HEAD_LENGTH_BITS[5]).inRange(true, "return type size"),
+                    new HeadMap(genericMessage.size(), HEAD_LENGTH_BITS[6]).inRange(true, "generic message length"),
+                    new HeadMap(paramList.size(), HEAD_LENGTH_BITS[7]).inRange(true, "param list size"),
+                    new HeadMap(throwsExceptions.size(), HEAD_LENGTH_BITS[8]).inRange(true,
+                            "throws exception list size"));
+            try {
+                os.write(head.data());
+            } catch (IOException e) {
+                throw new CompilerFileWriterException(e);
+            }
+            return head.length() + writeElements(os, returnType, LOCAL_TYPE_SERIALIZER) +
+                    writeElements(os, genericMessage, EXPRESSION_ELEMENT_SERIALIZER) +
+                    writeElements(os, paramList, LOCAL_VARIABLE_DECLARE_SERIALIZER) +
+                    writeElements(os, throwsExceptions, LOCAL_TYPE_SERIALIZER);
         }
+
     }
 }
 // 1. 作为变量解析

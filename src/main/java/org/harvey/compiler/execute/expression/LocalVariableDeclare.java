@@ -4,7 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.io.ss.StreamSerializer;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
@@ -58,4 +61,15 @@ public class LocalVariableDeclare {
     }
 
 
+    public static class Serializer implements StreamSerializer<LocalVariableDeclare> {
+        @Override
+        public LocalVariableDeclare in(InputStream is) {
+            return null;
+        }
+
+        @Override
+        public int out(OutputStream os, LocalVariableDeclare src) {
+            return 0;
+        }
+    }
 }

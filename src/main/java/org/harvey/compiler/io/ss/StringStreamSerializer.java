@@ -51,7 +51,8 @@ public class StringStreamSerializer implements StreamSerializer<String> {
     @Override
     public int out(OutputStream os, String src) {
         byte[] data = src.getBytes(CompileProperties.COMPILED_FILE_CHARSET);
-        byte[] head = Serializes.makeHead(new HeadMap(data.length, LIMIT_LEN_BIT)).data();
+        byte[] head = Serializes.makeHead(new HeadMap(data.length, LIMIT_LEN_BIT).inRange(true, "string length"))
+                .data();
         try {
             os.write(head);
             os.write(data);

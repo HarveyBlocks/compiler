@@ -5,13 +5,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.harvey.compiler.common.SystemConstant;
-import org.harvey.compiler.common.util.ByteUtil;
-import org.harvey.compiler.exception.io.CompilerFileReaderException;
 import org.harvey.compiler.io.ss.StreamSerializer;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import static org.harvey.compiler.io.ss.StreamSerializer.readNumber;
+import static org.harvey.compiler.io.ss.StreamSerializer.writeNumber;
 
 /**
  * 源码中的行列
@@ -99,25 +99,16 @@ public class SourcePosition implements Cloneable {
 
         @Override
         public SourcePosition in(InputStream is) {
-            int col, raw;
-            try {
-                col = ByteUtil.phaseRawBytes4(is.readNBytes(4));
-                raw = ByteUtil.phaseRawBytes4(is.readNBytes(4));
-            } catch (IOException e) {
-                throw new CompilerFileReaderException(e);
-            }
+            int col = (int) readNumber(is, 32);
+            int raw = (int) readNumber(is, 32);
             return new SourcePosition(col, raw);
         }
 
         @Override
         public int out(OutputStream os, SourcePosition src) {
-            try {
-                os.write(ByteUtil.toRawBytes(src.getColumn()));
-                os.write(ByteUtil.toRawBytes(src.getRaw()));
-            } catch (IOException e) {
-                throw new CompilerFileReaderException(e);
-            }
-            return 8;
+
+            return writeNumber(os, src.getColumn(), 32) +
+                    writeNumber(os, src.getRaw(), 32);
         }
     }
 }

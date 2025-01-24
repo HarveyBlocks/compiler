@@ -161,7 +161,7 @@ public class CallablePhaser implements DeclarePhaser<CallableContext> {
             assertSingleReturnType(type, null);
             SourceVariableDeclare.LocalType localType = SourceVariableDeclare.localType(type);
             if (localType.isFinal()) {
-                throw new AnalysisExpressionException(localType.getFinalMark().getPosition(),
+                throw new AnalysisExpressionException(localType.getFinalPosition(),
                         "is illegal here");
             }
             return new ReturnType(localType);
@@ -186,7 +186,7 @@ public class CallablePhaser implements DeclarePhaser<CallableContext> {
                         returnTypes.stream().map(s -> {
                             SourceVariableDeclare.LocalType localType = SourceVariableDeclare.localType(s);
                             if (localType.isFinal()) {
-                                throw new AnalysisExpressionException(localType.getFinalMark().getPosition(),
+                                throw new AnalysisExpressionException(localType.getFinalPosition(),
                                         "is illegal here");
                             }
                             return localType;

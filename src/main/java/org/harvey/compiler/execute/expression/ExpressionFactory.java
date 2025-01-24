@@ -613,9 +613,11 @@ public class ExpressionFactory {
         //      前一个是不知道->不是
         ExpressionElement pre = result.get(result.size() - 1);
         boolean isIdentifier = pre instanceof IdentifierString;
+        boolean isKeyword = pre instanceof KeywordString;
         boolean isGenericPre =
                 pre instanceof OperatorString && ((OperatorString) pre).getValue() == Operator.GENERIC_LIST_POST;
-        return isIdentifier || isGenericPre ? Operator.CALL_PRE : Operator.BRACKET_PRE;
+        return (isKeyword && Keywords.callable(((KeywordString) pre).getKeyword())) || isIdentifier ||
+                isGenericPre ? Operator.CALL_PRE : Operator.BRACKET_PRE;
     }
 
     private static Operator distinguishPostCall(Expression result, SourceString sourceString) {

@@ -38,7 +38,7 @@ public class ArraySerializer<E> extends AbstractSerializer<E[]> {
     @Override
     public void serialize(E[] origin) throws IOException {
         // import的个数
-        Serializes.notTooMuch(origin.length, elementName, Serializes.maxValue(sizeBitCount));
+        Serializes.notTooMuch(origin.length, elementName, Serializes.unsignedMaxValue(sizeBitCount));
         os.write(Serializes.makeHead(new HeadMap(origin.length, sizeBitCount)).data());
         for (E value : origin) {
             es.serialize(value);

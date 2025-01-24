@@ -3,6 +3,7 @@ package org.harvey.compiler.io.serializer;
 import lombok.Getter;
 import org.harvey.compiler.common.Serializes;
 import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.io.CompilerFileWriterException;
 
 /**
  * TODO
@@ -25,20 +26,39 @@ public class HeadMap {
                     new IllegalArgumentException());
         }
         assertSupport(bitCount);
-        long maximum = Serializes.maxValue(bitCount);
-        if (value > maximum) {
-            throw new CompilerException("value:" + value + " can not larger than bit count maximum: " + maximum,
-                    new IllegalArgumentException());
-        }
         this.value = value;
         this.bitCount = bitCount;
     }
 
     public static void assertSupport(int bitCount) {
-        if (bitCount > 64) {
+        if (bitCount >= 65 || bitCount <= 0) {
             throw new CompilerException("Do not support this large value: 2^" + bitCount + " as head",
                     new IllegalArgumentException());
         }
+    }
+
+    public HeadMap inRange(boolean unsigned, String name) {
+        if (unsigned && (bitCount >= 64 || bitCount <= 0)) {
+            throw new CompilerException("not support at bit count of " + bitCount + " while the data is unsigned");
+        } else if (!unsigned && (bitCount >= 65 || bitCount <= 1)) {
+            throw new CompilerException("not support at bit count of " + bitCount + " while the data is unsigned");
+        }
+        long maximum = unsigned ? Serializes.unsignedMaxValue(bitCount) : Serializes.signedMaxValue(bitCount);
+        long rawValue = unsigned && value < 0 ? value + (1L << bitCount) : value;
+        if (rawValue > maximum) {
+            throw new CompilerFileWriterException(
+                    "the value of " + name + ", witch is" + rawValue +
+                            ", can not larger than maximum: " + maximum,
+                    new IllegalArgumentException());
+        }
+        long minim = unsigned ? 0 : Serializes.signedMinValue(bitCount);
+        if (rawValue < minim) {
+            throw new CompilerFileWriterException(
+                    "the value of " + name + ", witch is" + rawValue +
+                            ", can not smaller than minim: " + minim,
+                    new IllegalArgumentException());
+        }
+        return this;
     }
 
     @Override

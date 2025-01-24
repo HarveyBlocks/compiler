@@ -38,7 +38,7 @@ public class CollectionSerializer<E> extends AbstractSerializer<Collection<E>> {
     @Override
     public void serialize(Collection<E> origin) throws IOException {
         // import的个数
-        Serializes.notTooMuch(origin.size(), elementName, Serializes.maxValue(sizeBitCount));
+        Serializes.notTooMuch(origin.size(), elementName, Serializes.unsignedMaxValue(sizeBitCount));
         os.write(Serializes.makeHead(new HeadMap(origin.size(), sizeBitCount)).data());
         for (E value : origin) {
             es.serialize(value);

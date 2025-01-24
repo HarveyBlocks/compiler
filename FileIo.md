@@ -232,3 +232,17 @@ public callable void A(){
 问题在于, 如何对应? 直接Add, 然后记录吗?
 问题在于, 怎么保证不会被更改? 超级慌
 
+## package 与 import
+编译时的编译命令, 例如 via-c 命令
+```shell
+via-c filename properties-file=../../../resource/property.properties max-size=1024GB
+```
+
+```shell
+vai-c package-name base-package=src/via/main
+```
+src/via/main下有org/hb/via/File.via, 那么, File.via的package就是org.hb.via
+否则, 如果省略这个参数, 默认package就是 src.via.main.org.hb.via
+如果是file, 那么默认package就是没有
+
+

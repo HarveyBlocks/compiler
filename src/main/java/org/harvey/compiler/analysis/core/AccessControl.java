@@ -1,5 +1,6 @@
 package org.harvey.compiler.analysis.core;
 
+import lombok.AllArgsConstructor;
 import org.harvey.compiler.exception.CompilerException;
 
 import java.util.Objects;
@@ -20,6 +21,7 @@ import java.util.Objects;
  * @version 1.0
  * @date 2024-11-22 21:30
  */
+@AllArgsConstructor
 public class AccessControl {
 
     public static final AccessControl PRIVATE = buildDefault(Permission.PRIVATE);
@@ -31,10 +33,6 @@ public class AccessControl {
     private static final byte PACKAGE_BIT = SELF_CLASS_BIT << 5;
     private static final byte PUBLIC_BIT = SELF_CLASS_BIT << 6;
     private byte permission = 0;
-
-    public AccessControl(int code) {
-
-    }
 
     private AccessControl() {
 

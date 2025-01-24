@@ -122,11 +122,19 @@ public class Serializes {
         if (bitCount == 0) {
             return 0;
         }
-        return maxValue(bitCount);
+        return unsignedMaxValue(bitCount);
     }
 
-    public static long maxValue(int bitCount) {
-        return ((1L << bitCount - 1) - 1 << 1) + 1;
+    public static long unsignedMaxValue(int bitCount) {
+        return ((1L << bitCount - 1) - 1 << 1) | 1;
+    }
+
+    public static long signedMaxValue(int bitCount) {
+        return unsignedMaxValue(bitCount - 1);
+    }
+
+    public static long signedMinValue(int bitCount) {
+        return -unsignedMaxValue(bitCount-1)-1;
     }
 
     /**

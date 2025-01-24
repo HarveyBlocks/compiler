@@ -128,6 +128,13 @@ public class SerializableData {
                 }
                 long mapValue = (byte) Serializes.getBits(data[byteStartIndex], -8 + bitStartIndex, -8 + bitEndIndex);
                 headMaps[i] = new HeadMap(mapValue, mapBitCount);
+                /*
+                 * Integer [](int index){
+                 *    return
+                 * }
+                 * // a[1] = 12; 不好用, 因为没用引用的概念了...
+                 * a.set(1,12);
+                 * */
                 continue;
             }
             // 从data中取出Start后不足一个Byte的部分填充的mapValue的前端

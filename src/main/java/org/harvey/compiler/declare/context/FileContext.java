@@ -154,12 +154,12 @@ public class FileContext {
             Collection<ExecutableBody> executablePool = src.executableBodyFactory.getPool();
             Collection<TypeAlias> aliasList = src.aliasList;
             SerializableData head = Serializes.makeHead(
-                    new HeadMap(importTable.size(), HEAD_LENGTH_BITS[0]),
-                    new HeadMap(identifierTable.size(), HEAD_LENGTH_BITS[1]),
-                    new HeadMap(functionTable.size(), HEAD_LENGTH_BITS[2]),
-                    new HeadMap(complexStructureTable.size(), HEAD_LENGTH_BITS[3]),
-                    new HeadMap(executablePool.size(), HEAD_LENGTH_BITS[4]),
-                    new HeadMap(aliasList.size(), HEAD_LENGTH_BITS[5]));
+                    new HeadMap(importTable.size(), HEAD_LENGTH_BITS[0]).inRange(true,"import table size"),
+                    new HeadMap(identifierTable.size(), HEAD_LENGTH_BITS[1]).inRange(true,"identifier table size"),
+                    new HeadMap(functionTable.size(), HEAD_LENGTH_BITS[2]).inRange(true,"function table size"),
+                    new HeadMap(complexStructureTable.size(), HEAD_LENGTH_BITS[3]).inRange(true,"complex structure table size"),
+                    new HeadMap(executablePool.size(), HEAD_LENGTH_BITS[4]).inRange(true,"executable pool size"),
+                    new HeadMap(aliasList.size(), HEAD_LENGTH_BITS[5]).inRange(true,"alias table size"));
             try {
                 os.write(head.data());
             } catch (IOException e) {

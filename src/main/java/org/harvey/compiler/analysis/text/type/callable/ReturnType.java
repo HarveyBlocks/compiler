@@ -1,5 +1,7 @@
 package org.harvey.compiler.analysis.text.type.callable;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.harvey.compiler.execute.expression.SourceVariableDeclare;
 
 import java.util.Collections;
@@ -12,6 +14,7 @@ import java.util.List;
  * @version 1.0
  * @date 2024-12-05 15:31
  */
+@Getter
 public class ReturnType {
     public static final ReturnType NONE = new NoneReturnType();
     private final List<SourceVariableDeclare.LocalType> types;

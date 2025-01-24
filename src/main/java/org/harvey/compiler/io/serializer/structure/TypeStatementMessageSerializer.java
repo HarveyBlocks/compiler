@@ -50,10 +50,10 @@ public class TypeStatementMessageSerializer extends AbstractSerializer<TypeState
         int callableListSize = callableList.size();
         int structureListSize = structureList.size();
         // assert
-        Serializes.notTooMuch(importTableSize, "import table size", Serializes.maxValue(12));
-        Serializes.notTooMuch(identifierSetSize, "identifier set size", Serializes.maxValue(16));
-        Serializes.notTooMuch(callableListSize, "callable list size", Serializes.maxValue(12));
-        Serializes.notTooMuch(structureListSize, "structure list size", Serializes.maxValue(12));
+        Serializes.notTooMuch(importTableSize, "import table size", Serializes.unsignedMaxValue(12));
+        Serializes.notTooMuch(identifierSetSize, "identifier set size", Serializes.unsignedMaxValue(16));
+        Serializes.notTooMuch(callableListSize, "callable list size", Serializes.unsignedMaxValue(12));
+        Serializes.notTooMuch(structureListSize, "structure list size", Serializes.unsignedMaxValue(12));
         // head
         SerializableData head = Serializes.makeHead(
                 new HeadMap(importTableSize, 12),

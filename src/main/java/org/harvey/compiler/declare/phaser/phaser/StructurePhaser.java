@@ -123,7 +123,7 @@ public class StructurePhaser implements DeclarePhaser<ComplexStructureContext> {
         SourceVariableDeclare.LocalType localType = SourceVariableDeclare.localType(iterator,
                 extendsKeyword.getPosition());
         if (localType.isFinal() || localType.isConst()) {
-            throw new AnalysisExpressionException(localType.getFinalMark().getPosition(), "not allowed here");
+            throw new AnalysisExpressionException(localType.getFinalPosition(), "not allowed here");
         }
         return localType.getSourceType();
     }
@@ -147,7 +147,7 @@ public class StructurePhaser implements DeclarePhaser<ComplexStructureContext> {
         List<Expression> result = new ArrayList<>();
         for (SourceVariableDeclare.LocalType localType : localTypes) {
             if (localType.isFinal() || localType.isConst()) {
-                throw new AnalysisExpressionException(localType.getFinalMark().getPosition(), "not allowed here");
+                throw new AnalysisExpressionException(localType.getFinalPosition(), "not allowed here");
             }
             result.add(localType.getSourceType());
         }

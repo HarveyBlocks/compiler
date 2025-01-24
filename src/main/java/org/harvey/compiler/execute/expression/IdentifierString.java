@@ -6,6 +6,7 @@ import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceStringType;
 import org.harvey.compiler.io.ss.StreamSerializer;
+import org.harvey.compiler.io.ss.StringStreamSerializer;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,12 +20,15 @@ import java.io.OutputStream;
  */
 @Getter
 public class IdentifierString extends ExpressionElement {
+    public static final ExpressionElementType TYPE = ExpressionElementType.IDENTIFIER;
+    private static final StreamSerializer<IdentifierString> SERIALIZER = StreamSerializer.get(Serializer.class);
     private final String value;
 
     public IdentifierString(SourcePosition sp, String value) {
         super(sp);
         this.value = value;
     }
+
 
     public IdentifierString(SourceString identifier) {
         super(identifier.getPosition());
@@ -34,13 +38,19 @@ public class IdentifierString extends ExpressionElement {
         this.value = identifier.getValue();
     }
 
-    public SourceString toSource() {
-        return new SourceString(SourceStringType.IDENTIFIER, value, super.getPosition());
+    @Override
+    public int out(OutputStream os) {
+        return SERIALIZER.out(os, this);
     }
 
     public static class Serializer implements StreamSerializer<IdentifierString> {
+        public static final SourcePosition.Serializer SOURCE_POSITION_SERIALIZER = StreamSerializer.get(
+                SourcePosition.Serializer.class);
+        public static final StringStreamSerializer STRING_STREAM_SERIALIZER = StreamSerializer.get(
+                StringStreamSerializer.class);
+
         static {
-            StreamSerializer.register(new Serializer());
+            ExpressionElement.Serializer.register(TYPE.ordinal(), new Serializer());
         }
 
         private Serializer() {
@@ -48,12 +58,15 @@ public class IdentifierString extends ExpressionElement {
 
         @Override
         public IdentifierString in(InputStream is) {
-            return null;
+            SourcePosition sp = SOURCE_POSITION_SERIALIZER.in(is);
+            String value = STRING_STREAM_SERIALIZER.in(is);
+            return new IdentifierString(sp, value);
         }
 
         @Override
         public int out(OutputStream os, IdentifierString src) {
-            return 0;
+            return SOURCE_POSITION_SERIALIZER.out(os, src.getPosition()) +
+                    STRING_STREAM_SERIALIZER.out(os, src.getValue());
         }
     }
 }
