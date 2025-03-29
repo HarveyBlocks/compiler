@@ -1,13 +1,13 @@
 package org.harvey.compiler.common.util;
 
-import org.harvey.compiler.common.SourceFileConstant;
+import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.exception.CompilerException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO
+ * 对Character的工具类
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -56,7 +56,7 @@ public class CharacterUtil {
 
     public static boolean isScientificNotationSign(char c) {
         return c == SourceFileConstant.SCIENTIFIC_NOTATION_UPPER_SIGN ||
-                c == SourceFileConstant.SCIENTIFIC_NOTATION_LOWER_SIGN;
+               c == SourceFileConstant.SCIENTIFIC_NOTATION_LOWER_SIGN;
     }
 
     public static boolean notNumber(char n, int radix) {

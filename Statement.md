@@ -16,6 +16,10 @@
 
 - 由于内部类都是同一个程序员写的, 所以private的成员可以被内部类和外部类访问
 
+对于private, 这个外部类能不能访问呢?
+
+package包, 外部包能不能访问? 能吗?
+
 #### 冲突
 
 - 和自身冲突
@@ -108,6 +112,50 @@
     - 方法不可被重写
 
 -
+
+是否允许
+
+|                | static | final | const        | sealed | abstract |
+|----------------|--------|-------|--------------|--------|----------|
+| class          | FALSE  | TRUE  | FALSE        | TRUE   | TRUE     |
+| interface      | FALSE  | FALSE | FALSE        | FALSE  | TRUE     |
+| function       | FALSE  | FALSE | FALSE        | FALSE  | FALSE    |
+| field          | TRUE   | TRUE  | TRUE         | FALSE  | FALSE    |
+| method         | TRUE   | FALSE | TRUE         | TRUE   | TRUE     |
+| operator       | FALSE  | FALSE | 依据Operator情况 | TRUE   | TRUE     |
+| inner class    | TRUE   | TRUE  | FALSE        | TRUE   | TRUE     |
+| local variable | FALSE  | TRUE  | TRUE         | FALSE  | FALSE    |
+|                |        |       |              |        |          |
+| construct      | FALSE  | FALSE | FALSE        | FALSE  | FALSE    |
+| alias          | FALSE  | FALSE | FALSE        | FALSE  | FALSE    |
+| inner alias    | FALSE  | FALSE | FALSE        | FALSE  | FALSE    |
+|                |        |       |              |        |          |
+| blocks         | TRUE   | FALSE | FALSE        | FALSE  | FALSE    |
+
+默认
+
+|                       | 修饰           |
+|-----------------------|--------------|
+| interface             | abstract     |
+| interface field       | static final |
+| interface method      | abstract     |
+| interface operator    | abstract     |
+| interface inner class | static       |
+| struct                | final        |
+| struct field          | const final  |
+| struct method         | const sealed |
+| struct operator       | const sealed |
+| struct operator       | const sealed |
+| class inner interface | static       |
+
+禁止
+
+abstract和sealed 不能同时出现
+abstract和final 不能同时出现
+final 和 sealed 不能同时出现
+
+方法时
+static不能和const, abstract. final, sealed同时出现
 
 ## 变量
 

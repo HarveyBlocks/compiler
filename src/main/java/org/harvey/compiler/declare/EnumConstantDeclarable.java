@@ -1,9 +1,10 @@
 package org.harvey.compiler.declare;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.analysis.text.context.SourceTextContext;
-import org.harvey.compiler.io.source.SourceString;
+import org.harvey.compiler.execute.expression.IdentifierString;
+import org.harvey.compiler.text.context.SourceTextContext;
+
+import java.util.List;
 
 /**
  * TODO
@@ -13,11 +14,16 @@ import org.harvey.compiler.io.source.SourceString;
  * @date 2025-01-02 16:25
  */
 @Getter
-@AllArgsConstructor
 public class EnumConstantDeclarable {
-    private final SourceString name;
+    private final IdentifierString name;
     /**
-     * 去除了括号
+     * 去除了括号, for use
      */
-    private final SourceTextContext argumentList;
+    private final List<SourceTextContext> argumentList;
+
+
+    public EnumConstantDeclarable(IdentifierString name, List<SourceTextContext> argumentList) {
+        this.name = name;
+        this.argumentList = argumentList;
+    }
 }

@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * TODO  
+ * TODO
  *
- * @date 2025-01-12 16:30
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
- *
+ * @date 2025-01-12 16:30
  */
 @AllArgsConstructor
 @Getter

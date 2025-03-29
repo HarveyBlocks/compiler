@@ -14,14 +14,14 @@ import org.harvey.compiler.common.util.ByteUtil;
  */
 @Getter
 @EqualsAndHashCode
-public class SourceString {
+public class SourceString implements SourcePositionSupplier {
 
-    private final SourceStringType type;
+    private final SourceType type;
 
     private final String value;
     private final SourcePosition position;
 
-    public SourceString(SourceStringType type, String value, SourcePosition position) {
+    public SourceString(SourceType type, String value, SourcePosition position) {
         this.type = type;
         this.value = value;
         this.position = (SourcePosition) position.clone();

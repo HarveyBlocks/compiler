@@ -1,0 +1,39 @@
+{
+  "A": {
+    "B1": null,
+    "B2": {
+      "B2C1": null,
+      "B2C2": {
+        "B2C2D1": null,
+        "B2C2D2": null,
+        "B2C2D3": null
+      },
+      "B2C3": null,
+      "B2C4": {
+        "B2C4D1": null,
+        "B2C4D2": null,
+        "B2C4D3": null,
+        "B2C4D4": {
+          "B2C4D4E1": null,
+          "B2C4D4E2": null,
+          "B2C4D4E3": null,
+          "B2C4D4E4": null,
+          "B2C4D4E5": null
+        },
+        "B2C4D5": null
+      }
+    },
+    "B3": null,
+    "B4": {
+      "B4C1": null,
+      "B4C2": null,
+      "B4C3": null
+    },
+    "B5": {
+      "B5C1": {
+        "B5C1D1": null
+      },
+      "B5C2": null
+    }
+  }
+}

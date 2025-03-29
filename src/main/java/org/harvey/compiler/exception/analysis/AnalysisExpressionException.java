@@ -15,8 +15,9 @@ public class AnalysisExpressionException extends AnalysisException {
         super(errorPosition, message);
     }
 
-    public AnalysisExpressionException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
-                                       String message) {
+    public AnalysisExpressionException(
+            SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
+            String message) {
         super(errorPositionBegin, errorPositionEnd, message);
     }
 }

@@ -29,19 +29,19 @@ public class SerializesTest {
             if (i % 4 == 0) {
                 System.out.print("_");
             }
-            System.out.print(Long.toString(Serializes.getBits(value, -i - 1, -i), 2));
+            System.out.print(Long.toString(Serializes.getRawBits(value, -i - 1, -i), 2));
         }
         System.out.println();
         for (int i = 0; i < 64; i++) {
             if (i % 4 == 0) {
                 System.out.print("_");
             }
-            System.out.print(Long.toString(Serializes.getBits(value, i, i + 1), 2));
+            System.out.print(Long.toString(Serializes.getRawBits(value, i, i + 1), 2));
         }
         System.out.println();
         Assert.assertEquals(
-                Serializes.getBits(value, 0, 64),
-                Serializes.getBits(value, -64, 0)
+                Serializes.getRawBits(value, 0, 64),
+                Serializes.getRawBits(value, -64, 0)
         );
     }
 

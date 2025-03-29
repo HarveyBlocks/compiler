@@ -14,8 +14,9 @@ public class StatementExpressionBuildExceptionException extends AnalysisExceptio
         super(errorPosition, message);
     }
 
-    public StatementExpressionBuildExceptionException(SourcePosition errorPositionBegin,
-                                                      SourcePosition errorPositionEnd, String message) {
+    public StatementExpressionBuildExceptionException(
+            SourcePosition errorPositionBegin,
+            SourcePosition errorPositionEnd, String message) {
         super(errorPositionBegin, errorPositionEnd, message);
     }
 }

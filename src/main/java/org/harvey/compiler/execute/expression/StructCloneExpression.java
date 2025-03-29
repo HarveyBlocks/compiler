@@ -2,27 +2,23 @@ package org.harvey.compiler.execute.expression;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.harvey.compiler.common.Serializes;
-import org.harvey.compiler.exception.io.CompilerFileReaderException;
-import org.harvey.compiler.exception.io.CompilerFileWriterException;
 import org.harvey.compiler.io.serializer.HeadMap;
-import org.harvey.compiler.io.serializer.SerializableData;
-import org.harvey.compiler.io.ss.StreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializerUtil;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * TODO
+ * 结构体克隆的表达式
  *
- * @date 2025-01-08 16:50
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-08 16:50
  */
 @Getter
 public class StructCloneExpression extends ComplexExpression {
-    public static final String END_MSG = "__array__init__end__";
+    public static final String END_MSG = "__struct__clone__end__";
     // 声明
     // struct Student{
     //  int age;
@@ -60,7 +56,9 @@ public class StructCloneExpression extends ComplexExpression {
 
 
         static {
-            ComplexExpression.Serializer.register(TYPE.ordinal(), new StructCloneExpression.Serializer());
+            ComplexExpression.Serializer.register(TYPE.ordinal(), new StructCloneExpression.Serializer(),
+                    StructCloneExpression.class
+            );
         }
 
         private Serializer() {
@@ -68,26 +66,17 @@ public class StructCloneExpression extends ComplexExpression {
 
         @Override
         public StructCloneExpression in(InputStream is) {
-            HeadMap[] head;
-            try {
-                head = new SerializableData(is.readNBytes(1)[0]).phaseHeader(1, 7);
-            } catch (IOException e) {
-                throw new CompilerFileReaderException(e);
-            }
-            boolean start = head[0].getValue() != 0;
-            int otherSide = (int) head[1].getValue();
+            HeadMap[] head = StreamSerializerUtil.readHeads(is, 4, 1, 31);
+            boolean start = head[0].getUnsignedValue() != 0;
+            int otherSide = (int) head[1].getUnsignedValue();
             return new StructCloneExpression(start, otherSide);
         }
 
         @Override
         public int out(OutputStream os, StructCloneExpression src) {
-            try {
-                os.write(Serializes.makeHead(new HeadMap(src.start ? 1 : 0, 1),
-                        new HeadMap(src.otherSide, 7).inRange(true, "array init other size reference")).data());
-            } catch (IOException e) {
-                throw new CompilerFileWriterException(e);
-            }
-            return 1;
+            return StreamSerializerUtil.writeHeads(os, new HeadMap(src.start ? 1 : 0, 1),
+                    new HeadMap(src.otherSide, 31).inRange(true, "array init other size reference")
+            );
         }
     }
 }

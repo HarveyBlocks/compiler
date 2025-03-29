@@ -3,12 +3,13 @@ package org.harvey.compiler.common.reflect;
 import java.lang.reflect.*;
 
 /**
- * TODO  
+ * 获取泛型, 但并不完整, 且不能保证正确性
  *
- * @date 2025-01-11 23:29
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-11 23:29
  */
+@Deprecated
 public class GenericGetter {
     public static Class<?> find(Object obj, Class<?> parametrizedSuperclass, String typeParamName) {
         Class<?> thisClass = obj.getClass();

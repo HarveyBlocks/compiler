@@ -2,8 +2,8 @@ package org.harvey.compiler.io.serializer;
 
 import org.harvey.compiler.common.Serializes;
 import org.harvey.compiler.exception.CompilerException;
-import org.harvey.compiler.exception.io.CompilerFileReaderException;
-import org.harvey.compiler.exception.io.CompilerFileWriterException;
+import org.harvey.compiler.exception.io.CompilerFileReadException;
+import org.harvey.compiler.exception.io.CompilerFileWriteException;
 
 /**
  * 写进二进制文件的元素的元素
@@ -123,10 +123,13 @@ public class SerializableData {
                 // 同一个byte里的读取操作
                 // 将mapBitCount长度的mapValue 从 bitStartIndex到bitEndIndex读出
                 if (bitStartIndex > bitEndIndex) {
-                    throw new CompilerFileWriterException("I don't known how it happens, it's imposible",
-                            new IllegalStateException());
+                    throw new CompilerFileWriteException(
+                            "I don't known how it happens, it's imposible",
+                            new IllegalStateException()
+                    );
                 }
-                long mapValue = (byte) Serializes.getBits(data[byteStartIndex], -8 + bitStartIndex, -8 + bitEndIndex);
+
+                long mapValue = Serializes.getRawBits(data[byteStartIndex], -8 + bitStartIndex, -8 + bitEndIndex);
                 headMaps[i] = new HeadMap(mapValue, mapBitCount);
                 /*
                  * Integer [](int index){
@@ -138,19 +141,19 @@ public class SerializableData {
                 continue;
             }
             // 从data中取出Start后不足一个Byte的部分填充的mapValue的前端
-            byte startBit = (byte) Serializes.getBits(data[byteStartIndex], -8 + bitStartIndex, 0);
+            byte startBit = (byte) Serializes.getRawBits(data[byteStartIndex], -8 + bitStartIndex, 0);
             byteStartIndex++;
             long mapValue = Serializes.unsignedByteToLong(startBit) << (mapBitCount - 8 + bitStartIndex);
             // 从data中取出End前不足一个Byte的部分填充的mapValue的末尾
             int moveToLeft = 0;
             if (bitEndIndex != 0) {
-                byte endByte = (byte) Serializes.getBits(data[byteEndIndex], -8, -8 + bitEndIndex);
+                byte endByte = (byte) Serializes.getRawBits(data[byteEndIndex], -8, -8 + bitEndIndex);
                 mapValue |= endByte;
                 moveToLeft += bitEndIndex;
             }
             byteEndIndex--;
             // byte的全部赋值
-            for (int j = byteStartIndex; j <= byteEndIndex; j++) {
+            for (int j = byteEndIndex; j >= byteStartIndex; j--) {
                 mapValue |= Serializes.unsignedByteToLong(data[j]) << moveToLeft;
                 moveToLeft += 8;
             }
@@ -161,10 +164,10 @@ public class SerializableData {
 
     public SerializableData read(int formIndex, int length) {
         if (data.length <= formIndex) {
-            throw new CompilerException("form index mast smaller than data length", new CompilerFileReaderException());
+            throw new CompilerException("form index mast smaller than data length", new CompilerFileReadException());
         }
         if (data.length < formIndex + length) {
-            throw new CompilerException("no more data to read", new CompilerFileReaderException());
+            throw new CompilerException("no more data to read", new CompilerFileReadException());
         }
         SerializableData element = new SerializableData(length);
         System.arraycopy(data, formIndex, element.data, 0, length);
@@ -173,10 +176,10 @@ public class SerializableData {
 
     public SerializableData[] readAll(int formIndex, int eachSize, int size) {
         if (data.length <= formIndex) {
-            throw new CompilerException("form index mast smaller than data length", new CompilerFileReaderException());
+            throw new CompilerException("form index mast smaller than data length", new CompilerFileReadException());
         }
         if (data.length < formIndex + eachSize * size) {
-            throw new CompilerException("no more data to read", new CompilerFileReaderException());
+            throw new CompilerException("no more data to read", new CompilerFileReadException());
         }
         SerializableData[] elements = new SerializableData[size];
         for (int i = formIndex, j = 0; i < data.length && j < size; i += eachSize, j++) {

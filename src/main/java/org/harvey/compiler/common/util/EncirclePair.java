@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * TODO
+ * 获取集合中一个元素的前一个元素和后一个元素
  *
- * @date 2025-01-08 19:52
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-08 19:52
  */
 @Getter
 @AllArgsConstructor

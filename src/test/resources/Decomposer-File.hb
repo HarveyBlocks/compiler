@@ -1,8 +1,8 @@
   import java.io
   .IOException;
- import org.harvey.compiler.analysis.text.context.SourceTextContext;
+ import org.harvey.compiler.context.text.SourceTextContext;
  import org.harvey.compiler.io.source.SourcePosition;
- import org.harvey.compiler.analysis.text.decomposer.TextDecomposerChain;
+ import org.harvey.compiler.decomposer.text.TextDecomposerChain;
 /**
  * 源码中的每一个部分
  *

@@ -15,8 +15,9 @@ public class AnalysisConstantException extends AnalysisException {
         super(errorPosition, message);
     }
 
-    public AnalysisConstantException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
-                                     String message) {
+    public AnalysisConstantException(
+            SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
+            String message) {
         super(errorPositionBegin, errorPositionEnd, message);
     }
 }

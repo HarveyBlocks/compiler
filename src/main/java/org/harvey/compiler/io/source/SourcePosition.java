@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.harvey.compiler.common.SystemConstant;
-import org.harvey.compiler.io.ss.StreamSerializer;
+import org.harvey.compiler.common.constant.SourceFileConstant;
+import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.io.serializer.StreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static org.harvey.compiler.io.ss.StreamSerializer.readNumber;
-import static org.harvey.compiler.io.ss.StreamSerializer.writeNumber;
+import static org.harvey.compiler.io.serializer.StreamSerializerUtil.readNumber;
+import static org.harvey.compiler.io.serializer.StreamSerializerUtil.writeNumber;
 
 /**
  * 源码中的行列
@@ -24,7 +26,7 @@ import static org.harvey.compiler.io.ss.StreamSerializer.writeNumber;
 @Setter
 @EqualsAndHashCode
 @AllArgsConstructor
-public class SourcePosition implements Cloneable {
+public class SourcePosition implements Cloneable, Comparable<SourcePosition> {
     public static final SourcePosition UNKNOWN = new SourcePosition(-1, -1);
     /**
      * 行, 第几行
@@ -36,7 +38,6 @@ public class SourcePosition implements Cloneable {
     private int column;
 
     /**
-     *
      * @return 移动后的新值
      */
     public static SourcePosition moveToEnd(SourcePosition start, String value) {
@@ -44,11 +45,11 @@ public class SourcePosition implements Cloneable {
         int fromIndex = 0;
         int index;
         while (true) {
-            index = value.indexOf(SystemConstant.LINE_SEPARATOR, fromIndex);
+            index = value.indexOf(SourceFileConstant.LINE_SEPARATOR, fromIndex);
             if (index < 0) {
                 break;
             }
-            fromIndex = index + SystemConstant.LINE_SEPARATOR.length();
+            fromIndex = index + SourceFileConstant.LINE_SEPARATOR.length();
             lineCounter++;
         }
         return new SourcePosition(
@@ -89,9 +90,36 @@ public class SourcePosition implements Cloneable {
         return "[" + raw + ":" + column + "]";
     }
 
+    @Override
+    public int compareTo(SourcePosition sp) {
+        if (sp.unknown() || this.unknown()) {
+            throw new CompilerException("can not compare");
+        }
+        if (this.raw == sp.raw) {
+            return this.column - sp.column;
+        }
+        return this.raw - sp.raw;
+    }
+
+    public long code() {
+        return this.unknown() ? -1L : (long) raw << 32 | column;
+    }
+
+    public boolean before(SourcePosition sp) {
+        return this.compareTo(sp) < 0;
+    }
+
+    public boolean after(SourcePosition sp) {
+        return this.compareTo(sp) > 0;
+    }
+
+    public boolean unknown() {
+        return this.raw == UNKNOWN.raw || this.column == UNKNOWN.column;
+    }
+
     public static class Serializer implements StreamSerializer<SourcePosition> {
         static {
-            StreamSerializer.register(new Serializer());
+            StreamSerializerRegister.register(new Serializer());
         }
 
         private Serializer() {
@@ -99,16 +127,15 @@ public class SourcePosition implements Cloneable {
 
         @Override
         public SourcePosition in(InputStream is) {
-            int col = (int) readNumber(is, 32);
-            int raw = (int) readNumber(is, 32);
-            return new SourcePosition(col, raw);
+            int col = (int) readNumber(is, 32, false);
+            int raw = (int) readNumber(is, 32, false);
+            return new SourcePosition(raw, col);
         }
 
         @Override
         public int out(OutputStream os, SourcePosition src) {
-
-            return writeNumber(os, src.getColumn(), 32) +
-                    writeNumber(os, src.getRaw(), 32);
+            return writeNumber(os, src.getColumn(), 32, false) +
+                   writeNumber(os, src.getRaw(), 32, false);
         }
     }
 }

@@ -1,12 +1,12 @@
 package org.harvey.compiler.execute.expression;
 
 /**
- * TODO  
+ * 在表达式中的成员的类型, 用于持久化
  *
- * @date 2025-01-21 22:50
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-21 22:50
  */
 public enum ExpressionElementType {
-    IDENTIFIER, IGNORE_IDENTIFIER, KEYWORD, OPERATOR, CONSTANT, COMPLEX
+    IDENTIFIER, KEYWORD, OPERATOR, CONSTANT, FULL_IDENTIFIER, IDENTIFIER_REFERENCE, LOCAL_VARIABLE, COMPLEX
 }

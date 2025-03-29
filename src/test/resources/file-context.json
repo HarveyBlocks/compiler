@@ -7,7 +7,8 @@
             "raw": 0,
             "column": 7
           },
-          "value": "A"
+          "value": "A",
+          "ignore": false
         }
       ],
       "position": {
@@ -19,13 +20,14 @@
           "raw": 0,
           "column": 7
         },
-        "value": "A"
+        "value": "A",
+        "ignore": false
       },
+      "dictionaryPath": "A",
+      "packagePath": "A",
       "stringPath": [
         "A"
-      ],
-      "packagePath": "A",
-      "dictionaryPath": "A"
+      ]
     },
     "B": {
       "path": [
@@ -34,7 +36,8 @@
             "raw": 1,
             "column": 7
           },
-          "value": "B"
+          "value": "B",
+          "ignore": false
         }
       ],
       "position": {
@@ -46,13 +49,14 @@
           "raw": 1,
           "column": 7
         },
-        "value": "B"
+        "value": "B",
+        "ignore": false
       },
+      "dictionaryPath": "B",
+      "packagePath": "B",
       "stringPath": [
         "B"
-      ],
-      "packagePath": "B",
-      "dictionaryPath": "B"
+      ]
     }
   },
   "aliasList": [
@@ -61,14 +65,15 @@
         "byte": 127
       },
       "aliasNameReference": 0,
-      "aliasGenericMessage": null,
+      "aliasGenericMessage": [],
       "origin": [
         {
           "position": {
             "raw": 24,
             "column": 17
           },
-          "value": "A"
+          "value": "A",
+          "ignore": false
         }
       ]
     },
@@ -77,14 +82,15 @@
         "byte": 127
       },
       "aliasNameReference": 1,
-      "aliasGenericMessage": null,
+      "aliasGenericMessage": [],
       "origin": [
         {
           "position": {
             "raw": 25,
             "column": 17
           },
-          "value": "A"
+          "value": "A",
+          "ignore": false
         }
       ]
     },
@@ -93,14 +99,15 @@
         "byte": 3
       },
       "aliasNameReference": 2,
-      "aliasGenericMessage": null,
+      "aliasGenericMessage": [],
       "origin": [
         {
           "position": {
             "raw": 25,
             "column": 24
           },
-          "value": "Y"
+          "value": "Y",
+          "ignore": false
         }
       ]
     },
@@ -109,14 +116,15 @@
         "byte": 3
       },
       "aliasNameReference": 3,
-      "aliasGenericMessage": null,
+      "aliasGenericMessage": [],
       "origin": [
         {
           "position": {
             "raw": 25,
             "column": 31
           },
-          "value": "Z"
+          "value": "Z",
+          "ignore": false
         }
       ]
     },
@@ -125,14 +133,15 @@
         "byte": 127
       },
       "aliasNameReference": 4,
-      "aliasGenericMessage": null,
+      "aliasGenericMessage": [],
       "origin": [
         {
           "position": {
             "raw": 27,
             "column": 21
           },
-          "value": "A"
+          "value": "A",
+          "ignore": false
         }
       ]
     },
@@ -141,14 +150,15 @@
         "byte": 3
       },
       "aliasNameReference": 5,
-      "aliasGenericMessage": null,
+      "aliasGenericMessage": [],
       "origin": [
         {
           "position": {
             "raw": 27,
             "column": 21
           },
-          "value": "A"
+          "value": "A",
+          "ignore": false
         }
       ]
     },
@@ -163,7 +173,8 @@
             "raw": 28,
             "column": 15
           },
-          "value": "T1"
+          "value": "T1",
+          "ignore": false
         },
         {
           "position": {
@@ -177,7 +188,8 @@
             "raw": 28,
             "column": 18
           },
-          "value": "T2"
+          "value": "T2",
+          "ignore": false
         },
         {
           "position": {
@@ -193,14 +205,16 @@
             "raw": 28,
             "column": 24
           },
-          "value": "A"
+          "value": "A",
+          "ignore": false
         },
         {
           "position": {
             "raw": 28,
             "column": 26
           },
-          "value": "T1"
+          "value": "T1",
+          "ignore": false
         },
         {
           "position": {
@@ -214,7 +228,8 @@
             "raw": 28,
             "column": 29
           },
-          "value": "T2"
+          "value": "T2",
+          "ignore": false
         },
         {
           "position": {
@@ -228,7 +243,8 @@
             "raw": 28,
             "column": 32
           },
-          "value": "T1"
+          "value": "T1",
+          "ignore": false
         },
         {
           "position": {
@@ -259,13 +275,13 @@
     "E#N",
     "E#M",
     "ObjectExample",
-    "X#a",
-    "X#x",
-    "X#f1",
-    "X#f2",
-    "X#f3",
-    "X#f4",
-    "X#f5",
+    "ObjectExample#a",
+    "ObjectExample#x",
+    "ObjectExample#f1",
+    "ObjectExample#f2",
+    "ObjectExample#f3",
+    "ObjectExample#f4",
+    "ObjectExample#f5",
     "Mmm",
     "AbstractType"
   ],
@@ -273,90 +289,112 @@
     "pool": [
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ],
       [
         {
-          "bodyEnd": 1
+          "bodyEnd": 1,
+          "code": 1
         },
         {
-          "start": 0
+          "start": 0,
+          "code": 0
         }
       ]
     ]
@@ -369,18 +407,17 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
-      "methodTable": [],
-      "fieldTable": [],
-      "pool": [],
-      "executableBodyFactory": {
-        "pool": []
-      },
+      "type": "ENUM",
+      "outerStructure": -1,
+      "genericMessage": [],
+      "superComplexStructure": [],
+      "implementsList": [],
       "enumConstants": [
         {
           "identifier": {
@@ -388,7 +425,8 @@
               "raw": 4,
               "column": 4
             },
-            "value": "A"
+            "value": "A",
+            "ignore": false
           },
           "arguments": null
         }
@@ -399,14 +437,15 @@
             "byte": 1
           },
           "aliasNameReference": 11,
-          "aliasGenericMessage": null,
+          "aliasGenericMessage": [],
           "origin": [
             {
               "position": {
                 "raw": 6,
                 "column": 21
               },
-              "value": "A"
+              "value": "A",
+              "ignore": false
             }
           ]
         },
@@ -415,14 +454,15 @@
             "byte": 1
           },
           "aliasNameReference": 12,
-          "aliasGenericMessage": null,
+          "aliasGenericMessage": [],
           "origin": [
             {
               "position": {
                 "raw": 7,
                 "column": 21
               },
-              "value": "A"
+              "value": "A",
+              "ignore": false
             }
           ]
         },
@@ -431,14 +471,15 @@
             "byte": 1
           },
           "aliasNameReference": 13,
-          "aliasGenericMessage": null,
+          "aliasGenericMessage": [],
           "origin": [
             {
               "position": {
                 "raw": 7,
                 "column": 28
               },
-              "value": "Y"
+              "value": "Y",
+              "ignore": false
             }
           ]
         },
@@ -447,14 +488,15 @@
             "byte": 1
           },
           "aliasNameReference": 14,
-          "aliasGenericMessage": null,
+          "aliasGenericMessage": [],
           "origin": [
             {
               "position": {
                 "raw": 7,
                 "column": 35
               },
-              "value": "Z"
+              "value": "Z",
+              "ignore": false
             }
           ]
         },
@@ -463,14 +505,15 @@
             "byte": 1
           },
           "aliasNameReference": 15,
-          "aliasGenericMessage": null,
+          "aliasGenericMessage": [],
           "origin": [
             {
               "position": {
                 "raw": 8,
                 "column": 25
               },
-              "value": "A"
+              "value": "A",
+              "ignore": false
             }
           ]
         },
@@ -479,27 +522,28 @@
             "byte": 1
           },
           "aliasNameReference": 16,
-          "aliasGenericMessage": null,
+          "aliasGenericMessage": [],
           "origin": [
             {
               "position": {
                 "raw": 8,
                 "column": 25
               },
-              "value": "A"
+              "value": "A",
+              "ignore": false
             }
           ]
         }
       ],
-      "outerReference": 0,
-      "type": "ENUM",
-      "genericMessage": [],
-      "superComplexStructure": [],
-      "implementsList": [],
+      "fieldTable": [],
+      "methodTable": [],
+      "pool": [],
       "blocks": [],
       "staticBlocks": [],
       "innerStructureReferences": [],
-      "outerStructure": -1,
+      "executableBodyFactory": {
+        "pool": []
+      },
       "environment": "ENUM"
     },
     {
@@ -509,26 +553,32 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
-      "methodTable": [],
+      "type": "CLASS",
+      "outerStructure": -1,
+      "genericMessage": [],
+      "superComplexStructure": [],
+      "implementsList": [],
+      "enumConstants": [],
+      "typeAliases": [],
       "fieldTable": [
         {
-          "identifierReference": -1,
+          "identifierReference": 0,
           "accessControl": {
             "byte": 127
           },
           "embellish": {
             "code": 0,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": false,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": [
             {
@@ -536,7 +586,8 @@
                 "raw": 13,
                 "column": 11
               },
-              "value": "String"
+              "value": "String",
+              "ignore": false
             }
           ],
           "assignList": [
@@ -547,7 +598,8 @@
                     "raw": 13,
                     "column": 18
                   },
-                  "value": "a"
+                  "value": "a",
+                  "ignore": false
                 },
                 {
                   "position": {
@@ -562,17 +614,17 @@
           ]
         },
         {
-          "identifierReference": -1,
+          "identifierReference": 0,
           "accessControl": {
             "byte": 127
           },
           "embellish": {
             "code": 0,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": false,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": [
             {
@@ -580,7 +632,8 @@
                 "raw": 14,
                 "column": 11
               },
-              "value": "String"
+              "value": "String",
+              "ignore": false
             }
           ],
           "assignList": [
@@ -591,21 +644,24 @@
                     "raw": 14,
                     "column": 18
                   },
-                  "value": "x"
+                  "value": "x",
+                  "ignore": false
                 },
                 {
                   "position": {
                     "raw": 14,
                     "column": 22
                   },
-                  "value": "a"
+                  "value": "a",
+                  "ignore": false
                 },
                 {
                   "position": {
                     "raw": 14,
                     "column": 24
                   },
-                  "value": "substring"
+                  "value": "substring",
+                  "ignore": false
                 },
                 {
                   "position": {
@@ -628,17 +684,17 @@
           ]
         },
         {
-          "identifierReference": -1,
+          "identifierReference": 0,
           "accessControl": {
             "byte": 127
           },
           "embellish": {
             "code": 0,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": false,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": [
             {
@@ -646,7 +702,8 @@
                 "raw": 15,
                 "column": 11
               },
-              "value": "float8"
+              "value": "float8",
+              "ignore": false
             }
           ],
           "assignList": [
@@ -657,7 +714,8 @@
                     "raw": 15,
                     "column": 18
                   },
-                  "value": "f1"
+                  "value": "f1",
+                  "ignore": false
                 },
                 {
                   "position": {
@@ -672,17 +730,17 @@
           ]
         },
         {
-          "identifierReference": -1,
+          "identifierReference": 0,
           "accessControl": {
             "byte": 127
           },
           "embellish": {
             "code": 0,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": false,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": [
             {
@@ -690,7 +748,8 @@
                 "raw": 16,
                 "column": 11
               },
-              "value": "float8"
+              "value": "float8",
+              "ignore": false
             }
           ],
           "assignList": [
@@ -701,7 +760,8 @@
                     "raw": 16,
                     "column": 18
                   },
-                  "value": "f2"
+                  "value": "f2",
+                  "ignore": false
                 },
                 {
                   "position": {
@@ -716,17 +776,17 @@
           ]
         },
         {
-          "identifierReference": -1,
+          "identifierReference": 0,
           "accessControl": {
             "byte": 127
           },
           "embellish": {
             "code": 0,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": false,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": [
             {
@@ -734,7 +794,8 @@
                 "raw": 17,
                 "column": 11
               },
-              "value": "float8"
+              "value": "float8",
+              "ignore": false
             }
           ],
           "assignList": [
@@ -745,7 +806,8 @@
                     "raw": 17,
                     "column": 18
                   },
-                  "value": "f3"
+                  "value": "f3",
+                  "ignore": false
                 },
                 {
                   "position": {
@@ -760,24 +822,25 @@
                     "raw": 17,
                     "column": 25
                   },
-                  "value": "e3e"
+                  "value": "e3e",
+                  "ignore": false
                 }
               ]
             }
           ]
         },
         {
-          "identifierReference": -1,
+          "identifierReference": 0,
           "accessControl": {
             "byte": 127
           },
           "embellish": {
             "code": 0,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": false,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": [
             {
@@ -785,7 +848,8 @@
                 "raw": 18,
                 "column": 11
               },
-              "value": "float8"
+              "value": "float8",
+              "ignore": false
             }
           ],
           "assignList": [
@@ -796,7 +860,8 @@
                     "raw": 18,
                     "column": 18
                   },
-                  "value": "f4"
+                  "value": "f4",
+                  "ignore": false
                 },
                 {
                   "position": {
@@ -811,24 +876,25 @@
                     "raw": 18,
                     "column": 25
                   },
-                  "value": "e3E"
+                  "value": "e3E",
+                  "ignore": false
                 }
               ]
             }
           ]
         },
         {
-          "identifierReference": -1,
+          "identifierReference": 0,
           "accessControl": {
             "byte": 127
           },
           "embellish": {
             "code": 0,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": false,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": [
             {
@@ -836,7 +902,8 @@
                 "raw": 19,
                 "column": 11
               },
-              "value": "float8"
+              "value": "float8",
+              "ignore": false
             }
           ],
           "assignList": [
@@ -847,7 +914,8 @@
                     "raw": 19,
                     "column": 18
                   },
-                  "value": "f5"
+                  "value": "f5",
+                  "ignore": false
                 },
                 {
                   "position": {
@@ -862,28 +930,22 @@
                     "raw": 19,
                     "column": 25
                   },
-                  "value": "E3E"
+                  "value": "E3E",
+                  "ignore": false
                 }
               ]
             }
           ]
         }
       ],
+      "methodTable": [],
       "pool": [],
-      "executableBodyFactory": {
-        "pool": []
-      },
-      "enumConstants": [],
-      "typeAliases": [],
-      "outerReference": 0,
-      "type": "CLASS",
-      "genericMessage": [],
-      "superComplexStructure": [],
-      "implementsList": [],
       "blocks": [],
       "staticBlocks": [],
       "innerStructureReferences": [],
-      "outerStructure": -1,
+      "executableBodyFactory": {
+        "pool": []
+      },
       "environment": "CLASS"
     },
     {
@@ -893,12 +955,20 @@
       },
       "embellish": {
         "code": 16,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": true,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
+      "type": "ABSTRACT_CLASS",
+      "outerStructure": -1,
+      "genericMessage": [],
+      "superComplexStructure": [],
+      "implementsList": [],
+      "enumConstants": [],
+      "typeAliases": [],
+      "fieldTable": [],
       "methodTable": [
         {
           "identifierReference": -3,
@@ -907,37 +977,76 @@
           },
           "embellish": {
             "code": 16,
-            "markedConstant": false,
-            "markedStatic": false,
             "markedAbstract": true,
+            "markedStatic": false,
+            "markedSealed": false,
             "markedFinal": false,
-            "markedSealed": false
+            "markedConstant": false
           },
           "type": "CAST_OPERATOR",
           "returnType": {
+            "types": [
+              {
+                "constPosition": null,
+                "finalPosition": null,
+                "sourceType": [
+                  {
+                    "position": {
+                      "raw": 22,
+                      "column": 20
+                    },
+                    "value": "A",
+                    "ignore": false
+                  },
+                  {
+                    "position": {
+                      "raw": 22,
+                      "column": 22
+                    },
+                    "value": "int",
+                    "ignore": false
+                  },
+                  {
+                    "position": {
+                      "raw": 22,
+                      "column": 25
+                    },
+                    "value": "GENERIC_LIST_POST"
+                  }
+                ],
+                "final": false,
+                "const": false
+              }
+            ],
             "single": true,
             "none": false
           },
           "genericMessage": [],
           "paramList": [
             {
-              "markedConst": false,
-              "markedFinal": false,
-              "type": [
-                {
-                  "position": {
-                    "raw": 22,
-                    "column": 27
-                  },
-                  "value": "int"
-                }
-              ],
+              "type": {
+                "constPosition": null,
+                "finalPosition": null,
+                "sourceType": [
+                  {
+                    "position": {
+                      "raw": 22,
+                      "column": 27
+                    },
+                    "value": "int",
+                    "ignore": false
+                  }
+                ],
+                "final": false,
+                "const": false
+              },
               "identifier": {
                 "position": {
                   "raw": 22,
                   "column": 31
                 },
-                "value": "a"
+                "value": "a",
+                "ignore": false
               },
               "assign": []
             }
@@ -946,22 +1055,13 @@
           "throwsExceptions": []
         }
       ],
-      "fieldTable": [],
       "pool": [],
-      "executableBodyFactory": {
-        "pool": []
-      },
-      "enumConstants": [],
-      "typeAliases": [],
-      "outerReference": 0,
-      "type": "ABSTRACT_CLASS",
-      "genericMessage": [],
-      "superComplexStructure": [],
-      "implementsList": [],
       "blocks": [],
       "staticBlocks": [],
       "innerStructureReferences": [],
-      "outerStructure": -1,
+      "executableBodyFactory": {
+        "pool": []
+      },
       "environment": "ABSTRACT_CLASS"
     },
     {
@@ -971,29 +1071,28 @@
       },
       "embellish": {
         "code": 16,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": true,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
-      "methodTable": [],
-      "fieldTable": [],
-      "pool": [],
-      "executableBodyFactory": {
-        "pool": []
-      },
-      "enumConstants": [],
-      "typeAliases": [],
-      "outerReference": 0,
       "type": "ABSTRACT_CLASS",
+      "outerStructure": -1,
       "genericMessage": [],
       "superComplexStructure": [],
       "implementsList": [],
+      "enumConstants": [],
+      "typeAliases": [],
+      "fieldTable": [],
+      "methodTable": [],
+      "pool": [],
       "blocks": [],
       "staticBlocks": [],
       "innerStructureReferences": [],
-      "outerStructure": -1,
+      "executableBodyFactory": {
+        "pool": []
+      },
       "environment": "ABSTRACT_CLASS"
     }
   ],
@@ -1005,14 +1104,31 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "FUNCTION",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 31,
+                  "column": 7
+                },
+                "keyword": "VOID"
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1028,14 +1144,31 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "FUNCTION",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 32,
+                  "column": 7
+                },
+                "keyword": "VOID"
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1045,7 +1178,8 @@
             "raw": 32,
             "column": 18
           },
-          "value": "T"
+          "value": "T",
+          "ignore": false
         },
         {
           "position": {
@@ -1066,14 +1200,47 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "FUNCTION",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 33,
+                  "column": 7
+                },
+                "value": "List",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 33,
+                  "column": 12
+                },
+                "value": "Integer",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 33,
+                  "column": 19
+                },
+                "value": "GENERIC_LIST_POST"
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1083,7 +1250,8 @@
             "raw": 33,
             "column": 27
           },
-          "value": "T"
+          "value": "T",
+          "ignore": false
         },
         {
           "position": {
@@ -1104,14 +1272,64 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "FUNCTION",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 34,
+                  "column": 8
+                },
+                "value": "int",
+                "ignore": false
+              }
+            ],
+            "final": false,
+            "const": false
+          },
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 34,
+                  "column": 12
+                },
+                "value": "int",
+                "ignore": false
+              }
+            ],
+            "final": false,
+            "const": false
+          },
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 34,
+                  "column": 16
+                },
+                "value": "Integer",
+                "ignore": false
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": false,
         "none": false
       },
@@ -1121,7 +1339,8 @@
             "raw": 34,
             "column": 31
           },
-          "value": "T"
+          "value": "T",
+          "ignore": false
         },
         {
           "position": {
@@ -1142,14 +1361,32 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "CAST_OPERATOR",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 36,
+                  "column": 7
+                },
+                "value": "func3",
+                "ignore": false
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1165,14 +1402,47 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "CAST_OPERATOR",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 37,
+                  "column": 7
+                },
+                "value": "func4",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 37,
+                  "column": 13
+                },
+                "value": "T",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 37,
+                  "column": 14
+                },
+                "value": "GENERIC_LIST_POST"
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1188,14 +1458,47 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "OPERATOR",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 38,
+                  "column": 7
+                },
+                "value": "func5",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 38,
+                  "column": 13
+                },
+                "value": "T",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 38,
+                  "column": 14
+                },
+                "value": "GENERIC_LIST_POST"
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1211,14 +1514,47 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "OPERATOR",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 39,
+                  "column": 7
+                },
+                "value": "func5",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 39,
+                  "column": 13
+                },
+                "value": "T",
+                "ignore": false
+              },
+              {
+                "position": {
+                  "raw": 39,
+                  "column": 14
+                },
+                "value": "GENERIC_LIST_POST"
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1228,7 +1564,8 @@
             "raw": 39,
             "column": 18
           },
-          "value": "T"
+          "value": "T",
+          "ignore": false
         },
         {
           "position": {
@@ -1249,14 +1586,32 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "OPERATOR",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 41,
+                  "column": 0
+                },
+                "value": "int",
+                "ignore": false
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1272,14 +1627,31 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "FUNCTION",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 45,
+                  "column": 7
+                },
+                "keyword": "VOID"
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },
@@ -1295,14 +1667,32 @@
       },
       "embellish": {
         "code": 0,
-        "markedConstant": false,
-        "markedStatic": false,
         "markedAbstract": false,
+        "markedStatic": false,
+        "markedSealed": false,
         "markedFinal": false,
-        "markedSealed": false
+        "markedConstant": false
       },
       "type": "FUNCTION",
       "returnType": {
+        "types": [
+          {
+            "constPosition": null,
+            "finalPosition": null,
+            "sourceType": [
+              {
+                "position": {
+                  "raw": 47,
+                  "column": 8
+                },
+                "value": "void_",
+                "ignore": false
+              }
+            ],
+            "final": false,
+            "const": false
+          }
+        ],
         "single": true,
         "none": false
       },

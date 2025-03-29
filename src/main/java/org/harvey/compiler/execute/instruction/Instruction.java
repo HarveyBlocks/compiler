@@ -3,7 +3,7 @@ package org.harvey.compiler.execute.instruction;
 import lombok.Getter;
 
 /**
- * TODO  
+ * TODO
  * if-else->
  * 运算condition
  * if condition goto L1
@@ -27,13 +27,13 @@ import lombok.Getter;
  * L5 : 编译的 if-块
  * LE :
  * <p>
- *
+ * <p>
  * switch-case
  * 编译switch语句
- * build-case-table CASE1_VALUE CASE1_POSITION
- * build-case-table CASE2_VALUE CASE2_POSITION
- * build-case-table CASE3_VALUE CASE3_POSITION
- * build-case-table CASE4_VALUE CASE4_POSITION
+ * genericDefine-case-table CASE1_VALUE CASE1_POSITION
+ * genericDefine-case-table CASE2_VALUE CASE2_POSITION
+ * genericDefine-case-table CASE3_VALUE CASE3_POSITION
+ * genericDefine-case-table CASE4_VALUE CASE4_POSITION
  * CASE1块
  * CASE2块
  * CASE3块
@@ -41,7 +41,7 @@ import lombok.Getter;
  * default
  * LE :
  * <p>
- *
+ * <p>
  * while(){}
  * L1:
  * 编译的 condition
@@ -50,7 +50,7 @@ import lombok.Getter;
  * goto L1
  * LE:
  * <p>
- *
+ * <p>
  * do{}while();->
  * L1:
  * do-while块
@@ -58,7 +58,7 @@ import lombok.Getter;
  * if condition goto L1
  * LE:
  * <p>
- *
+ * <p>
  * for-each->for i
  * for i....
  * for_i_start, i_分配空间, using i,
@@ -70,14 +70,14 @@ import lombok.Getter;
  * step
  * LE:
  * <p>
- *
+ * <p>
  * try-catch-finally
  * 在try_label_stack中加入第一个catch命令位置
  * 语句块
  * throw (可能是函数中throws)->从try_label_stack取出顶部, goto
  * 语句块
- *
- *  catch 匹配类型序列1 下一个catch的地址
+ * <p>
+ * catch 匹配类型序列1 下一个catch的地址
  * ifn 匹配类型序列1 goto catch L+1
  * 注入exception的值到局部变量表
  * catch 块1
@@ -92,9 +92,9 @@ import lombok.Getter;
  * 执行finally块
  * goto outer finally 块
  *
- * @date 2025-01-12 16:06
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-12 16:06
  */
 @Getter
 public class Instruction {

@@ -1,11 +1,11 @@
 package org.harvey.compiler.execute.control;
 
-import org.harvey.compiler.analysis.core.Keyword;
-import org.harvey.compiler.analysis.text.context.SourceTextContext;
+import org.harvey.compiler.declare.analysis.Keyword;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
-import org.harvey.compiler.io.source.SourceStringType;
+import org.harvey.compiler.io.source.SourceType;
+import org.harvey.compiler.text.context.SourceTextContext;
 
 import java.util.ListIterator;
 
@@ -25,7 +25,7 @@ public class ControlStructureBuilder {
         }
         /*if (textContext.size() == 1) {
             SourceString first = textContext.getFirst();
-            if (first.getType() != SourceStringType.SIGN) {
+            if (first.getType() != SourceType.SIGN) {
                 return textContext;
             }
             String value = first.getValue();
@@ -37,8 +37,8 @@ public class ControlStructureBuilder {
 
          TODO SourceString first = textContext.removeFirst();
         SourceString last = textContext.removeLast();
-        boolean firstIs = first.getType() == SourceStringType.SIGN && String.valueOf(SourceFileConstant.BODY_START).equals(first.getValue());
-        boolean lastIs = last.getType() == SourceStringType.SIGN && String.valueOf(SourceFileConstant.BODY_END).equals(last.getValue());
+        boolean firstIs = first.getType() == SourceType.SIGN && String.valueOf(SourceFileConstant.BODY_START).equals(first.getValue());
+        boolean lastIs = last.getType() == SourceType.SIGN && String.valueOf(SourceFileConstant.BODY_END).equals(last.getValue());
         if (firstIs && lastIs) {
             return textContext;
         }
@@ -47,8 +47,10 @@ public class ControlStructureBuilder {
             textContext.addLast(last);
             return textContext;
         }*/
-        throw new AnalysisExpressionException(SourcePosition.UNKNOWN/*first.getPosition(), last.getPosition()*/,
-                "Illegal structure sign match");
+        throw new AnalysisExpressionException(
+                SourcePosition.UNKNOWN/*first.getPosition(), last.getPosition()*/,
+                "Illegal structure sign match"
+        );
     }
 
     /**
@@ -87,8 +89,10 @@ public class ControlStructureBuilder {
         } else if (firstKeyword == Keyword.DEFAULT) {
             throw new AnalysisExpressionException(first.getPosition(), "Meet default before switch !");
         } else if (firstKeyword == Keyword.BREAK) {
-            throw new AnalysisExpressionException(first.getPosition(),
-                    "Meet break before while or do-while or switch or for!");
+            throw new AnalysisExpressionException(
+                    first.getPosition(),
+                    "Meet break before while or do-while or switch or for!"
+            );
         } else if (firstKeyword != Keyword.SWITCH) {
             source.previous();
             return false;
@@ -108,11 +112,15 @@ public class ControlStructureBuilder {
         String value = first.getValue();
         Keyword firstKeyword = Keyword.get(value);
         if (firstKeyword == Keyword.CONTINUE) {
-            throw new AnalysisExpressionException(first.getPosition(),
-                    "Meet continue before while or do-while or for!");
+            throw new AnalysisExpressionException(
+                    first.getPosition(),
+                    "Meet continue before while or do-while or for!"
+            );
         } else if (firstKeyword == Keyword.BREAK) {
-            throw new AnalysisExpressionException(first.getPosition(),
-                    "Meet break before while or do-while or switch or for!");
+            throw new AnalysisExpressionException(
+                    first.getPosition(),
+                    "Meet break before while or do-while or switch or for!"
+            );
         } else if (firstKeyword != Keyword.WHILE) {
             source.previous();
             return false;
@@ -132,11 +140,15 @@ public class ControlStructureBuilder {
         String value = first.getValue();
         Keyword firstKeyword = Keyword.get(value);
         if (firstKeyword == Keyword.CONTINUE) {
-            throw new AnalysisExpressionException(first.getPosition(),
-                    "Meet continue before while or do-while or for!");
+            throw new AnalysisExpressionException(
+                    first.getPosition(),
+                    "Meet continue before while or do-while or for!"
+            );
         } else if (firstKeyword == Keyword.BREAK) {
-            throw new AnalysisExpressionException(first.getPosition(),
-                    "Meet break before while or do-while or switch or for!");
+            throw new AnalysisExpressionException(
+                    first.getPosition(),
+                    "Meet break before while or do-while or switch or for!"
+            );
         } else if (firstKeyword != Keyword.DO) {
             source.previous();
             return false;
@@ -158,8 +170,10 @@ public class ControlStructureBuilder {
         if (firstKeyword == Keyword.CONTINUE) {
             throw new AnalysisExpressionException(first.getPosition(), "Meet continue before while !");
         } else if (firstKeyword == Keyword.BREAK) {
-            throw new AnalysisExpressionException(first.getPosition(),
-                    "Meet break before while or do-while or switch or for!");
+            throw new AnalysisExpressionException(
+                    first.getPosition(),
+                    "Meet break before while or do-while or switch or for!"
+            );
         } else if (firstKeyword != Keyword.FOR) {
             source.previous();
             return false;
@@ -173,7 +187,7 @@ public class ControlStructureBuilder {
             return null;
         }
         SourceString first = source.next();
-        if (first.getType() != SourceStringType.KEYWORD) {
+        if (first.getType() != SourceType.KEYWORD) {
             source.previous();
             return null;
         }

@@ -1,8 +1,9 @@
 package org.harvey.compiler.execute.expression;
 
-import org.harvey.compiler.io.ss.PolymorphismSerializable;
-import org.harvey.compiler.io.ss.PolymorphismStreamSerializer;
-import org.harvey.compiler.io.ss.StreamSerializer;
+import org.harvey.compiler.io.serializer.PolymorphismSerializable;
+import org.harvey.compiler.io.serializer.PolymorphismStreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,21 +11,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO
+ * 复杂表达式, 比如Lambda表达式, 数组初始化的表达式, 和结构体克隆表达式
  *
- * @date 2025-01-08 16:49
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-08 16:49
  */
 public class ComplexExpression extends PolymorphismSerializable {
+    private static final StreamSerializer<ComplexExpression> SERIALIZER = StreamSerializerRegister.get(
+            ComplexExpression.Serializer.class);
+
     protected ComplexExpression() {
     }
-    public static enum Type{
-        ARRAY_INIT,
-        STRUCT_CLONE,
-        LAMBDA
-
-    }    // 1. Struct
     //      是new IDENTIFIER(obj){
     //      是new(obj){
     // 2. Lambda -> 已经在上面考虑, 故排除
@@ -66,8 +64,8 @@ public class ComplexExpression extends PolymorphismSerializable {
     //   函数.表达式.for(item){
     //      List sonExpressions;
     //      while(true){
-    //          List expression = 表达式分析器.分析(item);
-    //          expression.for(son){
+    //          List using = 表达式分析器.分析(item);
+    //          using.for(son){
     //              if(是ComplexExpression){
     //                  sonExpressions.add(son);
     //              }
@@ -82,32 +80,43 @@ public class ComplexExpression extends PolymorphismSerializable {
     // 函数body的困难:
     // argument+变量声明+变量赋值表达式+控制结构
 
-
-    private static final StreamSerializer<ComplexExpression> SERIALIZER = StreamSerializer.get(
-            ComplexExpression.Serializer.class);
     @Override
     public int out(OutputStream os) {
         return SERIALIZER.out(os, this);
     }
 
+    public enum Type {
+        ARRAY_INIT,
+        STRUCT_CLONE,
+        LAMBDA
+
+    }    // 1. Struct
 
     public static class Serializer extends PolymorphismStreamSerializer<ComplexExpression> {
-        private static final Map<Integer, StreamSerializer<? extends ComplexExpression>> MAP = new HashMap<>();
+        private static final Map<Byte, StreamSerializer<? extends ComplexExpression>> SERIALIZER_MAP = new HashMap<>();
+        private static final Map<String, Byte> CODE_MAP = new HashMap<>();
 
         static {
-            StreamSerializer.register(new Serializer());
+            StreamSerializerRegister.register(new Serializer());
         }
 
         private Serializer() {
         }
 
-        public static void register(int code, StreamSerializer<? extends ComplexExpression> serializer) {
-            PolymorphismStreamSerializer.register(MAP, code, serializer);
+        public static <T extends ComplexExpression> void register(
+                int code, StreamSerializer<T> serializer,
+                Class<T> type) {
+            PolymorphismStreamSerializer.register(SERIALIZER_MAP, (byte) code, serializer, CODE_MAP, type.getName());
         }
 
         @Override
         public ComplexExpression in(InputStream is) {
-            return PolymorphismStreamSerializer.in(MAP, is);
+            return PolymorphismStreamSerializer.in(SERIALIZER_MAP, is);
+        }
+
+        @Override
+        public int out(OutputStream os, ComplexExpression src) {
+            return PolymorphismStreamSerializer.out(CODE_MAP, os, src);
         }
     }
 }

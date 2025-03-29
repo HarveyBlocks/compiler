@@ -2,10 +2,12 @@ package org.harvey.compiler.execute.expression;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.harvey.compiler.io.serializer.PolymorphismSerializable;
+import org.harvey.compiler.io.serializer.PolymorphismStreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 import org.harvey.compiler.io.source.SourcePosition;
-import org.harvey.compiler.io.ss.PolymorphismSerializable;
-import org.harvey.compiler.io.ss.PolymorphismStreamSerializer;
-import org.harvey.compiler.io.ss.StreamSerializer;
+import org.harvey.compiler.io.source.SourcePositionSupplier;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,49 +15,54 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO
+ * 在表达式中的从成员
  *
- * @date 2025-01-08 16:45
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-08 16:45
  */
 @AllArgsConstructor
 @Getter
-public abstract class ExpressionElement extends PolymorphismSerializable {
+public abstract class ExpressionElement extends PolymorphismSerializable implements SourcePositionSupplier {
 
     private SourcePosition position;
 
-
-    public abstract int out(OutputStream os);
-
     public static class Serializer extends PolymorphismStreamSerializer<ExpressionElement> {
-        private static final Map<Integer, StreamSerializer<? extends ExpressionElement>> MAP = new HashMap<>();
+        private static final Map<Byte, StreamSerializer<? extends ExpressionElement>> SERIALIZER_MAP = new HashMap<>();
+        private static final Map<String, Byte> CODE_MAP = new HashMap<>();
 
         static {
-            StreamSerializer.register(new Serializer());
+            StreamSerializerRegister.register(new Serializer());
         }
 
         private Serializer() {
         }
 
-        public static void register(int code, StreamSerializer<? extends ExpressionElement> serializer) {
-            PolymorphismStreamSerializer.register(MAP, code, serializer);
+        public static <T extends ExpressionElement> void register(
+                int code, StreamSerializer<T> serializer,
+                Class<T> type) {
+            PolymorphismStreamSerializer.register(SERIALIZER_MAP, (byte) code, serializer, CODE_MAP, type.getName());
         }
 
         @Override
         public ExpressionElement in(InputStream is) {
-            return PolymorphismStreamSerializer.in(MAP, is);
+            return PolymorphismStreamSerializer.in(SERIALIZER_MAP, is);
+        }
+
+        @Override
+        public int out(OutputStream os, ExpressionElement src) {
+            return PolymorphismStreamSerializer.out(CODE_MAP, os, src);
         }
     }
 
-//    public static class Serializer implements StreamSerializer<ExpressionElement> {}
+//    public static class OnlyFileStatementSerializer implements StreamSerializer<ExpressionElement> {}
 //        private static final Map<Integer, StreamSerializer<? extends ExpressionElement>> MAP = new HashMap<>();
 //
-//        private Serializer() {
+//        private OnlyFileStatementSerializer() {
 //        }
 //
 //        static {
-//            StreamSerializer.register(new Serializer());
+//            StreamSerializer.register(new OnlyFileStatementSerializer());
 //        }
 //
 //
@@ -71,16 +78,16 @@ public abstract class ExpressionElement extends PolymorphismSerializable {
 //        }
 //
 //        @Override
-//        public ExpressionElement in(InputStream is) {
+//        public ExpressionElement collectionIn(InputStream is) {
 //            int code;
 //            try {
 //                code = is.readNBytes(1)[0];
 //            } catch (IOException e) {
-//                throw new CompilerFileReaderException(e);
+//                throw new CompilerFileReadException(e);
 //            }
-//            ExpressionElement element = MAP.get(code).in(is);
+//            ExpressionElement element = MAP.get(code).collectionIn(is);
 //            if (element == null) {
-//                throw new CompilerException("Unknown Expression Element Serializer");
+//                throw new CompilerException("Unknown Expression Element OnlyFileStatementSerializer");
 //            }
 //            return element;
 //        }

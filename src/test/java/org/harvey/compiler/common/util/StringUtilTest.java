@@ -7,10 +7,10 @@ public class StringUtilTest {
 
     @Test
     public void split() {
-        Assert.assertArrayEquals(new String[]{"A", "B", "C"}, StringUtil.split("A--B--C", "--"));
-        Assert.assertArrayEquals(new String[]{"A", "B-C"}, StringUtil.split("A--B-C", "--"));
-        Assert.assertArrayEquals(new String[]{"A", "B", "C", ""}, StringUtil.split("A--B--C--", "--"));
-        Assert.assertArrayEquals(new String[]{"", "A", "B", "C", ""}, StringUtil.split("--A--B--C--", "--"));
-        Assert.assertArrayEquals(new String[]{"", "A", "B", "C"}, StringUtil.split("--A--B--C", "--"));
+        Assert.assertArrayEquals(new String[]{"A", "B", "C"}, StringUtil.simpleSplit("A--B--C", "--"));
+        Assert.assertArrayEquals(new String[]{"A", "B-C"}, StringUtil.simpleSplit("A--B-C", "--"));
+        Assert.assertArrayEquals(new String[]{"A", "B", "C", ""}, StringUtil.simpleSplit("A--B--C--", "--"));
+        Assert.assertArrayEquals(new String[]{"", "A", "B", "C", ""}, StringUtil.simpleSplit("--A--B--C--", "--"));
+        Assert.assertArrayEquals(new String[]{"", "A", "B", "C"}, StringUtil.simpleSplit("--A--B--C", "--"));
     }
 }

@@ -1,6 +1,6 @@
 package org.harvey.compiler.exception.analysis;
 
-import org.harvey.compiler.exception.CompileException;
+import org.harvey.compiler.exception.CompileFileException;
 import org.harvey.compiler.io.source.SourcePosition;
 
 /**
@@ -10,7 +10,7 @@ import org.harvey.compiler.io.source.SourcePosition;
  * @version 1.0
  * @date 2024-11-17 00:00
  */
-public class AnalysisException extends CompileException {
+public class AnalysisException extends CompileFileException {
     public AnalysisException(SourcePosition errorPosition, String message) {
         super(errorPosition, message);
     }

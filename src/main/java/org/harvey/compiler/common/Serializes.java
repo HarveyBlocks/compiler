@@ -1,11 +1,11 @@
 package org.harvey.compiler.common;
 
-import org.harvey.compiler.exception.io.CompilerFileWriterException;
+import org.harvey.compiler.exception.io.CompilerFileWriteException;
 import org.harvey.compiler.io.serializer.HeadMap;
 import org.harvey.compiler.io.serializer.SerializableData;
 
 /**
- * TODO
+ * 序列化(byte)工具类
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -41,7 +41,7 @@ public class Serializes {
         byte[] target = head.data();
         for (HeadMap map : maps) {
             int mapBitCount = map.getBitCount();
-            long mapValue = map.getValue();
+            long mapValue = map.getUnsignedValue();
             int byteStartIndex = bitIndex >>> 3;
             int bitStartIndex = bitIndex & 7;
             bitIndex += mapBitCount;
@@ -51,8 +51,10 @@ public class Serializes {
                 // 同一个byte里的操作
                 // 将mapBitCount长度的mapValue填入bitStartIndex到bitEndIndex
                 if (bitStartIndex > bitEndIndex) {
-                    throw new CompilerFileWriterException("I don't known how it happens, it's imposible",
-                            new IllegalStateException());
+                    throw new CompilerFileWriteException(
+                            "I don't known how it happens, it's imposible",
+                            new IllegalStateException()
+                    );
                 }
                 target[byteStartIndex] |= (byte) (mapValue << (8 - bitEndIndex));
                 continue;
@@ -60,18 +62,18 @@ public class Serializes {
             // 取出mapValue的最高位填补bitStartIndex后面不足一个byte的空缺
 
             int newBitStart = -mapBitCount + 8 - bitStartIndex;
-            byte startBit = (byte) getBits(mapValue, -mapBitCount, newBitStart);
+            byte startBit = (byte) getRawBits(mapValue, -mapBitCount, newBitStart);
             target[byteStartIndex] |= startBit;
             byteStartIndex++;
             // 取出mapValue的最低位填补bitEndIndex多出的byte
             if (bitEndIndex != 0) {
-                byte endBit = (byte) getBits(mapValue, -bitEndIndex, 0);
+                byte endBit = (byte) getRawBits(mapValue, -bitEndIndex, 0);
                 target[byteEndIndex] |= (byte) (endBit << (8 - bitEndIndex));
             }
             byteEndIndex--;
             // byte的全部赋值
             for (int i = byteStartIndex; i <= byteEndIndex; i++) {
-                target[i] = (byte) getBits(mapValue, newBitStart, newBitStart + 8);
+                target[i] = (byte) getRawBits(mapValue, newBitStart, newBitStart + 8);
                 newBitStart += 8;
             }
         }
@@ -79,12 +81,11 @@ public class Serializes {
     }
 
     public static long toNumber(byte[] data) {
-        // TODO
         if (data == null || data.length == 0) {
             return 0;
         }
         if (data.length > 8) {
-            throw new CompilerFileWriterException("Too large, please use BigDecimal");
+            throw new CompilerFileWriteException("Too large, please use BigDecimal");
         }
         long result = 0;
         for (byte datum : data) {
@@ -94,11 +95,11 @@ public class Serializes {
         return result;
     }
 
-    public static long getBits(long value, int start, int end) {
+    public static long getRawBits(long value, int start, int end) {
         long result = 0;
         for (int i = start; i < end; i++) {
             result <<= 1;
-            result += getBit(value, i).value();
+            result |= getBit(value, i).value();
         }
         return result;
     }
@@ -134,7 +135,7 @@ public class Serializes {
     }
 
     public static long signedMinValue(int bitCount) {
-        return -unsignedMaxValue(bitCount-1)-1;
+        return -unsignedMaxValue(bitCount - 1) - 1;
     }
 
     /**
@@ -150,14 +151,14 @@ public class Serializes {
 
     public static void notTooLong(long value, String valueName, long limited) {
         if (value > limited) {
-            throw new CompilerFileWriterException("Too long of " + valueName + ": " + value + " , max is: " + limited);
+            throw new CompilerFileWriteException("Too long of " + valueName + ": " + value + " , max is: " + limited);
         }
 
     }
 
     public static void notTooMuch(long value, String valueName, long limited) {
         if (value > limited) {
-            throw new CompilerFileWriterException("Too much of " + valueName + ": " + value + " , max is: " + limited);
+            throw new CompilerFileWriteException("Too much of " + valueName + ": " + value + " , max is: " + limited);
         }
 
     }

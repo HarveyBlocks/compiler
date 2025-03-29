@@ -1,21 +1,25 @@
 package org.harvey.compiler.execute.expression;
 
-import org.harvey.compiler.analysis.calculate.Operator;
-import org.harvey.compiler.analysis.calculate.Operators;
-import org.harvey.compiler.analysis.core.Keyword;
-import org.harvey.compiler.analysis.core.Keywords;
-import org.harvey.compiler.analysis.text.context.SourceTextContext;
-import org.harvey.compiler.common.CompileProperties;
-import org.harvey.compiler.common.util.CollectionUtil;
+import org.harvey.compiler.command.CompileProperties;
+import org.harvey.compiler.common.collecction.CollectionUtil;
+import org.harvey.compiler.common.collecction.ListPoint;
 import org.harvey.compiler.common.util.EncirclePair;
-import org.harvey.compiler.common.util.ListPoint;
-import org.harvey.compiler.depart.SimpleDepartedBodyFactory;
-import org.harvey.compiler.exception.CompileException;
+import org.harvey.compiler.declare.analysis.DeclarableFactory;
+import org.harvey.compiler.declare.analysis.Keyword;
+import org.harvey.compiler.declare.analysis.Keywords;
+import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.exception.CompileFileException;
 import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.execute.calculate.Operator;
+import org.harvey.compiler.execute.calculate.Operators;
+import org.harvey.compiler.execute.local.LocalTableElementDeclare;
+import org.harvey.compiler.execute.local.LocalVariableManager;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
-import org.harvey.compiler.io.source.SourceStringType;
+import org.harvey.compiler.io.source.SourceType;
+import org.harvey.compiler.text.context.SourceTextContext;
+import org.harvey.compiler.text.depart.SimpleDepartedBodyFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,125 +35,78 @@ import static org.harvey.compiler.execute.expression.ConstantString.ConstantType
  * @date 2025-01-03 19:29
  */
 public class ExpressionFactory {
-
-    public static Expression genericMessage(ListIterator<SourceString> iterator) {
-        return genericMessage(iterator, new Expression());
-    }
-
-    private static Expression genericMessage(ListIterator<SourceString> iterator, Expression expression) {
-        if (!iterator.hasNext()) {
-            throw new CompilerException("genericMessage can not be empty");
-        }
-        SourceString first = iterator.next();
-        if (!iterator.hasNext()) {
-            throw new AnalysisExpressionException(first.getPosition(), "not a generic message");
-        }
-        if (first.getType() != SourceStringType.OPERATOR || !Operator.GENERIC_LIST_PRE.nameEquals(first.getValue())) {
-            throw new AnalysisExpressionException(first.getPosition(), "not a generic message");
-        }
-        int inGeneric = 1;
-        SourcePosition position = first.getPosition();
-        while (iterator.hasNext()) {
-            SourceString string = iterator.next();
-            SourceStringType sourceType = string.getType();
-            position = string.getPosition();
-            String value = string.getValue();
-            if (sourceType == SourceStringType.IDENTIFIER) {
-                expression.add(new IdentifierString(position, string.getValue()));
-                continue;
-            } else if (sourceType == SourceStringType.KEYWORD && Keywords.isBasicType(value)) {
-                expression.add(new KeywordString(position, Keyword.get(value)));
-                continue;
-            } else if (sourceType == SourceStringType.IGNORE_IDENTIFIER) {
-                expression.add(new IgnoreIdentifierString(position));
-                continue;
-            } else if (sourceType != SourceStringType.OPERATOR) {
-                throw new AnalysisExpressionException(position, "not allowed here");
-            }
-            ExpressionElement last = expression.get(expression.size() - 1);
-            if (!(last instanceof IdentifierString) && !(last instanceof IgnoreIdentifierString)) {
-                throw new AnalysisExpressionException(position, "expected a identifier");
-            }
-            Operator operator;
-            if (Operator.GENERIC_LIST_PRE.nameEquals(value)) {
-                operator = Operator.GENERIC_LIST_PRE;
-                inGeneric++;
-            } else if (Operator.GENERIC_LIST_POST.nameEquals(value)) {
-                operator = Operator.GENERIC_LIST_POST;
-                inGeneric--;
-            } else if (Operator.COMMA.nameEquals(value)) {
-                operator = Operator.COMMA;
-            } else {
-                throw new AnalysisExpressionException(position, "Illegal operator");
-            }
-            expression.add(new OperatorString(position, operator));
-            if (inGeneric == 0) {
-                return expression;
-            }
-            if (inGeneric < 0) {
-                throw new AnalysisExpressionException(position, "Illegal generic match");
-            }
-        }
-        throw new AnalysisExpressionException(position, "not a generic message");
-    }
-
-    public static Expression type(SourceTextContext type) {
-        return type(type.listIterator());
-    }
-
-    public static Expression type(ListIterator<SourceString> iterator) {
-        if (!iterator.hasNext()) {
-            throw new CompilerException("type can not be empty");
-        }
-        SourceString identifier = iterator.next();
-        Expression expression = new Expression();
-
-        Keyword mayKeyword = Keyword.get(identifier.getValue());
-        if (identifier.getType() == SourceStringType.IDENTIFIER) {
-            expression.add(new IdentifierString(identifier));
-        } else if (identifier.getType() == SourceStringType.KEYWORD && Keywords.isBasicType(mayKeyword)) {
-            if (iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "not basic type");
-            }
-            expression.add(new KeywordString(identifier.getPosition(), mayKeyword));
-            return expression;
-        } else {
-            throw new AnalysisExpressionException(identifier.getPosition(), "not a type");
-        }
-        return iterator.hasNext() ? genericMessage(iterator, expression) : expression;
-    }
-
-    public static Expression depart(SourceTextContext expression) {
-        ArrayList<SourceString> sourceList = new ArrayList<>(expression);
+    /**
+     * @param localVariableManager nullable
+     */
+    public static Expression simplyMapToExpression(
+            List<SourceString> expression, IdentifierManager identifierManager,
+            LocalVariableManager localVariableManager) {
+        ArrayList<SourceString> sourceList =
+                expression instanceof ArrayList ? (ArrayList<SourceString>) expression : new ArrayList<>(expression);
         Expression result = new Expression();
-        for (int i = 0; i < sourceList.size(); i++) {
+        for (int i = 0; i < sourceList.size(); ) {
             try {
-                ListPoint<ExpressionElement> listPoint = switchSourceType(sourceList, i, result, result.size());
+                ListPoint<ExpressionElement> listPoint = switchSourceType(sourceList, i, result, identifierManager,
+                        localVariableManager
+                );
                 result.add(listPoint.getElement());
                 i = listPoint.getIndex();
-            } catch (CompileException ce) {
-                throw new CompileException(sourceList.get(i).getPosition(), ce.getOriginMessage(), ce);
+            } catch (CompileFileException ce) {
+                throw new CompileFileException(sourceList.get(i).getPosition(), ce.getOriginMessage(), ce);
             }
         }
         return result;
     }
 
-    private static ListPoint<ExpressionElement> switchSourceType(ArrayList<SourceString> sourceList, int index,
-                                                                 Expression result, int putToIndex) {
+    private static ListPoint<ExpressionElement> switchSourceType(
+            ArrayList<SourceString> sourceList, int index,
+            Expression result, IdentifierManager identifierManager,
+            LocalVariableManager localVariableManager) {
         SourceString next = sourceList.get(index);
         String value = next.getValue();
         SourcePosition position = next.getPosition();
         ExpressionElement element;
         switch (next.getType()) {
             case IDENTIFIER:
-                return new ListPoint<>(index + 1, new IdentifierString(position, next.getValue()));
+                // 1. 局部变量
+                if (localVariableManager != null) {
+                    // 尝试使用局部变量
+
+                    LocalTableElementDeclare localVariableUsing = localVariableManager.forUse(value, position);
+                    if (localVariableUsing != null) {
+                        // 是局部变量了
+                        return new ListPoint<>(index + 1, localVariableUsing);
+                    }
+                }
+                // 2. 参数
+                ListPoint<FullIdentifierString> fullIdentifier = fullIdentifier(position, value, index + 1, sourceList);
+                ReferenceElement reference = identifierManager.getReferenceAndAddIfNotExist(
+                        fullIdentifier.getElement());
+                return new ListPoint<>(fullIdentifier.getIndex(), reference);
+            // 现阶段还不能分辨这个identifier是 local variable 还是 field
+            // fullIdentifier(position, value, index + 1, sourceList);
+                /*
+                是否需要在此阶段分析Identifier的引用
+                if (isCallOperatorReload(sourceList, lp)) {
+                    List<SourceString> sourceStrings = callOperatorReload(sourceList, index + 1);
+                    // 分析
+                    // 重载运算符. A文件中import org.a.b.X, 声明了 A.(X)();
+                    // 重载运算符. B文件中import org.x.x.A, 使用了 A a = (new A()).(X)()
+                    // 但是B文件中并没有import org.a.b.X. X回报错, 一定要import
+                    // 思考泛型列表不同的两个带泛型的函数, 是否认为是同一个函数?
+                    // 也就是说, 如果FullIdentifier里面如果还有Identifier的话, 可以...
+                    // 但是, 仔细想想吧, 如果是Operator也要被加载的话, 那参数列表也要携带, 这是不好的
+                    // 所以答案是, 不用分析重载运算符
+//                    sourceStrings.get();
+                } else {
+                    return lp;
+                }*/
             case IGNORE_IDENTIFIER:
-                return new ListPoint<>(index + 1, new IgnoreIdentifierString(position));
+                return new ListPoint<>(index + 1, new ReferenceElement(position, ReferenceType.IGNORE, 0));
             case OPERATOR:
                 return dealOperator(position, Operators.get(value), sourceList, index, result);
             case KEYWORD:
-                // TODO 表达式中可以出现哪些Keyword呢?
-                return new ListPoint<>(index + 1, dealKeyword(Keyword.get(value), position));
+                return new ListPoint<>(index + 1, dealKeyword(Keyword.get(value), position, identifierManager));
             case STRING:
                 element = new ConstantString(position, LiterallyConstantUtil.stringData(value), ConstantType.STRING);
                 return new ListPoint<>(index + 1, element);
@@ -178,11 +135,13 @@ public class ExpressionFactory {
                 } else if (SimpleDepartedBodyFactory.BODY_START.equals(value)) {
                     complexExpression = complexExpression(sourceList, index, result);
                 } else if (SimpleDepartedBodyFactory.BODY_END.equals(value)) {
-                    // body end 匹配没事, 前面检查过了
+                    throw new AnalysisExpressionException(position, "body end that not completed with start");
+                } else if (isEndMsg(value)) {
                     if (result.isEmpty()) {
+                        // body end 匹配没事, 前面检查过了
                         throw new AnalysisExpressionException(position, "body end can not be first");
                     }
-                    complexExpression = bodyEndMap(value, result, putToIndex);
+                    complexExpression = bodyEndMap(value, result, index + 1);
                 } else {
                     throw new AnalysisExpressionException(position, "unknown sign");
                 }
@@ -191,8 +150,8 @@ public class ExpressionFactory {
             case GOTO:
             case LABEL:
             case ASSIGN_TEMP:
-                throw new CompilerException(
-                        "A SourceStringType " + next.getType() + ", " + next + " that doesn't fit in: too early");
+                throw new CompilerException("A SourceType " + next.getType() + ", " + next +
+                                            " that doesn't fit collectionIn: too early");
             case SCIENTIFIC_NOTATION_FLOAT32:
             case SCIENTIFIC_NOTATION_FLOAT64:
             case ITEM:
@@ -200,26 +159,33 @@ public class ExpressionFactory {
             case LINE_SEPARATOR:
             case MULTI_LINE_COMMENTS:
             case MIXED:
-                throw new CompilerException(
-                        "A SourceStringType " + next.getType() + ", " + next + " that doesn't fit in: too late");
+                throw new CompilerException("A SourceType " + next.getType() + ", " + next +
+                                            " that doesn't fit collectionIn: too late");
         }
         throw new CompilerException("Unknown source string type: " + next.getType());
     }
 
-    private static ComplexExpression bodyEndMap(String value, Expression result, int endIndex) {
+    private static boolean isEndMsg(String value) {
+        return value != null && value.endsWith("__end__");
+    }
 
+    private static ComplexExpression bodyEndMap(String value, Expression result, int endIndex) {
         switch (value) {
             case ArrayInitExpression.END_MSG:
                 ArrayInitExpression aiEnd = new ArrayInitExpression(false);
-                ListPoint<ArrayInitExpression> aiStart = findComplexExpressionPre(result,
-                        ComplexExpressionPredicate.ARRAY_INIT);
+                ListPoint<ArrayInitExpression> aiStart = findComplexExpressionPre(
+                        result,
+                        ComplexExpressionPredicate.ARRAY_INIT
+                );
                 aiEnd.setOtherSide(aiStart.getIndex());
                 aiStart.getElement().setOtherSide(endIndex);
                 return aiEnd;
             case StructCloneExpression.END_MSG:
                 StructCloneExpression scEnd = new StructCloneExpression(false);
-                ListPoint<StructCloneExpression> scStart = findComplexExpressionPre(result,
-                        ComplexExpressionPredicate.STRUCT_CLONE);
+                ListPoint<StructCloneExpression> scStart = findComplexExpressionPre(
+                        result,
+                        ComplexExpressionPredicate.STRUCT_CLONE
+                );
                 scEnd.setOtherSide(scStart.getIndex());
                 scStart.getElement().setOtherSide(endIndex);
                 return scEnd;
@@ -230,8 +196,9 @@ public class ExpressionFactory {
     }
 
 
-    private static <T extends ComplexExpression> ListPoint<T> findComplexExpressionPre(Expression result,
-                                                                                       ComplexExpressionPredicate<T> predicate) {
+    private static <T extends ComplexExpression> ListPoint<T> findComplexExpressionPre(
+            Expression result,
+            ComplexExpressionPredicate<T> predicate) {
         if (result.isEmpty()) {
             throw new CompilerException("result can not be empty", new IndexOutOfBoundsException());
         }
@@ -262,8 +229,9 @@ public class ExpressionFactory {
     /**
      * @param bodyStart 是`{`的部分
      */
-    private static ComplexExpression complexExpression(ArrayList<SourceString> sourceList, int bodyStart,
-                                                       Expression result) {
+    private static ComplexExpression complexExpression(
+            ArrayList<SourceString> sourceList, int bodyStart,
+            Expression result) {
         // 可能有多种ComplexExpression情况...
         // array init/ struct clone...
         // 甚至是switch表达式...(暂无)
@@ -302,8 +270,8 @@ public class ExpressionFactory {
         ExpressionElement callPre = result.get(resultIndex - 2);
         ExpressionElement unknown = result.get(resultIndex - 3);
         if (!(callPost instanceof OperatorString) || ((OperatorString) callPost).getValue() != Operator.CALL_POST ||
-                !(identifier instanceof IdentifierString) || !(callPre instanceof OperatorString) ||
-                ((OperatorString) callPre).getValue() != Operator.CALL_PRE) {
+            !(identifier instanceof IdentifierString) || !(callPre instanceof OperatorString) ||
+            ((OperatorString) callPre).getValue() != Operator.CALL_PRE) {
             return false;
         }
         if (unknown instanceof KeywordString) {
@@ -358,30 +326,135 @@ public class ExpressionFactory {
     }
 
 
-    private static ListPoint<ExpressionElement> dealOperator(SourcePosition position, Operator[] operators,
-                                                             ArrayList<SourceString> src, int index,
-                                                             Expression expressionResult) {
+    private static ListPoint<ExpressionElement> dealOperator(
+            SourcePosition position, Operator[] operators,
+            ArrayList<SourceString> src, int index,
+            Expression expressionResult) {
         if (operators.length == 0) {
             throw new CompilerException();
         } else if (operators.length != 1) {
-            return new ListPoint<>(index + 1, new OperatorString(position,
-                    decideCorrectOperator(operators, position, src, index, expressionResult)));
+            return new ListPoint<>(index + 1, new OperatorString(
+                    position,
+                    decideCorrectOperator(operators, position, src, index, expressionResult)
+            ));
         }
         Operator operator = operators[0];
         if (operator == Operator.LAMBDA) {
             ListPoint<LambdaExpression> listPoint = lambdaExpressionCatcher(src, index, expressionResult);
-            return new ListPoint<>(listPoint.getIndex(),
-                    new ComplexExpressionElement(position, listPoint.getElement()));
-        } else {
-            return new ListPoint<>(index + 1, new OperatorString(position, operator));
+            return new ListPoint<>(
+                    listPoint.getIndex(),
+                    new ComplexExpressionElement(position, listPoint.getElement())
+            );
+        } else if (operator == Operator.GET_MEMBER && index + 1 < src.size()) {
+            // 可能是重载operator的情况
+            expressionResult.add(new OperatorString(position, Operator.GET_MEMBER));
+            SourceString next = src.get(index + 1);
+            if (next.getType() == SourceType.OPERATOR) {
+                // 是重载运算符
+                return callReloadOperator(index + 1, src, expressionResult);
+            } else if (next.getType() == SourceType.IDENTIFIER) {
+                // 是获取成员
+                return getMember(index + 1, next);
+            } else if (next.getType() == SourceType.KEYWORD) {
+                // 是获取Keyword信息
+                return getKeywordMember(index, next);
+            } else {
+                throw new AnalysisExpressionException(next.getPosition(), "expect identifier");
+            }
         }
+        return new ListPoint<>(index + 1, new OperatorString(position, operator));
     }
 
-    private static ExpressionElement dealKeyword(Keyword keyword, SourcePosition position) {
+
+    /**
+     * get member 过程获取到了一个关键字的情况, 对这个关键字进行处理
+     * TODO
+     * <pre>{@code
+     * class Outer {
+     *     int value;
+     *     class Inner {
+     *         int value;
+     *         public void fun() {
+     *             System.out.println(this.value);
+     *             System.out.println(Inner.this.value);
+     *             System.out.println(Outer.this.value);
+     *         }
+     *     }
+     * }
+     * }</pre>
+     */
+    private static ListPoint<ExpressionElement> getKeywordMember(int indexOfKeywordMember, SourceString keywordSource) {
+        Keyword keyword = Keyword.get(keywordSource.getValue());
+        switch (keyword) {
+            case THIS:
+                // 这个this是什么情况呢?
+                break;
+            // case TYPE:
+            // Type<int> a = new Type<>(); 能根据int获取type信息的
+            // or meta or class
+            // 获取类型字节码信息么... 好吧
+            // break;
+            default:
+                throw new AnalysisExpressionException(keywordSource.getPosition(), "Unexpected value: " + keyword);
+        }
+        return new ListPoint<>(indexOfKeywordMember + 1, new KeywordString(keywordSource.getPosition(), keyword));
+    }
+
+    private static ListPoint<ExpressionElement> getMember(int indexOfMember, SourceString member) {
+        return new ListPoint<>(indexOfMember + 1, new IdentifierString(member));
+    }
+
+    private static ListPoint<ExpressionElement> callReloadOperator(
+            int indexOfOperator, ArrayList<SourceString> src,
+            Expression expressionResult) {
+        StringBuilder operSb = new StringBuilder();
+        SourceString first = src.get(indexOfOperator);
+        SourcePosition start = first.getPosition();
+        if (Operator.CALL_PRE.nameEquals(first.getValue())) {
+            indexOfOperator++;
+            if (indexOfOperator >= src.size() || !Operator.CALL_POST.nameEquals(src.get(indexOfOperator).getValue())) {
+                throw new AnalysisExpressionException(start, "expected)");
+            }
+            expressionResult.add(new OperatorString(start, Operator.CALLABLE_DECLARE));
+            indexOfOperator++;
+            if (indexOfOperator >= src.size() || !Operator.CALL_PRE.nameEquals(src.get(indexOfOperator).getValue())) {
+                throw new AnalysisExpressionException(start, "expected(");
+            }
+            return new ListPoint<>(indexOfOperator + 1, new OperatorString(start, Operator.CALL_PRE));
+        }
+
+        SourcePosition end = start;
+        for (; indexOfOperator < src.size(); indexOfOperator++) {
+            SourceString operStr = src.get(indexOfOperator);
+            if (operStr.getType() != SourceType.OPERATOR) {
+                throw new AnalysisExpressionException(operStr.getPosition(), "expected a operator");
+            }
+            end = operStr.getPosition();
+            if (!Operator.CALL_PRE.nameEquals(operStr.getValue())) {
+                operSb.append(operStr.getValue());
+                continue;
+            }
+            Operator[] operators = Operators.get(operSb.toString());
+            if (operators.length == 0) {
+                throw new AnalysisExpressionException(start, end, "Unknown operator");
+            }
+            expressionResult.add(new OperatorString(start, operators[0]));
+            return new ListPoint<>(indexOfOperator + 1, new OperatorString(end, Operator.CALL_PRE));
+        }
+        throw new AnalysisExpressionException(end, "expected (");
+    }
+
+    private static ExpressionElement dealKeyword(
+            Keyword keyword, SourcePosition position,
+            IdentifierManager identifierManager) {
+        // TODO 表达式中可以出现哪些Keyword呢?
         if (Keywords.isOperator(keyword)) {
             // 应该不会进入, 因为之前已经处理好了
             return new OperatorString(position, Operator.fromKeyword(keyword));
-        } else if (keyword == Keyword.THIS || keyword == Keyword.SUPER || keyword == Keyword.NEW) {
+        } else if (keyword == Keyword.THIS || keyword == Keyword.SUPER || keyword == Keyword.NEW ||
+                   keyword == Keyword.FILE) {
+            return new KeywordString(position, keyword);
+        } else if (Keywords.isBasicType(keyword) && Keyword.VOID != keyword) {
             return new KeywordString(position, keyword);
         } else {
             throw new AnalysisExpressionException(position, "Illegal here");
@@ -391,8 +464,9 @@ public class ExpressionFactory {
     /**
      * @param index 此时index是->
      */
-    private static ListPoint<LambdaExpression> lambdaExpressionCatcher(ArrayList<SourceString> src, int index,
-                                                                       Expression expression) {
+    private static ListPoint<LambdaExpression> lambdaExpressionCatcher(
+            ArrayList<SourceString> src, int index,
+            Expression expression) {
         // 被多算入expression的, 应该退回
         if (index < 0) {
             throw new CompilerException("Illegal timing of the call");
@@ -410,8 +484,10 @@ public class ExpressionFactory {
             throw new AnalysisExpressionException(lambdaSign.getPosition(), "expected executable body");
         }
         ListPoint<SourceTextContext> listPoint = getLambdaExecutable(src, index);
-        return new ListPoint<>(listPoint.getIndex(),
-                new LambdaExpression(arguments.toArray(new SourceString[]{}), listPoint.getElement()));
+        return new ListPoint<>(
+                listPoint.getIndex(),
+                new LambdaExpression(arguments.toArray(new SourceString[]{}), listPoint.getElement())
+        );
     }
 
     /**
@@ -427,15 +503,17 @@ public class ExpressionFactory {
      */
     private static ListPoint<SourceTextContext> getLambdaExecutable(ArrayList<SourceString> src, int index) {
         SourceString next = src.get(index + 1);
-        if (next.getType() != SourceStringType.SIGN) {
+        if (next.getType() != SourceType.SIGN) {
             // index 指向 -> 之后
             return new ListPoint<>(index + 1, null);
         }
         if (SimpleDepartedBodyFactory.SENTENCE_END.equals(next.getValue())) {
             throw new CompilerException("`;` is Illegal here: too late");
         } else if (SimpleDepartedBodyFactory.BODY_END.equals(next.getValue())) {
-            throw new AnalysisExpressionException(next.getPosition(),
-                    "expected " + SimpleDepartedBodyFactory.BODY_START);
+            throw new AnalysisExpressionException(
+                    next.getPosition(),
+                    "expected " + SimpleDepartedBodyFactory.BODY_START
+            );
         }
         return moveToEndOfBody(src, index + 1);
     }
@@ -449,8 +527,8 @@ public class ExpressionFactory {
         SourceTextContext body = new SourceTextContext();
         for (int i = startOfBody + 1; i < src.size(); i++) {
             SourceString element = src.get(i);
-            if (element.getType() != SourceStringType.SIGN ||
-                    SimpleDepartedBodyFactory.SENTENCE_END.equals(element.getValue())) {
+            if (element.getType() != SourceType.SIGN ||
+                SimpleDepartedBodyFactory.SENTENCE_END.equals(element.getValue())) {
                 body.add(element);
             }
             if (SimpleDepartedBodyFactory.BODY_START.equals(element.getValue())) {
@@ -470,13 +548,13 @@ public class ExpressionFactory {
 
     private static List<SourceString> getLambdaArgument(ArrayList<SourceString> src, int index, Expression expression) {
         SourceString previous = src.get(index - 1);
-        if (previous.getType() == SourceStringType.IDENTIFIER) {
+        if (previous.getType() == SourceType.IDENTIFIER) {
             // 去除最后一个, 就是previous
             expression.remove(expression.size() - 1);
             // 单独一个参数列表可以省略括号
             return List.of(previous);
-        } else if (previous.getType() != SourceStringType.OPERATOR ||
-                !Operator.BRACKET_POST.nameEquals(previous.getValue())) {
+        } else if (previous.getType() != SourceType.OPERATOR ||
+                   !Operator.PARENTHESES_POST.nameEquals(previous.getValue())) {
             throw new AnalysisExpressionException(previous.getPosition(), "expected )");
         }
         List<SourceString> arguments = new ArrayList<>();
@@ -491,18 +569,20 @@ public class ExpressionFactory {
             SourceString ss = src.get(p);
             p--;
             String value = ss.getValue();
-            SourceStringType type = ss.getType();
+            SourceType type = ss.getType();
             // 删去最后一个
             expression.remove(expression.size() - 1);
-            if (type == SourceStringType.IDENTIFIER && identifier == null) {
+            if (type == SourceType.IDENTIFIER && identifier == null) {
                 identifier = ss;
                 continue;
             }
-            if (type != SourceStringType.OPERATOR) {
-                throw new AnalysisExpressionException(ss.getPosition(),
-                        "excepted an " + (identifier == null ? "identifier as an argument" : ","));
+            if (type != SourceType.OPERATOR) {
+                throw new AnalysisExpressionException(
+                        ss.getPosition(),
+                        "excepted an " + (identifier == null ? "identifier as an argument" : ",")
+                );
             }
-            if (Operator.BRACKET_PRE.nameEquals(value)) {
+            if (Operator.PARENTHESES_PRE.nameEquals(value)) {
                 // identifier == null && arguments.isEmpty()-> ()
                 // identifier != null && !arguments.isEmpty() -> 匹配正确
                 // else -> 匹配错误
@@ -531,26 +611,28 @@ public class ExpressionFactory {
     }
 
     /**
-     * @param index    此时, 其指向operator的源码
+     * @param index 此时, 其指向operator的源码
      */
-    private static Operator decideCorrectOperator(Operator[] operators, SourcePosition position,
-                                                  ArrayList<SourceString> src, int index, Expression result) {
+    private static Operator decideCorrectOperator(
+            Operator[] operators, SourcePosition position,
+            ArrayList<SourceString> src, int index, Expression result) {
         if (operators.length != 2) {
             throw new CompilerException("Distinguishing between more than two operators is not supported");
         }
         SourceString sourceString = src.get(index);
         switch (sourceString.getValue()) {
-            case "<": // 泛型< or 大于号
-                return Operator.LESS;
-            case ">": // 泛型> or 小于号
-                return distinguishLarger(src, index, result);
+            case "[": // 泛型< or 大于号
+                return Operator.ARRAY_AT_PRE;
+            case "]": // 泛型 or list
+                return Operator.ARRAY_AT_POST;
             case "(": // 括号 or 函数调用
                 if (result.isEmpty()) {
                     throw new AnalysisExpressionException(position, "body end can not be first");
                 }
-                return distinguishPreCall(result, sourceString);
+                return distinguishPreCall(result) ? Operator.CALL_PRE : Operator.PARENTHESES_PRE;
             case ")": // 括号 or 函数调用
-                return distinguishPostCall(result, sourceString);
+                return distinguishPostCall(result, sourceString.getPosition()) ? Operator.CALL_POST :
+                        Operator.PARENTHESES_POST;
             case "+": // 加 or 正
                 return distinguishPlus(src, index);
             case "-": // 减 or 负
@@ -565,7 +647,7 @@ public class ExpressionFactory {
     }
 
 
-    private static Operator distinguishLarger(ArrayList<SourceString> src, int index, Expression result) {
+    private static boolean distinguishLarger(ArrayList<SourceString> src, int index, Expression result) {
         // 对于 >
         // 是Generic? 看后面
         //      没用了->是
@@ -577,16 +659,19 @@ public class ExpressionFactory {
         if (result.isEmpty()) {
             throw new CompilerException("result can not be empty", new IndexOutOfBoundsException());
         }
-        Operator operator;
         if (index + 1 >= src.size()) {
-            operator = Operator.GENERIC_LIST_POST;
-        } else {
-            operator = src.get(index + 1).getType() == SourceStringType.OPERATOR ? Operator.GENERIC_LIST_POST :
-                    Operator.LARGER;
+            return false;
         }
-        if (operator != Operator.LARGER) {
-            return operator;
+        SourceString next = src.get(index + 1);
+        if (next.getType() != SourceType.OPERATOR) {
+            return true;
         }
+        String nextValue = next.getValue();
+        return !Operator.GENERIC_LIST_PRE.nameEquals(nextValue) && !Operator.CALL_PRE.nameEquals(nextValue) &&
+               !Operator.ARRAY_AT_PRE.nameEquals(nextValue) && !Operator.ARRAY_DECLARE.nameEquals(nextValue);
+    }
+
+    private static void resetGenericListPre(Expression result) {
         for (int i = result.size() - 1; i >= 0; i--) {
             ExpressionElement element = result.get(i);
             if (!(element instanceof OperatorString)) {
@@ -596,13 +681,13 @@ public class ExpressionFactory {
             Operator value = os.getValue();
             if (value == Operator.LESS) {
                 result.set(i, new OperatorString(os.getPosition(), Operator.GENERIC_LIST_PRE));
-                return operator;
+                return;
             }
         }
         throw new AnalysisExpressionException(result.get(0).getPosition(), "expected a " + Operator.LESS.getName());
     }
 
-    private static Operator distinguishPreCall(Expression result, SourceString sourceString) {
+    private static boolean distinguishPreCall(Expression result) {
         // 是单元运算符?Call:)
         // 是Call? 看前面
         //      没有了->不是
@@ -612,15 +697,30 @@ public class ExpressionFactory {
         //      前一个是常数->不是
         //      前一个是不知道->不是
         ExpressionElement pre = result.get(result.size() - 1);
-        boolean isIdentifier = pre instanceof IdentifierString;
-        boolean isKeyword = pre instanceof KeywordString;
-        boolean isGenericPre =
-                pre instanceof OperatorString && ((OperatorString) pre).getValue() == Operator.GENERIC_LIST_POST;
-        return (isKeyword && Keywords.callable(((KeywordString) pre).getKeyword())) || isIdentifier ||
-                isGenericPre ? Operator.CALL_PRE : Operator.BRACKET_PRE;
+        if (pre instanceof IdentifierString) {
+            return true;
+        }
+        if (pre instanceof KeywordString && Keywords.callable(((KeywordString) pre).getKeyword())) {
+            return true;
+        }
+        if (pre instanceof ComplexExpressionElement) {
+            return true;
+        }
+
+        // 如果是对重载运算符的函数调用呢? 如何解决? 答案是在前面发现如果是重载运算符的函数调用, 就已经决定了Operator
+        // 一个类里重载了+运算符
+        // int a = 12 + +(55); ???? what? 不行, 大大的不行
+        // int a = 12 + this.+(55); 行吧
+        if (!(pre instanceof OperatorString)) {
+            return false;
+        }
+        Operator preOperator = ((OperatorString) pre).getValue();
+        return preOperator == Operator.GENERIC_LIST_POST || preOperator == Operator.CALL_POST ||
+               preOperator == Operator.ARRAY_AT_POST || preOperator == Operator.CALLABLE_DECLARE ||
+               preOperator == Operator.ARRAY_DECLARE;
     }
 
-    private static Operator distinguishPostCall(Expression result, SourceString sourceString) {
+    private static boolean distinguishPostCall(Expression result, SourcePosition position) {
         // 依据前面的内容是call来决定这个是什么
         // 用匹配找
         // ()
@@ -633,15 +733,15 @@ public class ExpressionFactory {
             }
             OperatorString os = (OperatorString) element;
             Operator value = os.getValue();
-            if (value == Operator.BRACKET_PRE) {
+            if (value == Operator.PARENTHESES_PRE) {
                 inTuple++;
                 if (inTuple == 1) {
                     if (inCall != 0) {
                         break;
                     }
-                    return Operator.BRACKET_POST;
+                    return false;
                 }
-            } else if (value == Operator.BRACKET_POST) {
+            } else if (value == Operator.PARENTHESES_POST) {
                 inTuple--;
             } else if (value == Operator.CALL_POST) {
                 inCall--;
@@ -651,11 +751,11 @@ public class ExpressionFactory {
                     if (inTuple != 0) {
                         break;
                     }
-                    return Operator.CALL_POST;
+                    return true;
                 }
             }
         }
-        throw new AnalysisExpressionException(sourceString.getPosition(), "can not find pre");
+        throw new AnalysisExpressionException(position, "can not find pre");
     }
 
 
@@ -667,8 +767,9 @@ public class ExpressionFactory {
         return distinguishLeftRight(src, index, Operator.LEFT_INCREASING, Operator.RIGHT_INCREASING);
     }
 
-    private static Operator distinguishLeftRight(ArrayList<SourceString> src, int index, Operator onLeft,
-                                                 Operator onRight) {
+    private static Operator distinguishLeftRight(
+            ArrayList<SourceString> src, int index, Operator onLeft,
+            Operator onRight) {
         EncirclePair<SourceString> pair = CollectionUtil.getEncirclePair(src, index);
         if (pair.bothNull()) {
             throw new AnalysisExpressionException(src.get(index).getPosition(), "expected a number");
@@ -676,24 +777,24 @@ public class ExpressionFactory {
         SourceString pre = pair.getPre();
         SourceString post = pair.getPost();
         if (pre == null) {
-            if (post.getType() == SourceStringType.IDENTIFIER) {
+            if (post.getType() == SourceType.IDENTIFIER) {
                 // ++x
                 return onLeft;
             } else {
                 throw new AnalysisExpressionException(src.get(index).getPosition(), "expected a variable");
             }
         } else if (post == null) {
-            if (pre.getType() == SourceStringType.IDENTIFIER) {
+            if (pre.getType() == SourceType.IDENTIFIER) {
                 // x++
                 return onRight;
             } else {
                 throw new AnalysisExpressionException(src.get(index).getPosition(), "expected a variable");
             }
         } else {
-            if (pre.getType() == SourceStringType.IDENTIFIER && post.getType() == SourceStringType.OPERATOR) {
+            if (pre.getType() == SourceType.IDENTIFIER && post.getType() == SourceType.OPERATOR) {
                 // x++ + 2
                 return onRight;
-            } else if (pre.getType() == SourceStringType.OPERATOR && post.getType() == SourceStringType.IDENTIFIER) {
+            } else if (pre.getType() == SourceType.OPERATOR && post.getType() == SourceType.IDENTIFIER) {
                 // 2 + ++x
                 return onLeft;
             } else {
@@ -718,26 +819,48 @@ public class ExpressionFactory {
         SourceString pre = pair.getPre();
         SourceString post = pair.getPost();
         if (pre == null) {
-            if (post.getType() == SourceStringType.IDENTIFIER) {
-                // +x
-                return sign;
-            } else {
-                throw new AnalysisExpressionException(src.get(index).getPosition(), "expected a number");
-            }
+            return sign;
         } else if (post == null) {
             throw new AnalysisExpressionException(src.get(index).getPosition(), "expected a number");
         } else {
-            if (pre.getType() == SourceStringType.IDENTIFIER && post.getType() == SourceStringType.OPERATOR) {
-                // x+ +2
-                return operator;
-            } else if (pre.getType() == SourceStringType.OPERATOR && post.getType() == SourceStringType.IDENTIFIER) {
-                // 2 + +x
+            if (pre.getType() == SourceType.OPERATOR && !Operator.PARENTHESES_POST.nameEquals(pre.getValue()) &&
+                !Operator.ARRAY_AT_POST.nameEquals(pre.getValue()) &&
+                !Operator.ARRAY_DECLARE.nameEquals(pre.getValue()) &&
+                !Operator.CALLABLE_DECLARE.nameEquals(pre.getValue())) {
+                return sign;
+            } else if (pre.getType() == SourceType.SIGN &&
+                       (SimpleDepartedBodyFactory.BODY_START.equals(pre.getValue()) ||
+                        SimpleDepartedBodyFactory.SENTENCE_END.equals(pre.getValue()))) {
                 return sign;
             } else {
-                throw new AnalysisExpressionException(src.get(index).getPosition(), "expected a only number");
+                return operator;
             }
         }
     }
 
+    public static ListPoint<FullIdentifierString> fullIdentifier(
+            SourcePosition position, String firstName,
+            int indexOfDot, ArrayList<SourceString> src) {
+        ListPoint<List<SourceString>> listListPoint = DeclarableFactory.departFullIdentifier(
+                position, firstName, indexOfDot, src);
+        return new ListPoint<>(listListPoint.getIndex(), fullIdentifier(listListPoint.getElement()));
+    }
 
+    /**
+     * @param iterator previous is identifier
+     */
+    public static FullIdentifierString fullIdentifier(
+            SourcePosition position, String firstName,
+            ListIterator<SourceString> iterator) {
+        List<SourceString> fullIdentifierString = DeclarableFactory.departFullIdentifier(position, firstName, iterator);
+        return fullIdentifier(fullIdentifierString);
+    }
+
+    private static FullIdentifierString fullIdentifier(List<SourceString> fullIdentifierString) {
+        String[] fullname = fullIdentifierString.stream().map(SourceString::getValue).toArray(String[]::new);
+        SourcePosition[] positions = fullIdentifierString.stream()
+                .map(SourceString::getPosition)
+                .toArray(SourcePosition[]::new);
+        return new FullIdentifierString(positions, fullname);
+    }
 }

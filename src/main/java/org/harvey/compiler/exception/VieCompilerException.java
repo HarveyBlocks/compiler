@@ -1,7 +1,7 @@
 package org.harvey.compiler.exception;
 
 /**
- * TODO  VieCompiler的异常
+ *   VieCompiler的异常
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -21,8 +21,9 @@ public class VieCompilerException extends RuntimeException {
         super(cause);
     }
 
-    public VieCompilerException(String message, Throwable cause, boolean enableSuppression,
-                                boolean writableStackTrace) {
+    public VieCompilerException(
+            String message, Throwable cause, boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

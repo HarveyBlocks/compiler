@@ -1,14 +1,16 @@
 package org.harvey.compiler.common.util;
 
-import org.harvey.compiler.common.StatementConstant;
+import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.exception.CompilerException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
- * TODO
+ * String的一些工具
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -33,7 +35,7 @@ public class StringUtil {
      * @param separator 分隔符
      * @return 分割后的数组, 其中参数中有是null, 则返回null
      */
-    public static String[] split(String source, String separator) {
+    public static String[] simpleSplit(String source, String separator) {
         if (source == null || separator == null) {
             return null;
         }
@@ -46,7 +48,7 @@ public class StringUtil {
         int index = 0;
         int fromIndex = 0;
         List<String> result = new ArrayList<>();
-        while (index < source.length()) {
+        while (fromIndex < source.length()) {
             index = source.indexOf(separator, fromIndex);
             if (index < 0) {
                 index = source.length();
@@ -67,11 +69,21 @@ public class StringUtil {
 
     public static boolean endWithNumberSuffix(String s) {
         char lastAt = Character.toUpperCase(s.charAt(s.length() - 1));
-        return lastAt == StatementConstant.FLOAT32_SUFFIX || lastAt == StatementConstant.INT64_SUFFIX;
+        return lastAt == SourceFileConstant.FLOAT32_SUFFIX || lastAt == SourceFileConstant.INT64_SUFFIX;
     }
 
     public static boolean contains(String src, char target) {
         return src.indexOf(target) >= 0;
+    }
+
+    public static boolean contains(String src, Set<Character> target) {
+        char[] chars = src.toCharArray();
+        for (char each : chars) {
+            if (target.contains(each)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean containsIgnoreCase(String src, char target) {
@@ -91,13 +103,47 @@ public class StringUtil {
         return src.substring(begin, end);
     }
 
-    public static String concat(Collection<String> errorMessage) {
-        StringBuilder sb = new StringBuilder();
-        errorMessage.forEach(sb::append);
-        return sb.toString();
+    public static String concat(Collection<?> values) {
+        return concat(values, Object::toString, ",", "[", "]");
+    }
+
+    public static <T> String concat(
+            Collection<T> values, Function<T, String> toString, String separator, String start,
+            String end) {
+        StringBuilder sb = new StringBuilder(start);
+        boolean startWithSeparator = false;
+        for (T e : values) {
+            if (startWithSeparator) {
+                sb.append(separator);
+            }
+            sb.append(toString.apply(e));
+            if (!startWithSeparator) {
+                startWithSeparator = true;
+            }
+        }
+        return sb.append(end).toString();
     }
 
     public static boolean isBlank(String str) {
         return str == null || str.isBlank();
+    }
+
+    public static String join(String[] array, char separator) {
+        return StringUtil.join(array, String.valueOf(separator));
+    }
+
+    public static String join(String[] array, String separator) {
+        return String.join(separator, array);
+    }
+
+    public static int count(String outerPre, char target) {
+        char[] charArray = outerPre.toCharArray();
+        int count = 0;
+        for (char c : charArray) {
+            if (c == target) {
+                count++;
+            }
+        }
+        return count;
     }
 }

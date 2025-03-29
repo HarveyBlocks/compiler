@@ -1,9 +1,9 @@
 package org.harvey.compiler.execute.expression;
 
-import org.harvey.compiler.analysis.calculate.Associativity;
-import org.harvey.compiler.analysis.calculate.OperandCount;
-import org.harvey.compiler.analysis.calculate.Operator;
-import org.harvey.compiler.analysis.calculate.Operators;
+import org.harvey.compiler.execute.calculate.Associativity;
+import org.harvey.compiler.execute.calculate.OperandCount;
+import org.harvey.compiler.execute.calculate.Operator;
+import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.io.source.SourceString;
 
 import java.io.PrintStream;
@@ -12,15 +12,13 @@ import java.util.Stack;
 
 /**
  * TODO
- *
+ * 分析表达式的工具, 将表达式转为简单的命令
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-11-25 18:36
  */
 public class ExpressionPhaser {
     private static final PrintStream OUT = System.out;
-
-
     private final Stack<Operator> operators = new Stack<>();
     private final Stack<String> items = new Stack<>();
     public int counter = 0;
@@ -104,8 +102,8 @@ public class ExpressionPhaser {
             Operator top = operators.peek();
             if (!Operators.isPost(operator)) {
                 if (Operators.isPre(top) || operator.getPriority() < top.getPriority() ||
-                        (operator.getPriority() == top.getPriority() &&
-                                operator.getAssociativity() == Associativity.RIGHT)) {
+                    (operator.getPriority() == top.getPriority() &&
+                     operator.getAssociativity() == Associativity.RIGHT)) {
                     operators.push(operator);
                     return;
                 }

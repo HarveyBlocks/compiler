@@ -14,8 +14,9 @@ public class StatementFileBuildException extends AnalysisException {
         super(errorPosition, message);
     }
 
-    public StatementFileBuildException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
-                                       String message) {
+    public StatementFileBuildException(
+            SourcePosition errorPositionBegin, SourcePosition errorPositionEnd,
+            String message) {
         super(errorPositionBegin, errorPositionEnd, message);
     }
 }

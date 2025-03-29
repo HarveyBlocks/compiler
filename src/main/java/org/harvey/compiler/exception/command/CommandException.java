@@ -3,7 +3,7 @@ package org.harvey.compiler.exception.command;
 import org.harvey.compiler.exception.VieCompilerException;
 
 /**
- * TODO
+ *
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

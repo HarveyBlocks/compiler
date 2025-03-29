@@ -1,18 +1,29 @@
 package org.harvey.compiler.declare.context;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import org.harvey.compiler.analysis.core.AccessControl;
-import org.harvey.compiler.common.Pair;
-import org.harvey.compiler.declare.Embellish;
+import lombok.Getter;
+import org.harvey.compiler.common.collecction.Pair;
+import org.harvey.compiler.declare.analysis.AccessControl;
+import org.harvey.compiler.declare.analysis.Embellish;
+import org.harvey.compiler.declare.define.FieldDefinition;
+import org.harvey.compiler.declare.identifier.IdentifierManager;
 import org.harvey.compiler.exception.CompilerException;
-import org.harvey.compiler.execute.expression.Expression;
-import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.execute.expression.ExpressionElement;
+import org.harvey.compiler.execute.expression.ReferenceElement;
+import org.harvey.compiler.io.serializer.*;
+import org.harvey.compiler.io.source.SourceString;
+import org.harvey.compiler.text.context.SourceTextContext;
+import org.harvey.compiler.type.generic.GenericFactory;
+import org.harvey.compiler.type.generic.define.GenericDefine;
+import org.harvey.compiler.type.generic.using.ParameterizedType;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.harvey.compiler.declare.phaser.FileStatementContextBuilder.NOT_HAVE_IDENTIFIER;
+import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 /**
  * 不显示作用域, 作用域取决于这个对象存在哪里, 存在局部变量表就是在方法里, 存在全局上下文就是全局范围
@@ -23,73 +34,100 @@ import static org.harvey.compiler.declare.phaser.FileStatementContextBuilder.NOT
  * @version 1.0
  * @date 2024-11-21 15:45
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
-public class ValueContext extends DeclaredContext {
-    private final List<Pair<Integer, Expression>> assignList = new ArrayList<>();
-    private Expression type;
+@EqualsAndHashCode
+@Getter
+@AllArgsConstructor
+public class ValueContext implements DeclaredContext {
+    // -------------------第二阶段加载----------------------------
+    private final AccessControl accessControl;
+    private final Embellish embellish;
+    // 趁着序列化, 把类型转一转吧
+    private final ParameterizedType<ReferenceElement> type;
+    private final List<Pair<ReferenceElement, Integer>> assignList;
 
-    @Override
-    public int getIdentifierReference() {
-        // TODO throw new CompilerException(new UnsupportedOperationException());
-        System.err.println(new UnsupportedOperationException("get identifier reference from value context"));
-        return NOT_HAVE_IDENTIFIER;
+    public ValueContext(
+            FieldDefinition definition,
+            IdentifierManager identifierManager,
+            SourceStringContextPoolFactory poolFactory) {
+        this.accessControl = definition.getPermissions();
+        this.embellish = definition.getEmbellish();
+        this.type = dealType(definition.getType(), identifierManager);
+        this.assignList = dealAssign(definition.getIdentifierMap(), poolFactory);
+    }
+
+    private static List<Pair<ReferenceElement, Integer>> dealAssign(
+            List<Pair<ReferenceElement, SourceTextContext>> assignMap, SourceStringContextPoolFactory poolFactory) {
+        return assignMap.stream()
+                .map(p -> new Pair<>(p.getKey(), poolFactory.add(p.getValue())))
+                .collect(Collectors.toList());
+    }
+
+    private static ParameterizedType<ReferenceElement> dealType(
+            Pair<ExpressionElement, SourceTextContext> typePair, IdentifierManager identifierManager) {
+        ReferenceElement referenceElement = GenericFactory.rawType2Reference(typePair.getKey(), identifierManager);
+        ListIterator<SourceString> iterator = typePair.getValue().listIterator();
+        return GenericFactory.parameterizedType(referenceElement, iterator, identifierManager);
     }
 
     @Override
-    public void setIdentifierReference(int identifierReference) {
-        // TODO throw new CompilerException(new UnsupportedOperationException());
-        System.err.println(new UnsupportedOperationException(
-                "set " + identifierReference + " as identifier reference on value context"));
+    public ReferenceElement getIdentifierReference() {
+        throw new CompilerException(new UnsupportedOperationException());
     }
 
-    public void putAssign(Integer identifier, Expression assign) {
-        assignList.add(new Pair<>(identifier, assign));
-    }
 
-    public int getIdentifierReference(int index) {
-        return assignList.get(index).getKey();
-    }
+    public static class Serializer implements StreamSerializer<ValueContext> {
+        public static final SourceStringStreamSerializer SOURCE_STRING_SERIALIZER = StreamSerializerRegister.get(
+                SourceStringStreamSerializer.class);
+        public static final GenericDefine.GenericUsingSerializer TYPE_SERIALIZER = StreamSerializerRegister.get(
+                GenericDefine.GenericUsingSerializer.class);
+        private static final ReferenceElement.Serializer REFERENCE_ELEMENT_SERIALIZER = StreamSerializerRegister.get(
+                ReferenceElement.Serializer.class);
 
-    public Expression getAssign(int index) {
-        return assignList.get(index).getValue();
-    }
-
-    public static class Builder {
-        private final ValueContext product;
-
-        public Builder() {
-            product = new ValueContext();
-            product.identifierReference = NOT_HAVE_IDENTIFIER;
+        static {
+            StreamSerializerRegister.register(new Serializer());
         }
 
-        public Builder accessControl(AccessControl accessControl) {
-            product.accessControl = accessControl;
-            return this;
+        private Serializer() {
         }
 
-        public Builder embellish(Embellish embellish) {
-            product.embellish = embellish;
-            return this;
+
+        @Override
+        public ValueContext in(InputStream is) {
+            HeadMap[] headMaps = StreamSerializerUtil.readHeads(is, 4, 8, 8, 16);
+            ParameterizedType<ReferenceElement> type = TYPE_SERIALIZER.in(is);
+            List<Pair<ReferenceElement, Integer>> assignList = readAssign(
+                    is, headMaps[2].getUnsignedValue());
+            return new ValueContext(new AccessControl((byte) headMaps[0].getUnsignedValue()),
+                    new Embellish((byte) headMaps[1].getUnsignedValue()), type, assignList
+            );
         }
 
-        public Builder type(Expression type) {
-            product.type = type;
-            return this;
+        @Override
+        public int out(OutputStream os, ValueContext src) {
+            return StreamSerializerUtil.writeHeads(os, new HeadMap(src.accessControl.getPermission(), 8),
+                    new HeadMap(src.embellish.getCode(), 8),
+                    new HeadMap(src.assignList.size(), 16).inRange(true, "assign list size")
+            ) + TYPE_SERIALIZER.out(os, src.type) + writeAssign(os, src.assignList);
         }
 
-        public ValueContext build(SourcePosition position) {
-            assertValid(position);
-            return product;
-        }
-
-        private void assertValid(SourcePosition position) {
-            DeclaredContext.assertNotNull(position, product.accessControl, "accessControl");
-            DeclaredContext.assertNotNull(position, product.embellish, "embellish");
-            DeclaredContext.assertNotNull(position, product.type, "type");
-            if (product.identifierReference != NOT_HAVE_IDENTIFIER) {
-                throw new CompilerException("Illegal Identifier reference: " + product.identifierReference);
+        private int writeAssign(
+                OutputStream os, List<? extends Pair<ReferenceElement, Integer>> assignList) {
+            int length = 0;
+            for (Pair<ReferenceElement, Integer> pair : assignList) {
+                length += REFERENCE_ELEMENT_SERIALIZER.out(os, pair.getKey()) +
+                          StreamSerializerUtil.writeNumber(os, pair.getValue(), 32, false);
             }
+            return length;
+        }
+
+        private List<Pair<ReferenceElement, Integer>> readAssign(InputStream is, long length) {
+            List<Pair<ReferenceElement, Integer>> assignList = new ArrayList<>();
+            for (int i = 0; i < length; i++) {
+                ReferenceElement referenceElement = REFERENCE_ELEMENT_SERIALIZER.in(is);
+                int value = (int) StreamSerializerUtil.readNumber(is, 32, false);
+                assignList.add(new Pair<>(referenceElement, value));
+            }
+            return assignList;
         }
 
     }

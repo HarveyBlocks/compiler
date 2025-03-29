@@ -1,7 +1,7 @@
 package org.harvey.compiler.analysis;
 
 
-import org.harvey.compiler.common.util.StringIterator;
+import org.harvey.compiler.common.collecction.StringIterator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

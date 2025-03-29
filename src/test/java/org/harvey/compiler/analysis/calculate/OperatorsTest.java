@@ -1,5 +1,7 @@
 package org.harvey.compiler.analysis.calculate;
 
+import org.harvey.compiler.execute.calculate.Operator;
+import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.junit.Test;
 

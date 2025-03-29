@@ -2,7 +2,7 @@ package org.harvey.compiler.declare.context;
 
 
 /**
- * TODO
+ * CallableContext的类型
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -14,5 +14,4 @@ public enum CallableType {
     METHOD,
     OPERATOR, // 一定是METHOD
     CAST_OPERATOR, // 类型转换
-    ABSTRACT // 一定是METHOD
 }

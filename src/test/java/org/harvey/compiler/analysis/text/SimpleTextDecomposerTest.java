@@ -1,7 +1,8 @@
 package org.harvey.compiler.analysis.text;
 
-import org.harvey.compiler.common.SourceFileConstant;
+import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.text.SimpleTextDecomposer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

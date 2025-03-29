@@ -1,7 +1,6 @@
 package org.harvey.compiler.exception;
 
 /**
- * TODO
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

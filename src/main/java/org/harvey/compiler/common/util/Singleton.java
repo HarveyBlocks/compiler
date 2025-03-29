@@ -3,7 +3,7 @@ package org.harvey.compiler.common.util;
 import java.util.function.Supplier;
 
 /**
- * TODO
+ * 用于构造单例, 但不是全局的单例, 不能处理序列化
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

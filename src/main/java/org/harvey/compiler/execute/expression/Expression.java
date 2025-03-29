@@ -10,13 +10,14 @@ import java.util.Collections;
 import java.util.function.BiFunction;
 
 /**
- * TODO
+ * 表达式
  *
- * @date 2025-01-08 16:51
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-08 16:51
  */
 public class Expression extends ArrayList<ExpressionElement> {
+    // TODO NOT GOOD, 应该继承Expression类, 且不可读不可写
     public static final Expression EMPTY = new Expression();
 
     public Expression(Collection<? extends ExpressionElement> c) {
@@ -40,8 +41,8 @@ public class Expression extends ArrayList<ExpressionElement> {
         return expression;
     }
 
-    private static int checkBody(ExpressionElement element, int inBody, int inGeneric, int inCall, int inBracket) {
-        if (inGeneric != 0 || inCall != 0 || inBracket != 0) {
+    private static int checkBody(ExpressionElement element, int inBody, int inGeneric, int inCall, int inParentheses) {
+        if (inGeneric != 0 || inCall != 0 || inParentheses != 0) {
             return inBody;
         }
         ComplexExpression ce = ((ComplexExpressionElement) element).getExpression();
@@ -76,17 +77,21 @@ public class Expression extends ArrayList<ExpressionElement> {
         return sub;
     }
 
+    public ArrayList<Expression> splitWithComma() {
+        return splitWithComma((e, p) -> e);
+    }
+
     public <T> ArrayList<T> splitWithComma(PartCreator<T> mapper) {
         // 本type 为同, 以, 分割的多个
         // int a = 2, c = 3, d , e = 4;
-        // assign: identifier | identifier = expression | identifier = expression, assign
+        // assign: identifier | identifier = using | identifier = using, assign
         // Declare = type DeclareInit
         // 对assign进行操作
         ArrayList<T> result = new ArrayList<>();
         // 要同一层的, 很困难, 有调用(),有括号(), 有<>, 有{}
         int inGeneric = 0;
         int inCall = 0;
-        int inBracket = 0;
+        int inParentheses = 0;
         int inBody = 0;
         Expression part = new Expression();
         for (ExpressionElement element : this) {
@@ -97,12 +102,12 @@ public class Expression extends ArrayList<ExpressionElement> {
                 continue;
             }
             if (isBody) {
-                inBody = checkBody(element, inBody, inGeneric, inCall, inBracket);
+                inBody = checkBody(element, inBody, inGeneric, inCall, inParentheses);
                 continue;
             }
             switch (((OperatorString) element).getValue()) {
                 case COMMA:
-                    if (inGeneric == 0 && inCall == 0 && inBracket == 0 && inBody == 0) {
+                    if (inGeneric == 0 && inCall == 0 && inParentheses == 0 && inBody == 0) {
                         part.remove(part.size() - 1);// 删去,
                         result.add(mapper.apply(part, element.getPosition()));
                         part = new Expression();
@@ -110,43 +115,43 @@ public class Expression extends ArrayList<ExpressionElement> {
                     }
                     break;
                 case GENERIC_LIST_PRE:
-                    if (inCall == 0 && inBracket == 0 && inBody == 0) {
+                    if (inCall == 0 && inParentheses == 0 && inBody == 0) {
                         inGeneric++;
                     }
                     break;
                 case GENERIC_LIST_POST:
-                    if (inCall == 0 && inBracket == 0 && inBody == 0) {
+                    if (inCall == 0 && inParentheses == 0 && inBody == 0) {
                         inGeneric--;
                     }
                     break;
                 case CALL_PRE:
-                    if (inGeneric == 0 && inBracket == 0 && inBody == 0) {
+                    if (inGeneric == 0 && inParentheses == 0 && inBody == 0) {
                         inCall++;
                     }
                     break;
                 case CALL_POST:
-                    if (inGeneric == 0 && inBracket == 0 && inBody == 0) {
+                    if (inGeneric == 0 && inParentheses == 0 && inBody == 0) {
                         inCall--;
                     }
                     break;
-                case BRACKET_PRE:
+                case PARENTHESES_PRE:
                     if (inGeneric == 0 && inCall == 0 && inBody == 0) {
-                        inBracket++;
+                        inParentheses++;
                     }
                     break;
-                case BRACKET_POST:
+                case PARENTHESES_POST:
                     if (inGeneric == 0 && inCall == 0 && inBody == 0) {
-                        inBracket--;
+                        inParentheses--;
                     }
                     break;
             }
-            if (inGeneric < 0 || inCall < 0 || inBracket < 0 || inBody < 0) {
+            if (inGeneric < 0 || inCall < 0 || inParentheses < 0 || inBody < 0) {
                 throw new AnalysisExpressionException(element.getPosition(), "Illegal match");
             }
 
         }
         if (!part.isEmpty()) {
-            if (inGeneric != 0 || inCall != 0 || inBracket != 0 || inBody != 0) {
+            if (inGeneric != 0 || inCall != 0 || inParentheses != 0 || inBody != 0) {
                 throw new AnalysisExpressionException(part.get(part.size() - 1).getPosition(), "Illegal match");
             }
             result.add(mapper.apply(part, SourcePosition.UNKNOWN));
@@ -157,4 +162,5 @@ public class Expression extends ArrayList<ExpressionElement> {
     @FunctionalInterface
     public interface PartCreator<R> extends BiFunction<Expression, SourcePosition, R> {
     }
+
 }

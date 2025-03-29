@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * 简单封装Java反射, 用于构造对象
  * LaVie
+ *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-11-26 15:11

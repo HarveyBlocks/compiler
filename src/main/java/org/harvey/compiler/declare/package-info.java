@@ -39,7 +39,7 @@
  * 还是那句话, 怎么描述的嵌套的泛型列表?
  * {@code Type<Type,Type,Type<Type<Type<Type>>,Type<Type>>,Type<? extends A>,Type,k<>>}
  * TODO 描述一种可序列化的泛型列表
- * GenericType{
+ * GenericUsingType{
  *     Type Origin
  *     <Type,int>[] types_index_map; // index指向Type里注册的可能的类型, -1表示每有使用泛型列表, 1表示哪种泛型列表
  * }

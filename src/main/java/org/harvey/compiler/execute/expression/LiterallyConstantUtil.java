@@ -1,9 +1,9 @@
 package org.harvey.compiler.execute.expression;
 
-import org.harvey.compiler.common.CompileProperties;
-import org.harvey.compiler.common.SourceFileConstant;
+import org.harvey.compiler.command.CompileProperties;
+import org.harvey.compiler.common.collecction.ListPoint;
+import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.common.util.CharacterUtil;
-import org.harvey.compiler.common.util.ListPoint;
 import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.io.source.SourcePosition;
@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * TODO
+ * 表达式中的常量的字面量的处理工具
  *
- * @date 2025-01-08 16:51
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-08 16:51
  */
 public class LiterallyConstantUtil {
 
@@ -32,17 +32,17 @@ public class LiterallyConstantUtil {
     public static byte[] charData(String value) {
         String result = textData(value, SourceFileConstant.CHARACTER_ENCIRCLE_SIGN);
         if (result.length() != 1) {
-            throw new AnalysisExpressionException(SourcePosition.UNKNOWN, "Too many characters in");
+            throw new AnalysisExpressionException(SourcePosition.UNKNOWN, "Too many characters collectionIn");
         }
         return result.getBytes(CompileProperties.SOURCE_FILE_CHARSET);
     }
 
     private static String textData(String value, char encircle) {
         if (value.length() < 2 ||
-                value.charAt(0) != encircle ||
-                value.charAt(value.length() - 1) != encircle) {
+            value.charAt(0) != encircle ||
+            value.charAt(value.length() - 1) != encircle) {
             throw new CompilerException("Illegal call, char should encircle with `" +
-                    encircle + "` ", new IllegalArgumentException());
+                                        encircle + "` ", new IllegalArgumentException());
         }
         return dealEscape(value.substring(1, value.length() - 1));
     }
@@ -106,8 +106,8 @@ public class LiterallyConstantUtil {
             char c2 = es.charAt(index++);
             char c3 = es.charAt(index++);
             if (CharacterUtil.notNumber(c1, 8) ||
-                    CharacterUtil.notNumber(c2, 8) ||
-                    CharacterUtil.notNumber(c3, 8)) {
+                CharacterUtil.notNumber(c2, 8) ||
+                CharacterUtil.notNumber(c3, 8)) {
                 return null;
             }
             int n1 = CharacterUtil.literalNumber(c1);
@@ -142,9 +142,9 @@ public class LiterallyConstantUtil {
             char c3 = es.charAt(index++);
             char c4 = es.charAt(index++);
             if (CharacterUtil.notNumber(c1, 16) ||
-                    CharacterUtil.notNumber(c2, 16) ||
-                    CharacterUtil.notNumber(c3, 16) ||
-                    CharacterUtil.notNumber(c4, 16)) {
+                CharacterUtil.notNumber(c2, 16) ||
+                CharacterUtil.notNumber(c3, 16) ||
+                CharacterUtil.notNumber(c4, 16)) {
                 return null;
             }
             int n1 = CharacterUtil.literalNumber(c1);

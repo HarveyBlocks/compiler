@@ -1,38 +1,34 @@
 package org.harvey.compiler.exception;
 
-import lombok.Getter;
-import org.harvey.compiler.io.source.SourcePosition;
-
 /**
- * 编译而产生的异常
+ *   Compile的异常
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
- * @date 2024-11-16 23:55
+ * @date 2025-03-16 14:49
  */
-@Getter
 public class CompileException extends VieCompilerException {
-    private final String originMessage;
-
-
-    public CompileException(SourcePosition errorPosition, String message) {
-        super(errorPosition + " : " + message);
-        this.originMessage = message;
+    public CompileException() {
+        super();
     }
 
-    public CompileException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd, String message) {
-        super(errorPositionBegin + "-" + errorPositionEnd + " : " + message);
-        this.originMessage = message;
+    public CompileException(String message) {
+        super(message);
     }
 
-    public CompileException(SourcePosition errorPosition, String message, Throwable throwable) {
-        super(errorPosition + " : " + message, throwable);
-        this.originMessage = message;
+    public CompileException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public CompileException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd, String message,
-                            Throwable throwable) {
-        super(errorPositionBegin + "-" + errorPositionEnd + " : " + message, throwable);
-        this.originMessage = message;
+    public CompileException(Throwable cause) {
+        super(cause);
+    }
+
+    protected CompileException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

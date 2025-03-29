@@ -12,26 +12,25 @@ import org.harvey.compiler.exception.CompilerException;
 public class ByteUtil {
     private static final long MAX_RIGHT_1 = Long.MIN_VALUE >>> 1;
 
+    public static byte[] toRawBytes(byte value) {
+        return new byte[]{value};
+    }
+
+    public static byte[] toRawBytes(short value) {
+        return new byte[]{(byte) (value >>> 8), (byte) (value << 8 >>> 8)};
+    }
+
     public static byte[] toRawBytes(int value) {
-        return new byte[]{
-                (byte) (value >>> 24),
-                (byte) (value << 8 >>> 24),
-                (byte) (value << 16 >>> 24),
-                (byte) (value << 24 >>> 24)
-        };
+        return new byte[]{(byte) (value >>> 24), (byte) (value << 8 >>> 24), (byte) (value << 16 >>> 24), (byte) (
+                value << 24 >>> 24)};
     }
 
     public static byte[] toRawBytes(long value) {
-        return new byte[]{
-                (byte) (value >>> 56),
-                (byte) (value << 8 >>> 56),
-                (byte) (value << 16 >>> 56),
-                (byte) (value << 24 >>> 56),
-                (byte) (value << 32 >>> 56),
-                (byte) (value << 40 >>> 56),
-                (byte) (value << 48 >>> 56),
-                (byte) (value << 56 >>> 56),
-        };
+        return new byte[]{(byte) (value >>> 56), (byte) (value << 8 >>> 56), (byte) (value << 16 >>> 56), (byte) (
+                value << 24 >>> 56), (byte) (value << 32 >>> 56), (byte) (value << 40 >>> 56), (byte) (value << 48 >>>
+                                                                                                       56), (byte) (
+                value << 56 >>>
+                56),};
     }
 
     public static long phaseRawBytes8(byte[] bytes) {
@@ -53,9 +52,19 @@ public class ByteUtil {
         int result = 0;
         for (byte data : bytes) {
             result <<= 8;
-            result |= (int) (data) & 0xff;
+            result |= ((int) (data)) & 0xff;
         }
         return result;
+    }
+
+    public static long phaseRawBytes(byte[] bytes) {
+        boolean minus = bytes.length > 0 && bytes[0] < 0;
+        byte[] bytes8 = new byte[8];
+        for (int i = 0; i < 8 - bytes.length; i++) {
+            bytes8[i] = (byte) (minus ? 0xff : 0);
+        }
+        System.arraycopy(bytes, 0, bytes8, 8 - bytes.length, bytes.length);
+        return phaseRawBytes8(bytes8);
     }
 
     public static byte[] phaseUnsignedInt4(String result, int radix) {
@@ -85,13 +94,12 @@ public class ByteUtil {
                 throw new NumberFormatException("Illegal digit");
             }
             if (digit >= radix) {
-                throw new NumberFormatException("Illegal digit in radix " + radix);
+                throw new NumberFormatException("Illegal digit collectionIn radix " + radix);
             }
 
             if (uint8 >= multiplyMin) {
-                uint8 = Long.MIN_VALUE + digit -
-                        ((MAX_RIGHT_1 / radix << 1) - uint8 / radix * radix) * radix + (MAX_RIGHT_1 % radix << 1) +
-                        uint8 % radix * radix;
+                uint8 = Long.MIN_VALUE + digit - ((MAX_RIGHT_1 / radix << 1) - uint8 / radix * radix) * radix +
+                        (MAX_RIGHT_1 % radix << 1) + uint8 % radix * radix;
                 if (i < len) {
                     throw new NumberFormatException("Overflow");
                 } else {

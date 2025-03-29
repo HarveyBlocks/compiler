@@ -2,11 +2,11 @@ package org.harvey.compiler.execute.expression;
 
 
 /**
- * TODO  
+ * 复杂表达式的判断
  *
- * @date 2025-01-09 00:17
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-09 00:17
  */
 public interface ComplexExpressionPredicate<T> {
     ArrayInitPredicate ARRAY_INIT = new ArrayInitPredicate();

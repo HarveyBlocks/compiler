@@ -2,27 +2,27 @@ package org.harvey.compiler.execute.expression;
 
 import lombok.Getter;
 import org.harvey.compiler.exception.CompilerException;
-import org.harvey.compiler.exception.io.CompilerFileReaderException;
+import org.harvey.compiler.exception.io.CompilerFileReadException;
+import org.harvey.compiler.io.serializer.StreamSerializer;
+import org.harvey.compiler.io.serializer.StreamSerializerRegister;
+import org.harvey.compiler.io.serializer.StreamSerializerUtil;
 import org.harvey.compiler.io.source.SourcePosition;
-import org.harvey.compiler.io.ss.StreamSerializer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static org.harvey.compiler.io.ss.StreamSerializer.*;
-
 /**
- * TODO
+ * 在表达式中的常量
  *
- * @date 2025-01-08 16:48
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-01-08 16:48
  */
 @Getter
 public class ConstantString extends ExpressionElement {
     public static final ExpressionElementType TYPE = ExpressionElementType.CONSTANT;
-    private static final StreamSerializer<ConstantString> SERIALIZER = StreamSerializer.get(
+    private static final StreamSerializer<ConstantString> SERIALIZER = StreamSerializerRegister.get(
             ConstantString.Serializer.class);
     // 大端
     private final byte[] data;
@@ -71,11 +71,13 @@ public class ConstantString extends ExpressionElement {
     }
 
     public static class Serializer implements StreamSerializer<ConstantString> {
-        public static final SourcePosition.Serializer SOURCE_POSITION_SERIALIZER = StreamSerializer.get(
+        public static final SourcePosition.Serializer SOURCE_POSITION_SERIALIZER = StreamSerializerRegister.get(
                 SourcePosition.Serializer.class);
 
         static {
-            ExpressionElement.Serializer.register(TYPE.ordinal(), new ConstantString.Serializer());
+            ExpressionElement.Serializer.register(TYPE.ordinal(), new ConstantString.Serializer(),
+                    ConstantString.class
+            );
         }
 
         private Serializer() {
@@ -88,10 +90,10 @@ public class ConstantString extends ExpressionElement {
             byte[] data;
             try {
                 type = ConstantType.values()[is.readNBytes(1)[0]];
-                long size = readNumber(is, 16);
+                long size = StreamSerializerUtil.readNumber(is, 16, false);
                 data = is.readNBytes((int) size);
             } catch (IOException e) {
-                throw new CompilerFileReaderException(e);
+                throw new CompilerFileReadException(e);
             }
             return new ConstantString(sp, data, type);
         }
@@ -99,8 +101,9 @@ public class ConstantString extends ExpressionElement {
         @Override
         public int out(OutputStream os, ConstantString src) {
             return SOURCE_POSITION_SERIALIZER.out(os, src.getPosition()) +
-                    writeOneByte(os, (byte) src.getType().ordinal()) +
-                    writeNumber(os, src.getData().length, 16) + StreamSerializer.writeElements(os, src.getData());
+                   StreamSerializerUtil.writeOneByte(os, (byte) src.getType().ordinal()) +
+                   StreamSerializerUtil.writeNumber(os, src.getData().length, 16, false) +
+                   StreamSerializerUtil.writeElements(os, src.getData());
         }
 
 

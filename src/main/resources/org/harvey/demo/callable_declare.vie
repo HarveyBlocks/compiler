@@ -1,0 +1,59 @@
+import org.a.x;
+import org.b.x.c;
+;
+enum E{
+    A;
+
+    public static alias X = A;
+    public alias Y = A, B = Y, C = Z;
+    public alias N = A, M = N; // 可
+}
+
+class ObjectExample{
+    // public abstract A[int](int a);
+    public String a = "";
+    public String x = a.substring(1,2);
+    public float32 f1 = 1.9e3;
+    public float32 f2 = 1.9E32;
+    public float32 f3 = 1.e3e;
+    public float32 f4 = 1.e3E;
+    public float32 f5 = 1.E3E;
+    public xx f51 = a->{a.n;}+{1,2,3}[0],f6=32;
+}
+abstract class Mmm{
+    public abstract (A[int])(int a);
+}
+public alias X = A;
+public alias Z = A, A = Y, Y = Z;
+// public alias Z,M = A; // 报错
+public alias M = A;
+public alias L = M; // 可
+public alias N[T1,T2] = A[T1,T2,T1]; // 可
+
+
+public struct Functions{
+
+    public void func1(){}    // void     func        ()
+    public void func2[T](){} // void     func    [T] ()
+    public List[Integer] func2[T](){} // void     func    [T] ()
+    public (int,int,Integer) func2[T](){} // void     func    [T] ()
+
+    public (func3)(){}         // func                 ()
+    public (func4[T])(){}      // func[T]              ()
+    public func5[T]()(){}    // func[T]   ()         ()
+    public func5[T]()[T](){} // func[T]   ()     [T] ()
+
+    int +(){
+        Object a = new Object();
+        int x = a.+(12);
+        int x = a.()(12);
+        int x = a.-(12);
+        int x = a.float64().toString();
+    }               // int       +          ()
+
+}
+public /*static*/ abstract class AbstractType{}
+
+public void a(){};
+// public (void_) a(){};
+public (void_) a(){};
