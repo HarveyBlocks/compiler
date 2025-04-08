@@ -66,10 +66,11 @@ public class LocalVariableDeclare {
             throw new AnalysisExpressionException(position, "expected an identifier");
         }
         ExpressionElement identifier = part.get(0);
-        if (!(identifier instanceof IdentifierString)) {
+        /*if (!(identifier instanceof IdentifierString)) {
             throw new AnalysisExpressionException(identifier.getPosition(), "expected an identifier");
         }
-        return new Pair<>((IdentifierString) identifier, part);
+        return new Pair<>((IdentifierString) identifier, part);*/
+        return null;
     }
 
     public static ArrayList<Pair<IdentifierString, Expression>> departAssign(

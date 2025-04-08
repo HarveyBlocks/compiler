@@ -1,7 +1,5 @@
 package org.harvey.compiler.type.transform;
 
-import java.util.List;
-
 /**
  * TODO
  * 三者关系:
@@ -49,6 +47,8 @@ public class CallableSignatureMatcherImpl implements CallableSignatureMatcher {
         // 2. 比较参数列表之间的子集关系
         //      说一个参数列表是另一个参数列表的子集->
         //      PARAM_LIST_A 填充了 Default 之后(也就是说, Default在编译阶段并不会缺省), 赋值到 PARAM_LIST_B, 能成功
+        //      为什么填充default呢? 因为填充了default之后, 表示对这个函数签名尽可能完整的定义,
+        //      如果定义如此完整, 也是子集, 那么, 就必是子集了
         //      A: (int, int=default,int=default)
         //      B: (int, int...)
         //      我们说, A 是 B 的子集, 如果这里不检查出来, 外界调用的是否总是要报错的, A 永远没有机会被调用
@@ -78,7 +78,6 @@ public class CallableSignatureMatcherImpl implements CallableSignatureMatcher {
 
         return false;
     }
-
 
 
     @Override

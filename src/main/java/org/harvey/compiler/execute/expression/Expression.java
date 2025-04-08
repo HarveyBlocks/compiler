@@ -1,7 +1,7 @@
 package org.harvey.compiler.execute.expression;
 
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 
 import java.util.ArrayList;
@@ -66,17 +66,6 @@ public class Expression extends ArrayList<ExpressionElement> {
         return inBody;
     }
 
-    public Expression subExpression(int start, int end) {
-        if (start >= end) {
-            throw new CompilerException("start must less than end", new IllegalArgumentException());
-        }
-        Expression sub = new Expression(end - start);
-        for (int i = start; i < end; i++) {
-            sub.add(this.get(i));
-        }
-        return sub;
-    }
-
     public ArrayList<Expression> splitWithComma() {
         return splitWithComma((e, p) -> e);
     }
@@ -96,7 +85,7 @@ public class Expression extends ArrayList<ExpressionElement> {
         Expression part = new Expression();
         for (ExpressionElement element : this) {
             part.add(element);
-            boolean isOper = element instanceof OperatorString;
+            boolean isOper = element instanceof NormalOperatorString;
             boolean isBody = element instanceof ComplexExpressionElement;
             if (!isOper && !isBody) {
                 continue;
@@ -105,7 +94,7 @@ public class Expression extends ArrayList<ExpressionElement> {
                 inBody = checkBody(element, inBody, inGeneric, inCall, inParentheses);
                 continue;
             }
-            switch (((OperatorString) element).getValue()) {
+            switch (((NormalOperatorString) element).getValue()) {
                 case COMMA:
                     if (inGeneric == 0 && inCall == 0 && inParentheses == 0 && inBody == 0) {
                         part.remove(part.size() - 1);// 删去,

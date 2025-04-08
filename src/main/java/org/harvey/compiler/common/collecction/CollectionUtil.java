@@ -1,9 +1,10 @@
 package org.harvey.compiler.common.collecction;
 
 import org.harvey.compiler.common.util.EncirclePair;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -84,6 +85,14 @@ public class CollectionUtil {
         E next = getNext(it);
         return next != null && predicate.test(next);
     }
+    /**
+     * 迭代器不移动
+     */
+    public static <E> boolean previousIs(ListIterator<E> it, Predicate<E> predicate) {
+        // 解析作用域 一定是关键字 一定是作用域关键字
+        E previous = getPrevious(it);
+        return previous != null && predicate.test(previous);
+    }
 
 
     public static <E> E getNext(ListIterator<E> it) {
@@ -104,7 +113,7 @@ public class CollectionUtil {
         return previous;
     }
 
-    public static <T> EncirclePair<T> getEncirclePair(ArrayList<T> src, int index) {
+    public static <T> EncirclePair<T> getEncirclePair(List<T> src, int index) {
         T pre = null;
         T post = null;
         if (index - 1 >= 0) {
@@ -133,7 +142,7 @@ public class CollectionUtil {
         return new EncirclePair<>(pre, post);
     }
 
-    public static <T> RandomlyIterator<T> randomlyIterator(ArrayList<T> sourceList, int index) {
+    public static <T> RandomlyIterator<T> randomlyIterator(List<T> sourceList, int index) {
         // 能随机访问的
         return new DefaultRandomlyIterator<>(RandomlyAccessAble.forList(sourceList), index);
     }
@@ -224,6 +233,12 @@ public class CollectionUtil {
     public static <T> Stack<T> cloneStack(Stack<T> referenceStack) {
         Stack<T> clone = new Stack<>();
         clone.addAll(referenceStack);
+        return clone;
+    }
+
+    public static <P, R> Stack<R> cloneStack(Stack<P> referenceStack, Function<P, R> mapper) {
+        Stack<R> clone = new Stack<>();
+        clone.addAll(referenceStack.stream().map(mapper).collect(Collectors.toList()));
         return clone;
     }
 

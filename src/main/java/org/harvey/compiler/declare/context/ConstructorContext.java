@@ -3,7 +3,7 @@ package org.harvey.compiler.declare.context;
 import lombok.Getter;
 import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.analysis.Embellish;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.local.LocalType;
 import org.harvey.compiler.io.serializer.*;
@@ -67,12 +67,12 @@ public class ConstructorContext implements DeclaredContext {
 
     @Override
     public ReferenceElement getIdentifierReference() {
-        throw new CompilerException("it is a constructor control", new UnsupportedOperationException());
+        throw new CompilerException("it is a constructor version2", new UnsupportedOperationException());
     }
 
     @Override
     public Embellish getEmbellish() {
-        throw new CompilerException("it is a constructor control", new UnsupportedOperationException());
+        throw new CompilerException("it is a constructor version2", new UnsupportedOperationException());
     }
 
     /**
@@ -146,7 +146,7 @@ public class ConstructorContext implements DeclaredContext {
 
             return StreamSerializerUtil.writeHeads(
                     os,
-                    new HeadMap(accessControl, HEAD_LENGTH_BITS[0]).inRange(true, "access control"),
+                    new HeadMap(accessControl, HEAD_LENGTH_BITS[0]).inRange(true, "access version2"),
                     new HeadMap(body, HEAD_LENGTH_BITS[1]).inRange(true, "body size"),
                     new HeadMap(genericMessage.size(), HEAD_LENGTH_BITS[2]).inRange(true, "generic message length"),
                     new HeadMap(paramList.size(), HEAD_LENGTH_BITS[3]).inRange(true, "param list size"),

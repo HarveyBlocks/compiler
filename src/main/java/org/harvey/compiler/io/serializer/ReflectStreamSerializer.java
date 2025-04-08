@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.harvey.compiler.common.util.ArrayUtil;
 import org.harvey.compiler.common.util.ByteUtil;
 import org.harvey.compiler.common.util.StringUtil;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.lang.reflect.*;
 import java.util.*;

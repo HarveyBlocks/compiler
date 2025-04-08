@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * 能随机访问的集合
@@ -49,7 +50,7 @@ public abstract class RandomlyAccessAble<E> {
         private final List<E> value;
 
         private ListRA(List<E> value) {
-            this.value = new ArrayList<>(value);
+            this.value = value instanceof RandomAccess ? value : new ArrayList<>(value);
         }
 
         @Override

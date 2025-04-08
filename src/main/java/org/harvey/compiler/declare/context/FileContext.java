@@ -13,6 +13,7 @@ import org.harvey.compiler.io.source.SourceString;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,13 +51,14 @@ public class FileContext {
                 .map(StructureDefinition::getIdentifierReference)
                 .collect(Collectors.toList());
         this.functionTable = map2Context(
-                body.getFunctions(), d -> new CallableContext(d, identifierManager, poolFactory,false));
+                body.getFunctions(), d -> new CallableContext(d, identifierManager, poolFactory, false));
     }
 
     public static FileContext empty() {
-        return new FileContext(Collections.emptyList(), Collections.emptyList(),
-                new DefaultIdentifierManager(Collections.emptyList(), 0, 0, new ArrayList<>()), Collections.emptyList(),
-                Collections.emptyList(), null
+        DefaultIdentifierManager emptyIdentifierManager = new DefaultIdentifierManager(
+                Collections.emptyList(), 0, 0, new ArrayList<>(), new HashSet<>());
+        return new FileContext(Collections.emptyList(), Collections.emptyList(), emptyIdentifierManager,
+                Collections.emptyList(), Collections.emptyList(), null
         );
     }
 

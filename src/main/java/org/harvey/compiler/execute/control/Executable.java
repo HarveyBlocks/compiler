@@ -1,7 +1,6 @@
 package org.harvey.compiler.execute.control;
 
 import org.harvey.compiler.execute.expression.Expression;
-import org.harvey.compiler.execute.expression.ExpressionElement;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.local.LocalType;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
@@ -17,8 +16,7 @@ import java.io.OutputStream;
  */
 public abstract class Executable {
 
-    protected static final ExpressionElement.Serializer EE_S = StreamSerializerRegister.get(
-            ExpressionElement.Serializer.class);
+
     protected static final IdentifierString.Serializer IS_S = StreamSerializerRegister.get(
             IdentifierString.Serializer.class);
     protected static final LocalType.Serializer LT_S = StreamSerializerRegister.get(
@@ -33,11 +31,11 @@ public abstract class Executable {
     }
 
     protected static int writeExpression(OutputStream os, Expression expression) {
-        return StreamSerializerUtil.collectionOut(os, expression, EE_S);
+        return StreamSerializerUtil.collectionOut(os, expression, null);
     }
 
     protected static Expression readExpression(InputStream is) {
-        return new Expression(StreamSerializerUtil.collectionIn(is, EE_S));
+        return new Expression(StreamSerializerUtil.collectionIn(is, null));
     }
 
     public abstract byte getCode();

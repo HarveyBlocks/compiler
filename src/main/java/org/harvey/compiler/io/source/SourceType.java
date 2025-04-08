@@ -42,12 +42,6 @@ public enum SourceType {
     //           是指向文件变量的? 是指向文件函数的? 是指向外部类的?
     // 指向什么只能通过上下文确认
     KEYWORD,//关键字
-
-
-    // 暂时的, 可能删除
-    GOTO,//关键字
-    LABEL, // 关键字
-    ASSIGN_TEMP,
     ;// 关键字
 
     public static SourceType get(int ordinal) {

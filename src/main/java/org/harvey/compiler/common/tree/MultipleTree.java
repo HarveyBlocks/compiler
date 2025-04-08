@@ -14,6 +14,7 @@ import java.util.function.IntFunction;
  * @date 2025-03-13 16:43
  */
 public interface MultipleTree<T> {
+    boolean readOnly();
 
     MultipleTree<T> getChild(int index);
 
@@ -30,10 +31,16 @@ public interface MultipleTree<T> {
     void addChild(MultipleTree<T> child);
 
     List<String> toStringList(String separator, String pre, String post, Function<T, String> toString);
+
+    void setReadOnly(boolean readOnly);
+
     interface ForEachConsumer<T> {
         void accept(List<MultipleTree<T>> brothers, int indexOfThisNode);
     }
 
+    /**
+     * 有一个坏处, 一直向brother加辈孩子 就会无限循环下去
+     */
     void forEach(ForEachConsumer<T> n);
 
     PairList<Integer, T> toSequence();
@@ -41,9 +48,10 @@ public interface MultipleTree<T> {
     boolean isNull();
 
     List<String> toStringList(
-            String comma,
+            String separator,
             String pre,
             String post);
+
     /**
      * @return 克隆结构, 而不是克隆值
      */

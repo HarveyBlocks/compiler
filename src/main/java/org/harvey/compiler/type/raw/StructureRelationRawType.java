@@ -2,11 +2,11 @@ package org.harvey.compiler.type.raw;
 
 import lombok.Getter;
 import org.harvey.compiler.declare.context.StructureType;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
-import org.harvey.compiler.type.RelationshipBuildStage;
 import org.harvey.compiler.io.cache.node.FileNode;
 import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.type.RelationshipBuildStage;
 
 import java.io.File;
 import java.util.List;

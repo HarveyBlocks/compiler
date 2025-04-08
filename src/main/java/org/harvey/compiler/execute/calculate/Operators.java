@@ -97,13 +97,13 @@ public class Operators {
     }
 
     static {
-        PRE_POST = Map.of(Operator.ARRAY_AT_PRE, Operator.ARRAY_AT_POST, Operator.PARENTHESES_PRE,
-                Operator.PARENTHESES_POST,
-                Operator.GENERIC_LIST_PRE, Operator.GENERIC_LIST_POST
+        PRE_POST = Map.of(Operator.ARRAY_AT_PRE, Operator.ARRAY_AT_POST, Operator.CALL_PRE, Operator.CALL_POST,
+                Operator.PARENTHESES_PRE, Operator.PARENTHESES_POST, Operator.GENERIC_LIST_PRE,
+                Operator.GENERIC_LIST_POST
         );
-        POST_PRE = Map.of(Operator.ARRAY_AT_POST, Operator.ARRAY_AT_PRE, Operator.PARENTHESES_POST,
-                Operator.PARENTHESES_PRE,
-                Operator.GENERIC_LIST_POST, Operator.GENERIC_LIST_PRE
+        POST_PRE = Map.of(Operator.ARRAY_AT_POST, Operator.ARRAY_AT_PRE, Operator.CALL_POST, Operator.CALL_PRE,
+                Operator.PARENTHESES_POST, Operator.PARENTHESES_PRE, Operator.GENERIC_LIST_POST,
+                Operator.GENERIC_LIST_PRE
         );
     }
 
@@ -178,6 +178,8 @@ public class Operators {
         return NAME_SET.contains(s);
     }
 
+    private static final Map<String, Operator[]> CACHE = new HashMap<>();
+
     /**
      * () 前Identifier->函数调用
      * 前Operator->括号
@@ -185,13 +187,31 @@ public class Operators {
      * []
      */
     public static Operator[] get(String s) {
+        Operator[] inCache = CACHE.get(s);
+        if (inCache != null) {
+            return inCache;
+        }
         List<Operator> result = new LinkedList<>();
         for (Operator operator : SET) {
             if (operator.nameEquals(s)) {
                 result.add(operator);
             }
         }
-        return result.toArray(new Operator[]{});
+        Operator[] operators = result.toArray(Operator[]::new);
+        Arrays.sort(operators);
+        CACHE.put(s, operators);
+        return operators;
+    }
+
+    @Deprecated
+    private static void repeatedOperatorName() {
+        // [[=2, ]=2, --=2, ++=2, (=2, )=2, +=2, -=2]
+        Map<String, Integer> m = new HashMap<>();
+        for (Operator value : Operator.values()) {
+            m.computeIfAbsent(value.getName(), s -> 0);
+            m.computeIfPresent(value.getName(), (k, v) -> v + 1);
+        }
+        System.out.println(m.entrySet().stream().filter(e -> e.getValue() > 1).collect(Collectors.toList()));
     }
 
     public static boolean isPre(Operator oper) {
@@ -226,20 +246,24 @@ public class Operators {
                operator == Operator.LAMBDA;
     }
 
-    public static Operator reloadableOperator(String operatorString) {
+    public static Operator[] reloadableOperator(String operatorString) {
         Operator[] operators = Operators.get(operatorString);
         if (operators.length == 0) {
             return null;
         } else if (operators.length == 1) {
             Operator operator = operators[0];
             if (!Operators.cannotReloadable(operator)) {
-                return operator;
+                return operators;
             }
         } else {
+            List<Operator> reloadable = new ArrayList<>();
             for (Operator oper : operators) {
                 if (!Operators.cannotReloadable(oper)) {
-                    return oper;
+                    reloadable.add(oper);
                 }
+            }
+            if (!reloadable.isEmpty()) {
+                return reloadable.toArray(new Operator[0]);
             }
         }
         return null;

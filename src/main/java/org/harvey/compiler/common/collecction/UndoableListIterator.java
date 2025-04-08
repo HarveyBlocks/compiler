@@ -9,6 +9,7 @@ import java.util.ListIterator;
  * @version 1.0
  * @date 2025-02-27 10:54
  */
+@Deprecated
 public class UndoableListIterator<E> implements ListIterator<E> {
     private final ListIterator<E> value;
     private int undo = 0;

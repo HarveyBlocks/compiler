@@ -7,9 +7,8 @@ import org.harvey.compiler.declare.analysis.Embellish;
 import org.harvey.compiler.declare.context.*;
 import org.harvey.compiler.declare.identifier.DefaultIdentifierManager;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
-import org.harvey.compiler.exception.io.CompilerFileWriteException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.DequeueOutputStream;
@@ -24,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.harvey.compiler.io.serializer.StreamSerializerUtil.*;
@@ -40,8 +40,8 @@ public class StructureStatementFileSerializer implements StatementFileSerializer
     public static final int[] HEAD_LENGTH_BITS = new int[]{
             // 0  1  2  3  4   5   6   7   8
             16, 8, 8, 8, 8, 12, 12, 24, 16,
-            //  9   10  11  12  13  14 15  16  17  18  19
-            32, 16, 16, 16, 16, 8, 16, 32, 16, 16, 24};
+            //  9   10  11  12  13  14 15  16  17  18  19,20
+            32, 16, 16, 16, 16, 8, 16, 32, 16, 16, 24, 16};
     public static final int HEAD_BYTE = StreamSerializerUtil.headByte(HEAD_LENGTH_BITS);
     public static final ReferenceElement.Serializer REFERENCE_ELEMENT_SERIALIZER = StreamSerializerRegister.get(
             ReferenceElement.Serializer.class);
@@ -129,7 +129,8 @@ public class StructureStatementFileSerializer implements StatementFileSerializer
                 // 第三阶段
                 new HeadMap(blocks.size(), HEAD_LENGTH_BITS[17]).inRange(true, "blocks size"),
                 new HeadMap(staticBlocks.size(), HEAD_LENGTH_BITS[18]).inRange(true, "static blocks size"),
-                new HeadMap(executablePool.size(), HEAD_LENGTH_BITS[19]).inRange(true, "executable pool size")
+                new HeadMap(executablePool.size(), HEAD_LENGTH_BITS[19]).inRange(true, "executable pool size"),
+                new HeadMap(manager.getDisableSet().size(), HEAD_LENGTH_BITS[20]).inRange(true, "disable set size")
         );
         int len1 = headLength +
                    REFERENCE_ELEMENT_SERIALIZER.out(os, identifierReference) +
@@ -140,7 +141,8 @@ public class StructureStatementFileSerializer implements StatementFileSerializer
                    writeElements(os, importStrings, IMPORT_STRING_SERIALIZER) +
                    writeElements(os, typeAliases, TYPE_ALIAS_SERIALIZER) +
                    writeNumbers(os, innerStructureReferences, 16, false) +
-                   writeElements(os, constructors, CONSTRUCTOR_CONTEXT_SERIALIZER);
+                   writeElements(os, constructors, CONSTRUCTOR_CONTEXT_SERIALIZER) +
+                   writeNumbers(os, manager.getDisableSet(), 32, false);
         int len2 = len1 +
                    writeEnum(os, enumConstants) +
                    writeElements(os, fieldTable, VALUE_CONTEXT_SERIALIZER) +
@@ -221,8 +223,10 @@ public class StructureStatementFileSerializer implements StatementFileSerializer
                     FULL_IDENTIFIER_STRING_SERIALIZER
             );
             ArrayList<ImportString> importStrings = readElements(is, importStringsSize, IMPORT_STRING_SERIALIZER);
+            int disableSetSize = (int) headMap[20].getUnsignedValue();
+            HashSet<Integer> disableSet = new HashSet<>(readNumbers(is, disableSetSize, 32, false));
             IdentifierManager manager = new DefaultIdentifierManager(importStrings, importReferenceAfterIndex,
-                    preLength, allIdentifierTable
+                    preLength, allIdentifierTable,disableSet
             );
             List<TypeAlias> typeAliases = readElements(is, typeAliasesSize, TYPE_ALIAS_SERIALIZER);
             List<Integer> innerStructureReferences = readNumbers(is, innerStructureReferencesSize, 16, false);

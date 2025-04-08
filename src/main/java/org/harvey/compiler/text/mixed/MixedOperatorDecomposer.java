@@ -1,7 +1,7 @@
 package org.harvey.compiler.text.mixed;
 
 import org.harvey.compiler.common.constant.SourceFileConstant;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.io.source.SourcePosition;

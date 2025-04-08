@@ -5,8 +5,8 @@ import lombok.Getter;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.declare.analysis.*;
 import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.source.SourcePosition;
@@ -54,7 +54,6 @@ public class AliasDefinition implements Definition {
         public Builder(IdentifierPoolFactory factory, Environment environment) {
             this.factory = factory;
             this.environment = environment;
-
         }
 
 
@@ -79,6 +78,7 @@ public class AliasDefinition implements Definition {
             if (environment == Environment.FILE && staticPosition != null) {
                 throw new AnalysisExpressionException(staticPosition, "alias on file can not embellish static");
             }
+            // 非file
             this.staticAlias = staticPosition != null;
             return this;
         }

@@ -1,6 +1,6 @@
 package org.harvey.compiler.io.serializer;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.io.InputStream;
 import java.io.OutputStream;

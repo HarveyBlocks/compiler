@@ -1,6 +1,6 @@
 package org.harvey.compiler.common;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 /**
  * TODO

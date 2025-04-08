@@ -8,8 +8,8 @@ import org.harvey.compiler.declare.analysis.DeclarableFactory;
 import org.harvey.compiler.declare.analysis.Keyword;
 import org.harvey.compiler.declare.analysis.Keywords;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.*;
 import org.harvey.compiler.execute.local.LocalType;
@@ -388,7 +388,7 @@ public class ExecutableBodyFactory {
         if (declare == null) {
             // 表达式
             if (!sentence.isEmpty()) {
-                Expression nextExpression = ExpressionFactory.simplyMapToExpression(sentence, identifierManager,
+                Expression nextExpression = ExpressionFactory.simplyMapToExpression(sentence,
                         localVariableManager
                 );
                 result.add(returnInLine ? new Return(nextExpression) : new ExpressionExecutable(nextExpression));
@@ -497,19 +497,19 @@ public class ExecutableBodyFactory {
             LocalVariableManager localVariableManager) {
         switch (keyword) {
             case IF:
-                return new IfStart(ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt), identifierManager,
+                return new IfStart(ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt),
                         localVariableManager
                 ));
             case ELSE:
-                return dealElse(bodyIt, preStart, controlPosition, identifierManager, localVariableManager);
+                return dealElse(bodyIt, preStart, controlPosition, localVariableManager);
             case SWITCH:
-                return new SwitchStart(ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt), identifierManager,
+                return new SwitchStart(ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt),
                         localVariableManager
                 ));
             case CASE:
                 // 到:之后, 这个:是没有被?匹配到的:
                 // a?b:c?d?e:f:g
-                return new Case(ExpressionFactory.simplyMapToExpression(skipCaseCondition(bodyIt), identifierManager,
+                return new Case(ExpressionFactory.simplyMapToExpression(skipCaseCondition(bodyIt),
                         localVariableManager
                 ));
             case DEFAULT:
@@ -523,7 +523,7 @@ public class ExecutableBodyFactory {
             case DO:
                 return new DoStart();
             case WHILE:
-                return dealWhile(bodyIt, preStart, preStartIndex, identifierManager, localVariableManager);
+                return dealWhile(bodyIt, preStart, preStartIndex, localVariableManager);
             case FOR:
                 localVariableManager.intoBody();
                 return buildForStartAndDealScope(skipForCondition(bodyIt), identifierManager, localVariableManager);
@@ -540,7 +540,7 @@ public class ExecutableBodyFactory {
                 }
                 return new FinallyStart();
             default:
-                throw new CompilerException(keyword + "is not a control structure");
+                throw new CompilerException(keyword + "is not a version2 structure");
         }
     }
 
@@ -561,7 +561,7 @@ public class ExecutableBodyFactory {
      */
     private static Executable dealElse(
             ListIterator<SourceString> bodyIt, BodyStart preStart,
-            SourcePosition controlPosition, IdentifierManager identifierManager,
+            SourcePosition controlPosition,
             LocalVariableManager localVariableManager) {
         if (!(preStart instanceof IfStart) && !(preStart instanceof ElseIfStart)) {
             throw new AnalysisExpressionException(controlPosition, "expected after if");
@@ -573,7 +573,7 @@ public class ExecutableBodyFactory {
         );
         if (nextIsIf) {
             bodyIt.next();
-            Expression condition = ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt), identifierManager,
+            Expression condition = ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt),
                     localVariableManager
             );
             return new ElseIfStart(condition);
@@ -587,9 +587,8 @@ public class ExecutableBodyFactory {
      */
     private static Executable dealWhile(
             ListIterator<SourceString> bodyIt, BodyStart preStart, int preStartIndex,
-            IdentifierManager identifierManager,
             LocalVariableManager localVariableManager) {
-        Expression condition = ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt), identifierManager,
+        Expression condition = ExpressionFactory.simplyMapToExpression(skipCondition(bodyIt),
                 localVariableManager
         );
         if (!(preStart instanceof DoStart)) {
@@ -660,21 +659,21 @@ public class ExecutableBodyFactory {
             LocalType eachType = SourceVariableDeclare.localType(each);
             SourceTextContext context = conditions.get(1);
             return new ForEachStart(eachType, new IdentifierString(eachIdentifier),
-                    ExpressionFactory.simplyMapToExpression(context, identifierManager, localVariableManager)
+                    ExpressionFactory.simplyMapToExpression(context, localVariableManager)
             );
         } else if (conditions.size() == 3) {
             SourceTextContext init = conditions.get(0);
-            Expression condition = ExpressionFactory.simplyMapToExpression(conditions.get(1), identifierManager,
+            Expression condition = ExpressionFactory.simplyMapToExpression(conditions.get(1),
                     localVariableManager
             );
-            Expression step = ExpressionFactory.simplyMapToExpression(conditions.get(2), identifierManager,
+            Expression step = ExpressionFactory.simplyMapToExpression(conditions.get(2),
                     localVariableManager
             );
             SourceVariableDeclare declare = SourceVariableDeclare.create(init);
             if (declare == null) {
                 // 是表达式
                 return new ForIndexStart(
-                        ExpressionFactory.simplyMapToExpression(init, identifierManager, localVariableManager),
+                        ExpressionFactory.simplyMapToExpression(init, localVariableManager),
                         condition, step
                 );
             } else {
@@ -683,7 +682,7 @@ public class ExecutableBodyFactory {
                         localVariableManager
                 );
                 return new ForIndexStart(localVariableDeclare.getType(),
-                        ExpressionFactory.simplyMapToExpression(localVariableDeclare.getAssign(), identifierManager,
+                        ExpressionFactory.simplyMapToExpression(localVariableDeclare.getAssign(),
                                 localVariableManager
                         ), condition, step
                 );

@@ -1,12 +1,9 @@
 package org.harvey.compiler.declare.analysis;
 
-import org.harvey.compiler.common.collecction.CollectionUtil;
-import org.harvey.compiler.common.collecction.ListPoint;
-import org.harvey.compiler.common.collecction.RandomlyIterator;
-import org.harvey.compiler.common.collecction.UndoableListIterator;
+import org.harvey.compiler.common.collecction.*;
 import org.harvey.compiler.declare.EnumConstantDeclarable;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.execute.expression.IdentifierString;
@@ -229,15 +226,15 @@ public final class DeclarableFactory {
     }
 
     /**
-     * @param it it.previous是DOT
+     * @param undoIt it.previous是DOT
      * @return 结束后it指向
      */
-    public static List<SourceString> operatorReloadDepart(ListIterator<SourceString> it) {
+    public static List<SourceString> operatorReloadDepart(RandomlyIterator<SourceString> undoIt) {
         // it.previous是dot
-        UndoableListIterator<SourceString> undoIt = new UndoableListIterator<>(it);
+        undoIt.mark();
         SourceString first = undoIt.next();
         if (first.getType() != SourceType.OPERATOR) {
-            undoIt.undo();
+            undoIt.returnToAndRemoveMark();
             return null;
         }
         String value = first.getValue();
@@ -249,7 +246,7 @@ public final class DeclarableFactory {
                         first.getPosition()
                 ));
             } else {
-                undoIt.undo();
+                undoIt.returnToAndRemoveMark();
                 return null;
             }
         } else if (Operator.PARENTHESES_PRE.nameEquals(value)) {
@@ -260,7 +257,7 @@ public final class DeclarableFactory {
                         first.getPosition()
                 ));
             } else {
-                undoIt.undo();
+                undoIt.returnToAndRemoveMark();
                 return CollectionUtil.skipTo(
                         undoIt, s -> s.getType() == SourceType.OPERATOR &&
                                      Operator.PARENTHESES_POST.nameEquals(s.getValue()), true);
@@ -276,9 +273,9 @@ public final class DeclarableFactory {
             // ( -> .(int)() cast运算符
             // ( -> .(int)<>() cast运算符
         }
-        Operator operator = Operators.reloadableOperator(value);
+        Operator[] operator = Operators.reloadableOperator(value);
         if (operator == null) {
-            undoIt.undo();
+            undoIt.returnToAndRemoveMark();
             return null;
         }
         // + -> +() 运算符重载
@@ -288,7 +285,7 @@ public final class DeclarableFactory {
     public static ListPoint<List<SourceString>> departFullIdentifier(
             SourcePosition position, String firstName,
             int indexOfDot,
-            ArrayList<SourceString> sourceList) {
+            List<SourceString> sourceList) {
         RandomlyIterator<SourceString> it = CollectionUtil.randomlyIterator(sourceList, indexOfDot);
         List<SourceString> element = departFullIdentifier(position, firstName, it);
         return new ListPoint<>(it.nextIndex(), element);
@@ -296,10 +293,10 @@ public final class DeclarableFactory {
 
     public static ListPoint<List<SourceString>> departOperatorReloadOnCall(
             int index,
-            ArrayList<SourceString> sourceList) {
-        RandomlyIterator<SourceString> it = CollectionUtil.randomlyIterator(sourceList, index);
-        List<SourceString> element = operatorReloadDepart(it);
-        return new ListPoint<>(it.nextIndex(), element);
+            List<SourceString> sourceList) {
+        RandomlyIterator<SourceString> undoIt = CollectionUtil.randomlyIterator(sourceList, index);
+        List<SourceString> element = operatorReloadDepart(undoIt);
+        return new ListPoint<>(undoIt.nextIndex(), element);
     }
 
 

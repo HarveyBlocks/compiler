@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.harvey.compiler.common.constant.SourceFileConstant;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 

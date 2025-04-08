@@ -2,7 +2,7 @@ package org.harvey.compiler.type.generic.relate.entity;
 
 import lombok.Getter;
 import org.harvey.compiler.declare.context.StructureType;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.io.source.SourcePosition;

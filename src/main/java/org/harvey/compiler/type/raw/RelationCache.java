@@ -2,7 +2,7 @@ package org.harvey.compiler.type.raw;
 
 import org.harvey.compiler.declare.analysis.Keyword;
 import org.harvey.compiler.exception.CompileMultipleFileException;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.io.source.SourcePosition;
 

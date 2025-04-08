@@ -2,19 +2,16 @@ package org.harvey.compiler.text.context;
 
 import org.harvey.compiler.common.collecction.CollectionUtil;
 import org.harvey.compiler.common.reflect.VieConstructor;
-import org.harvey.compiler.exception.CompileFileException;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.io.CompileFileException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -89,8 +86,7 @@ public class SourceTextContext extends LinkedList<SourceString> {
      * @see CollectionUtil#skipNest(ListIterator, Predicate, Predicate, Supplier)
      */
     public static SourceTextContext skipNest(
-            ListIterator<SourceString> it, String pre, String post,
-            boolean mustHaveNest) {
+            ListIterator<SourceString> it, String pre, String post, boolean mustHaveNest) {
         SourceTextContext result;
         try {
             result = CollectionUtil.skipNest(it, ss -> pre.equals(ss.getValue()), ss -> post.equals(ss.getValue()),
@@ -108,22 +104,11 @@ public class SourceTextContext extends LinkedList<SourceString> {
     }
 
     /*
-     * 不要以逗号分割, 以等号分割
-     * 在第一个等号, 定位, 找下一个等号, 等号前面一定是identifier
-     * 对于param, 再前面是type,type前是','
-     * 对于declare, 再前面是',', 否则就不正确
-     * ','前就是表达式
-     * 如果找不到下一个等号, 那么前面的就都是表达式
-     * 当然要skip一些东西
-     */
 
-    /**
-     * @param iterator <br>
-     *                 1. map -> id<br>
-     *                 2. map -> id = exp<br>
-     *                 3. map -> map,map<br>
      */
-    public static SourceTextContext skipUntilComma(ListIterator<SourceString> iterator) {
+    public static <L extends List<SourceString>> L skipUntilComma(
+            ListIterator<SourceString> iterator,
+            Supplier<L> generator) {
         // ()  直接skipNest
         // []  直接skipNest
         // {}  直接skipNest
@@ -133,7 +118,7 @@ public class SourceTextContext extends LinkedList<SourceString> {
         // 说到底, 一个default的常量表达式里到底能不能有一个ParameterizedType, 也是一个问题
         // 要怎么找到一个逗号是真的逗号呢?
         // 答案是不用找! 除非你用括号括起来, 否则认为你就是Operator
-        SourceTextContext beforeComma = new SourceTextContext();
+        L beforeComma = generator.get();
         while (iterator.hasNext()) {
             SourceString next = iterator.next();
             SourceType type = next.getType();
@@ -173,6 +158,23 @@ public class SourceTextContext extends LinkedList<SourceString> {
             }
         }
         return beforeComma;
+    }
+
+    /**
+     * 不要以逗号分割, 以等号分割
+     * 在第一个等号, 定位, 找下一个等号, 等号前面一定是identifier
+     * 对于param, 再前面是type,type前是','
+     * 对于declare, 再前面是',', 否则就不正确
+     * ','前就是表达式
+     * 如果找不到下一个等号, 那么前面的就都是表达式
+     * 当然要skip一些东西
+     * @param iterator <br>
+     *                 1. map -> id<br>
+     *                 2. map -> id = exp<br>
+     *                 3. map -> map,map<br>
+     */
+    public static SourceTextContext skipUntilComma(ListIterator<SourceString> iterator) {
+        return skipUntilComma(iterator, SourceTextContext::new);
     }
 
 

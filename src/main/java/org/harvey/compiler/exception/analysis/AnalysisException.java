@@ -1,6 +1,6 @@
 package org.harvey.compiler.exception.analysis;
 
-import org.harvey.compiler.exception.CompileFileException;
+import org.harvey.compiler.exception.io.CompileFileException;
 import org.harvey.compiler.io.source.SourcePosition;
 
 /**

@@ -7,7 +7,7 @@ import org.harvey.compiler.declare.context.ConstructorContext;
 import org.harvey.compiler.declare.context.StructureType;
 import org.harvey.compiler.declare.context.TypeAlias;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.PackageMessage;
 import org.harvey.compiler.io.cache.ImportType;

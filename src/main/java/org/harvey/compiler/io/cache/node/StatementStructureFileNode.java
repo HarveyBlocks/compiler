@@ -1,6 +1,6 @@
 package org.harvey.compiler.io.cache.node;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.cache.resource.StatementResource;
 import org.harvey.compiler.io.cache.resource.StructureContextResource;
 import org.harvey.compiler.io.stage.CompileStage;

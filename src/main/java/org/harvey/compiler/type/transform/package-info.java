@@ -108,3 +108,19 @@ package org.harvey.compiler.type.transform;
  *
  *      全矣
  * */
+
+// 有泛型的Constructor
+//
+// class A[T extends List[_/*这个属于是ignore, 也就是占位符, 表示所有*/]] {
+//
+//        A[List[Object]] a = new A();
+//        A[List[String]] a1 = new A();
+//        A[List[String]] a2 = new A[]();
+//        A[List[String]] a3 = new A[List[String]]();
+//        A[List[String]] a4 = new();
+//  constructor上有generic message的:
+//        A[List[String]] a5 = new (A[List[String]])[int]();
+//        A[List[String]] a6 = new (A[])[int]();
+//        A[List[String]] a7 = new (A)[int]();
+//        A[List[String]] a7 = new[int]();
+//    }

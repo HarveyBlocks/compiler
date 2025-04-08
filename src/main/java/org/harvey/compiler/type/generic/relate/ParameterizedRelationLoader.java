@@ -5,7 +5,7 @@ import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.declare.context.ConstructorContext;
 import org.harvey.compiler.declare.context.ParamContext;
 import org.harvey.compiler.declare.context.TypeAlias;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.KeywordString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.local.LocalType;
@@ -47,7 +47,7 @@ public class ParameterizedRelationLoader {
         this.relatedParameterizedTypeBuilderFactory = relatedParameterizedTypeBuilderFactory;
         this.parameterizedRelationCache = new ParameterizedRelationCache();
     }
-
+    @Deprecated
     public RelatedParameterizedAlias loadAlias(RelationRawType rawType) throws IOException {
         if (!rawType.isAlias()) {
             throw new CompilerException(
@@ -66,6 +66,7 @@ public class ParameterizedRelationLoader {
     /**
      * typeAlias and rawType are same thing different stage
      */
+    @Deprecated
     public RelatedParameterizedAlias loadAlias(TypeAlias typeAlias, RelationRawType rawType) throws IOException {
         RelatedParameterizedAlias inCache = parameterizedRelationCache.getAlias(rawType);
         if (inCache != null) {

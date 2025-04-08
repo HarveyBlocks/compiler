@@ -2,11 +2,9 @@ package org.harvey.compiler.type.generic.relate.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.type.generic.using.ParameterizedType;
 import org.harvey.compiler.type.raw.RelationUsing;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.function.Function;
 

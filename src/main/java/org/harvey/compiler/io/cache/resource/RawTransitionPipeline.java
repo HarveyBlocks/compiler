@@ -1,7 +1,7 @@
 package org.harvey.compiler.io.cache.resource;
 
-import org.harvey.compiler.declare.context.StructureContext;
 import org.harvey.compiler.declare.context.FileContext;
+import org.harvey.compiler.declare.context.StructureContext;
 import org.harvey.compiler.io.PackageMessage;
 
 import java.util.function.Function;

@@ -1,6 +1,6 @@
 package org.harvey.compiler.text.decomposer;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.text.context.SourceTextContext;
 

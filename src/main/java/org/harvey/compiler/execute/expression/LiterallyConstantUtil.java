@@ -4,8 +4,8 @@ import org.harvey.compiler.command.CompileProperties;
 import org.harvey.compiler.common.collecction.ListPoint;
 import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.common.util.CharacterUtil;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 
 import java.util.Map;

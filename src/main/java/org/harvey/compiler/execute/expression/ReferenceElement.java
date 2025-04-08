@@ -2,13 +2,15 @@ package org.harvey.compiler.execute.expression;
 
 import lombok.Getter;
 import org.harvey.compiler.declare.analysis.Keyword;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
+import org.harvey.compiler.execute.test.version1.element.ItemString;
 import org.harvey.compiler.io.serializer.HeadMap;
 import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 import org.harvey.compiler.io.serializer.StreamSerializerUtil;
 import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.type.generic.RawType;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,11 +23,8 @@ import java.io.OutputStream;
  * @date 2025-02-27 00:06
  */
 @Getter
-public class ReferenceElement extends ExpressionElement {
-    public static final ExpressionElementType TYPE = ExpressionElementType.IDENTIFIER_REFERENCE;
-    private static final StreamSerializer<ReferenceElement> SERIALIZER = StreamSerializerRegister.get(
-            ReferenceElement.Serializer.class);
-    private final ReferenceType type;
+public class ReferenceElement extends ExpressionElement implements RawType, ItemString {
+      private final ReferenceType type;
     private final int reference;
 
     public ReferenceElement(SourcePosition position, ReferenceType type, int reference) {
@@ -43,7 +42,7 @@ public class ReferenceElement extends ExpressionElement {
         );
     }
 
-    public static ReferenceElement of(OperatorString operatorString) {
+    public static ReferenceElement of(NormalOperatorString operatorString) {
         return new ReferenceElement(operatorString.getPosition(), ReferenceType.OPERATOR,
                 operatorString.getValue().ordinal()
         );
@@ -83,10 +82,6 @@ public class ReferenceElement extends ExpressionElement {
         return getPosition() + "" + getReference();
     }
 
-    @Override
-    public int out(OutputStream os) {
-        return SERIALIZER.out(os, this);
-    }
 
 
     public static class Serializer implements StreamSerializer<ReferenceElement> {
@@ -94,7 +89,7 @@ public class ReferenceElement extends ExpressionElement {
                 SourcePosition.Serializer.class);
 
         static {
-            ExpressionElement.Serializer.register(TYPE.ordinal(), new Serializer(), ReferenceElement.class);
+            StreamSerializerRegister.register(new Serializer());
         }
 
         private Serializer() {

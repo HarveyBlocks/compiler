@@ -3,14 +3,16 @@ package org.harvey.compiler.execute.expression;
 import lombok.Getter;
 import org.harvey.compiler.common.util.ArrayUtil;
 import org.harvey.compiler.common.util.StringUtil;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 import org.harvey.compiler.io.serializer.StreamSerializerUtil;
 import org.harvey.compiler.io.serializer.StringStreamSerializer;
 import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.io.source.SourcePositionSupplier;
+import org.harvey.compiler.type.generic.RawType;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,10 +26,8 @@ import java.util.Arrays;
  * @date 2025-02-25 21:48
  */
 @Getter
-public class FullIdentifierString extends ExpressionElement {
-    public static final ExpressionElementType TYPE = ExpressionElementType.FULL_IDENTIFIER;
-    private static final StreamSerializer<FullIdentifierString> SERIALIZER = StreamSerializerRegister.get(
-            Serializer.class);
+public class FullIdentifierString implements SourcePositionSupplier, RawType {
+    private final SourcePosition position;
     /**
      * fullname, separator is .
      */
@@ -38,13 +38,13 @@ public class FullIdentifierString extends ExpressionElement {
      * @param sp can not be empty
      */
     public FullIdentifierString(SourcePosition[] sp, String[] fullname) {
-        super(sp[0]);
+        position = sp[0];
         this.positionList = sp;
         this.fullname = fullname;
     }
 
     public FullIdentifierString(SourcePosition sp, String fullname) {
-        super(sp);
+        position = sp;
         this.positionList = new SourcePosition[]{sp};
         this.fullname = new String[]{fullname};
     }
@@ -54,10 +54,6 @@ public class FullIdentifierString extends ExpressionElement {
         return joinFullnameString(Operator.GET_MEMBER.getName());
     }
 
-    @Override
-    public int out(OutputStream os) {
-        return SERIALIZER.out(os, this);
-    }
 
     public String get(int index) {
         return fullname[index];
@@ -133,7 +129,7 @@ public class FullIdentifierString extends ExpressionElement {
                 StringStreamSerializer.class);
 
         static {
-            ExpressionElement.Serializer.register(TYPE.ordinal(), new Serializer(), FullIdentifierString.class);
+            StreamSerializerRegister.register(new Serializer());
         }
 
         private Serializer() {

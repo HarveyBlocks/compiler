@@ -11,7 +11,7 @@ import org.harvey.compiler.declare.define.FileDefinition;
 import org.junit.Test;
 
 /**
- * Unit test for simple App.
+ * Unit test1 for simple App.
  */
 public class AppTest {
 

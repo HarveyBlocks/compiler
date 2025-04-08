@@ -2,8 +2,8 @@ package org.harvey.compiler.io.serializer;
 
 import lombok.Getter;
 import org.harvey.compiler.common.Serializes;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.io.CompilerFileWriteException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 /**
  * 文件头
@@ -68,9 +68,9 @@ public class HeadMap {
 
     public HeadMap inRange(boolean unsigned, String name) {
         if (unsigned && (bitCount >= 64 || bitCount <= 0)) {
-            throw new CompilerException("not support at bit count of " + bitCount + " while the data is unsigned");
+            throw new CompilerException("not support at bit increase of " + bitCount + " while the data is unsigned");
         } else if (!unsigned && (bitCount >= 65 || bitCount <= 1)) {
-            throw new CompilerException("not support at bit count of " + bitCount + " while the data is unsigned");
+            throw new CompilerException("not support at bit increase of " + bitCount + " while the data is unsigned");
         }
         long maximum = unsigned ? Serializes.unsignedMaxValue(bitCount) : Serializes.signedMaxValue(bitCount);
         long rawValue = unsigned && this.rawValue < 0 ? this.rawValue + (1L << bitCount) : this.rawValue;

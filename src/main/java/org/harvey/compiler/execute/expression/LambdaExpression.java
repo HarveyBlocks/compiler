@@ -48,5 +48,7 @@ public class LambdaExpression extends ComplexExpression {
      * 1. null 表示是一行的, 其函数体也是表达式, 也能被解析
      * 2. 否则, 去除了{}的内部表达式
      */
-    private final SourceTextContext body;
+    private  SourceTextContext body;
+
+
 }

@@ -2,7 +2,7 @@ package org.harvey.compiler.type.raw;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourcePositionSupplier;
 import org.harvey.compiler.type.generic.relate.RelatedGenericDefineCache;

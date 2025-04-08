@@ -1,8 +1,8 @@
 package org.harvey.compiler.execute.local;
 
 import org.harvey.compiler.common.collecction.Pair;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.type.generic.using.ParameterizedType;

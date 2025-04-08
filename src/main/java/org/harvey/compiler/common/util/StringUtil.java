@@ -1,7 +1,7 @@
 package org.harvey.compiler.common.util;
 
 import org.harvey.compiler.common.constant.SourceFileConstant;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.util.ArrayList;
 import java.util.Collection;

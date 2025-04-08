@@ -9,10 +9,16 @@ package org.harvey.compiler.execute.calculate;
  * @date 2024-11-15 20:57
  */
 public enum Associativity {
-    // 此运算符讨论结合性没有意义
+    /**
+     *  此运算符讨论结合性没有意义
+     */
     NONE,
-    // 左结合(自左向右)
+    /**
+     * 左结合(自左向右)
+     */
     LEFT,
-    // 右结合(自右向左)
+    /**
+     * 右结合(自右向左)
+     */
     RIGHT,
 }

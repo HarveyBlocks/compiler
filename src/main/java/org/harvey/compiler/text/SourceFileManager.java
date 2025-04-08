@@ -2,8 +2,8 @@ package org.harvey.compiler.text;
 
 import org.harvey.compiler.common.collecction.StringIterator;
 import org.harvey.compiler.common.constant.SourceFileConstant;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;

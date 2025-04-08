@@ -2,11 +2,11 @@ package org.harvey.compiler.common.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.exception.CompileFileException;
 import org.harvey.compiler.exception.CompileMultipleFileException;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.exception.execution.CompileExecutionException;
+import org.harvey.compiler.exception.io.CompileFileException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 

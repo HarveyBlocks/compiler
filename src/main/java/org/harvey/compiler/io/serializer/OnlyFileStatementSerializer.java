@@ -10,9 +10,8 @@ import org.harvey.compiler.declare.context.ImportString;
 import org.harvey.compiler.declare.context.TypeAlias;
 import org.harvey.compiler.declare.identifier.DefaultIdentifierManager;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
-import org.harvey.compiler.exception.io.CompilerFileWriteException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.DequeueOutputStream;
@@ -22,12 +21,9 @@ import org.harvey.compiler.io.stage.CompileStage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
-import static org.harvey.compiler.io.serializer.StreamSerializerUtil.readElements;
-import static org.harvey.compiler.io.serializer.StreamSerializerUtil.writeElements;
+import static org.harvey.compiler.io.serializer.StreamSerializerUtil.*;
 
 /**
  * TODO
@@ -38,7 +34,7 @@ import static org.harvey.compiler.io.serializer.StreamSerializerUtil.writeElemen
  */
 
 public class OnlyFileStatementSerializer implements StatementFileSerializer {
-    public static final int[] HEAD_LENGTH_BITS = {16, 16, 8, 16, 16, 16, 16, 24};
+    public static final int[] HEAD_LENGTH_BITS = {16, 16, 8, 8, 16, 16, 16, 16, 24};
     public static final int HEAD_BYTE = Serializes.bitCountToByteCount(ArrayUtil.sum(HEAD_LENGTH_BITS));
     private static final FullIdentifierString.Serializer FULL_IDENTIFIER_STRING_SERIALIZER = StreamSerializerRegister.get(
             FullIdentifierString.Serializer.class);
@@ -72,6 +68,7 @@ public class OnlyFileStatementSerializer implements StatementFileSerializer {
         IdentifierManager identifierManager = src.getIdentifierManager();
         int importReferenceAfterIndex = identifierManager.getImportReferenceAfterIndex();
         List<FullIdentifierString> allIdentifierTable = identifierManager.getAllIdentifierTable();
+        Set<Integer> disableSet = identifierManager.getDisableSet();
         Collection<ImportString> importStrings = identifierManager.getImportTable().values();
         Collection<CallableContext> functionTable = src.getFunctionTable();
         Collection<TypeAlias> aliasList = src.getAliasList();
@@ -86,19 +83,24 @@ public class OnlyFileStatementSerializer implements StatementFileSerializer {
                 new HeadMap(identifierManager.getPreLength(), HEAD_LENGTH_BITS[2]).inRange(
                         true,
                         "complex structure table size"
-                ), new HeadMap(importStrings.size(), HEAD_LENGTH_BITS[3]).inRange(true, "import table size"),
-                new HeadMap(aliasList.size(), HEAD_LENGTH_BITS[4]).inRange(true, "alias table size"),
-                new HeadMap(complexStructureTable.size(), HEAD_LENGTH_BITS[5]).inRange(
+                ),
+                new HeadMap(disableSet.size(), HEAD_LENGTH_BITS[3]).inRange(
+                        true,
+                        "identifier disable set"
+                ), new HeadMap(importStrings.size(), HEAD_LENGTH_BITS[4]).inRange(true, "import table size"),
+                new HeadMap(aliasList.size(), HEAD_LENGTH_BITS[5]).inRange(true, "alias table size"),
+                new HeadMap(complexStructureTable.size(), HEAD_LENGTH_BITS[6]).inRange(
                         true,
                         "complex structure table size"
-                ), new HeadMap(functionTable.size(), HEAD_LENGTH_BITS[6]).inRange(true, "function table size"),
-                new HeadMap(executablePool.size(), HEAD_LENGTH_BITS[7]).inRange(
+                ), new HeadMap(functionTable.size(), HEAD_LENGTH_BITS[7]).inRange(true, "function table size"),
+                new HeadMap(executablePool.size(), HEAD_LENGTH_BITS[8]).inRange(
                         true,
                         "complex structure table size"
                 )
         );
         int len1 = headLength +
                    writeElements(os, allIdentifierTable, FULL_IDENTIFIER_STRING_SERIALIZER) +
+                   writeNumbers(os, disableSet, 32, false) +
                    writeElements(os, importStrings, IMPORT_STRING_SERIALIZER) +
                    writeElements(os, aliasList, TYPE_ALIAS_SERIALIZER) +
                    writeElements(os, complexStructureTable, REFERENCE_ELEMENT_SERIALIZER);
@@ -135,18 +137,21 @@ public class OnlyFileStatementSerializer implements StatementFileSerializer {
             int importReferenceAfterIndex = (int) headMap[0].getUnsignedValue();
             long allIdentifierTableSize = headMap[1].getUnsignedValue();
             int preLength = (int) headMap[2].getUnsignedValue();
-            long importStringsSize = headMap[3].getUnsignedValue();
-            long aliasListSize = headMap[4].getUnsignedValue();
-            long complexStructureTableSize = headMap[5].getUnsignedValue();
+            int disableSetSize = (int) headMap[3].getUnsignedValue();
+            long importStringsSize = headMap[4].getUnsignedValue();
+            long aliasListSize = headMap[5].getUnsignedValue();
+            long complexStructureTableSize = headMap[6].getUnsignedValue();
             ArrayList<FullIdentifierString> allIdentifierTable = readElements(
                     is, allIdentifierTableSize, FULL_IDENTIFIER_STRING_SERIALIZER);
+            Set<Integer> disableSet = new HashSet<>(readNumbers(
+                    is, disableSetSize, 32, false));
             ArrayList<ImportString> importStrings = readElements(is, importStringsSize, IMPORT_STRING_SERIALIZER);
             ArrayList<TypeAlias> typeAliases = readElements(is, aliasListSize, TYPE_ALIAS_SERIALIZER);
             ArrayList<ReferenceElement> complexStructureTable = readElements(
                     is, complexStructureTableSize, REFERENCE_ELEMENT_SERIALIZER);
             return resource = new FileContext(typeAliases, complexStructureTable,
                     new DefaultIdentifierManager(importStrings, importReferenceAfterIndex, preLength,
-                            allIdentifierTable
+                            allIdentifierTable, disableSet
                     ), null, null, null
             );
         } else if (stage == CompileStage.LINKING) {

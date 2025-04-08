@@ -145,8 +145,8 @@ public class DefinitionFactory {
             structureDefinitions.add(definition);
         }
         return new FileDefinition(aliases, structureDefinitions, functions,
-                new DefaultIdentifierManager(importTable,
-                        identifierPoolFactory.getDeclaredIdentifierPool(), identifierPoolFactory.getPreLength()
+                new DefaultIdentifierManager(importTable, identifierPoolFactory.getDeclaredIdentifierPool(),
+                        identifierPoolFactory.getPreLength(),identifierPoolFactory.getDisableSet()
                 )
         );
     }
@@ -161,15 +161,15 @@ public class DefinitionFactory {
         Environment environment = getEnvironment(outerStructure);
         ListIterator<SourceString> attachmentIterator = statement.getAttachment().listIterator();
         Stack<ReferenceElement> referenceStack = outerStaticReferenceStack(outerStructure, structureDefinitions);
-        return new StructureDefinition.Builder(environment, identifierPoolFactory).outerStructure(
+        return new StructureDefinition.Builder(environment).outerStructure(
                         structure.getOuterStructure())
                 .depth(structure.getDepth())
                 .permissions(statement.getPermissions())
                 .embellish(statement.getEmbellish())
                 .type(statement.getType())
-                .identifierReference(statement.getIdentifier())
-                .identifierPoolFactoryForInner()
+                .identifierReference(identifierPoolFactory,statement.getIdentifier())
                 .referenceStack(referenceStack)
+                .identifierPoolFactoryForInner(identifierPoolFactory)
                 .genericDefine(attachmentIterator)
                 .superType(attachmentIterator)
                 .implementsList(attachmentIterator)

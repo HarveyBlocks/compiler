@@ -6,8 +6,10 @@ import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 import org.harvey.compiler.io.serializer.StringStreamSerializer;
 import org.harvey.compiler.io.source.SourcePosition;
+import org.harvey.compiler.io.source.SourcePositionSupplier;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;
+import org.harvey.compiler.type.generic.RawType;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,10 +22,9 @@ import java.io.OutputStream;
  * @date 2025-01-08 16:47
  */
 @Getter
-public class IdentifierString extends ExpressionElement {
-    public static final ExpressionElementType TYPE = ExpressionElementType.IDENTIFIER;
-    private static final StreamSerializer<IdentifierString> SERIALIZER = StreamSerializerRegister.get(Serializer.class);
+public class IdentifierString implements RawType, SourcePositionSupplier {
     private static final String IGNORE_VALUE = "";
+    private final SourcePosition position;
     /**
      * fullname, separator is .
      */
@@ -31,13 +32,13 @@ public class IdentifierString extends ExpressionElement {
 
 
     public IdentifierString(SourcePosition sp, String value) {
-        super(sp);
+        this.position = sp;
         this.value = value;
     }
 
 
     public IdentifierString(SourceString identifier) {
-        super(identifier.getPosition());
+        this.position = identifier.getPosition();
         if (identifier.getType() == SourceType.IGNORE_IDENTIFIER) {
             this.value = IGNORE_VALUE;
             return;
@@ -59,10 +60,6 @@ public class IdentifierString extends ExpressionElement {
         return value.isEmpty();
     }
 
-    @Override
-    public int out(OutputStream os) {
-        return SERIALIZER.out(os, this);
-    }
 
     public static class Serializer implements StreamSerializer<IdentifierString> {
         public static final SourcePosition.Serializer SOURCE_POSITION_SERIALIZER = StreamSerializerRegister.get(
@@ -71,7 +68,7 @@ public class IdentifierString extends ExpressionElement {
                 StringStreamSerializer.class);
 
         static {
-            ExpressionElement.Serializer.register(TYPE.ordinal(), new Serializer(), IdentifierString.class);
+            StreamSerializerRegister.register(new Serializer());
         }
 
         private Serializer() {

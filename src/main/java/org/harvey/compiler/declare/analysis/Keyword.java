@@ -85,7 +85,7 @@ public enum Keyword {
 
     // import system.util.function.operator.Cast<TargetType>;
     // operator方法
-    //  优点: 声明方便, version1 便可完成
+    //  优点: 声明方便, version2 便可完成
     //  缺点: 难以编译
     OPERATOR("operator"), // CONSTRUCTOR("constructor"),
     // 基本数据类型

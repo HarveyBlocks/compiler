@@ -1,7 +1,7 @@
 package org.harvey.compiler.declare.analysis;
 
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.text.context.SourceTextContext;
 
 import java.util.Arrays;
@@ -132,7 +132,7 @@ public class AccessControls {
         // 存在不正常的情况
         if (permissions.isEmpty()) {
             throw new CompilerException(
-                    "default access control of " + environment + " is in the illegal control set: " +
+                    "default access version2 of " + environment + " is in the illegal version2 set: " +
                     Arrays.toString(illegalPermission));
         } else if (permissions.size() == 1) {
             throw new AnalysisExpressionException(

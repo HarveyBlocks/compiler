@@ -5,12 +5,12 @@ import lombok.Getter;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.declare.analysis.Embellish;
 import org.harvey.compiler.declare.analysis.EmbellishSource;
-import org.harvey.compiler.exception.CompilerException;
-import org.harvey.compiler.execute.expression.ExpressionElement;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.type.generic.GenericFactory;
+import org.harvey.compiler.type.generic.RawType;
 
 import java.util.ListIterator;
 
@@ -26,7 +26,7 @@ import java.util.ListIterator;
 public class LocalTypeDefinition {
     private final SourcePosition markConst;
     private final SourcePosition markFinal;
-    private ExpressionElement rawType;
+    private RawType rawType;
     private SourceTextContext typeParameter;
 
     public boolean isMarkFinal() {
@@ -40,7 +40,7 @@ public class LocalTypeDefinition {
     public static class Builder {
         private SourcePosition markConst;
         private SourcePosition markFinal;
-        private ExpressionElement rawType;
+        private RawType rawType;
         private SourceTextContext typeParameter;
 
         public Builder embellish(EmbellishSource embellish) {
@@ -53,7 +53,7 @@ public class LocalTypeDefinition {
         }
 
         public Builder type(ListIterator<SourceString> typeIterator) {
-            Pair<ExpressionElement, SourceTextContext> typePair = GenericFactory.skipSourceForUse(typeIterator);
+            Pair<RawType, SourceTextContext> typePair = GenericFactory.skipSourceForUse(typeIterator);
             this.rawType = typePair.getKey();
             this.typeParameter = typePair.getValue();
             return this;

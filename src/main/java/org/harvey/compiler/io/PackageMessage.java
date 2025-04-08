@@ -5,8 +5,8 @@ import org.harvey.compiler.common.constant.CompileCommandConstant;
 import org.harvey.compiler.common.constant.CompileFileConstant;
 import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.common.util.StringUtil;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.io.VieIOException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.io.File;
 

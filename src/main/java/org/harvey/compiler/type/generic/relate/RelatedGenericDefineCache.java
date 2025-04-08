@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import org.harvey.compiler.common.collecction.BaseReference;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.common.util.StringUtil;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.type.generic.relate.entity.RelatedGenericDefine;
 import org.harvey.compiler.type.generic.relate.entity.RelatedGenericDefineReference;
 

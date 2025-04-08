@@ -11,13 +11,13 @@ import org.harvey.compiler.declare.define.StructureDefinition;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
 import org.harvey.compiler.exception.analysis.AnalysisException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
-import org.harvey.compiler.execute.expression.ExpressionElement;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.expression.ReferenceType;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.type.generic.GenericFactory;
+import org.harvey.compiler.type.generic.RawType;
 import org.harvey.compiler.type.generic.define.GenericDefine;
 import org.harvey.compiler.type.generic.using.ParameterizedType;
 
@@ -130,7 +130,7 @@ public class StructureContext implements DeclaredContext {
      * @param superSource nullable
      */
     private static ParameterizedType<ReferenceElement> getParameterizedTypeAsUpper(
-            Pair<ExpressionElement, SourceTextContext> superSource, IdentifierManager manager) {
+            Pair<RawType, SourceTextContext> superSource, IdentifierManager manager) {
         if (superSource == null) {
             return null;
         }

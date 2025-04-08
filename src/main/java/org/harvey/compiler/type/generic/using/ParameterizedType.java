@@ -1,11 +1,10 @@
 package org.harvey.compiler.type.generic.using;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.common.tree.DefaultMultipleTree;
 import org.harvey.compiler.common.tree.MultipleTree;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerUtil;
@@ -28,21 +27,28 @@ import java.util.function.IntFunction;
  * @date 2025-03-02 00:04
  */
 @Getter
-@AllArgsConstructor
 public class ParameterizedType<T extends SourcePositionSupplier> {
     /**
      * nullable
      */
     private final MultipleTree<T> tree;
 
+    public ParameterizedType(MultipleTree<T> tree) {
+        this.tree = tree;
+    }
+
     public ParameterizedType(T rawType) {
-        this.tree = new DefaultMultipleTree<>(rawType);
+        this.tree = new DefaultMultipleTree<>(rawType, false);
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.tree.setReadOnly(readOnly);
     }
 
 
     public static <T extends SourcePositionSupplier> ParameterizedType<T> toTree(
             List<Pair<Integer, T>> sequence) {
-        return new ParameterizedType<>(DefaultMultipleTree.toTree(sequence));
+        return new ParameterizedType<>(DefaultMultipleTree.toTree(sequence, true));
     }
 
     public static <T extends SourcePositionSupplier> List<Pair<Integer, T>> toSequence(ParameterizedType<T> type) {
@@ -83,9 +89,7 @@ public class ParameterizedType<T extends SourcePositionSupplier> {
 
     @SuppressWarnings("unchecked")
     public ParameterizedType<T>[] getChildren() {
-        return tree.getChildren().stream()
-                .map(ParameterizedType::new)
-                .toArray(ParameterizedType[]::new);
+        return tree.getChildren().stream().map(ParameterizedType::new).toArray(ParameterizedType[]::new);
     }
 
     public ParameterizedType<T> getChild(int index) {
@@ -118,9 +122,9 @@ public class ParameterizedType<T extends SourcePositionSupplier> {
     }
 
     public List<String> toStringList(Function<T, String> toString) {
-        return tree.toStringList(
-                Operator.COMMA.getName(), Operator.GENERIC_LIST_PRE.getName(), Operator.GENERIC_LIST_POST.getName(),
-                toString);
+        return tree.toStringList(Operator.COMMA.getName(), Operator.GENERIC_LIST_PRE.getName(),
+                Operator.GENERIC_LIST_POST.getName(), toString
+        );
     }
 
     /**
@@ -131,7 +135,8 @@ public class ParameterizedType<T extends SourcePositionSupplier> {
     }
 
 
-    public abstract static class Serializer<T extends SourcePositionSupplier> implements StreamSerializer<ParameterizedType<T>> {
+    public abstract static class Serializer<T extends SourcePositionSupplier> implements
+            StreamSerializer<ParameterizedType<T>> {
         protected abstract StreamSerializer<T> getRawTypeSerializer();
 
         @Override

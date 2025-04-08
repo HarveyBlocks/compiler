@@ -21,6 +21,7 @@ public class ArrayInitExpression extends ComplexExpression {
     public static final String END_MSG = "__array__init__end__";
     public static final int UNSURE_OTHER_SIDE = 0x7f_ff_ff_ff;
     public static final ComplexExpression.Type TYPE = ComplexExpression.Type.ARRAY_INIT;
+
     private final boolean start;//不是start, 就是end
     @Setter
     private int otherSide;

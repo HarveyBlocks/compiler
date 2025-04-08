@@ -22,4 +22,6 @@ public interface RandomlyIterator<E> extends ListIterator<E> {
     int length();
 
     void returnToAndRemoveMark();
+
+    void removeMark();
 }

@@ -1,6 +1,6 @@
 package org.harvey.compiler.io.stage;
 
-import org.harvey.compiler.exception.UnfinishedException;
+import org.harvey.compiler.exception.self.UnfinishedException;
 
 import java.io.File;
 

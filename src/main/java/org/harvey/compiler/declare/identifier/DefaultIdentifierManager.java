@@ -3,7 +3,7 @@ package org.harvey.compiler.declare.identifier;
 import lombok.Getter;
 import org.harvey.compiler.common.util.StringUtil;
 import org.harvey.compiler.declare.context.ImportString;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
@@ -35,6 +35,9 @@ public class DefaultIdentifierManager implements IdentifierManager {
     private final Map<String, Integer> allIdentifierCache;
     @Getter
     private final int preLength;
+    @Getter
+    private final Set<Integer> disableSet;
+    private boolean canGetGenericDefine = true;
 
     /**
      * TODO 是否需要当前文件路径, 用来分析import到当前文件的情况
@@ -43,7 +46,10 @@ public class DefaultIdentifierManager implements IdentifierManager {
      * @param declaredIdentifierTable 不会重复
      */
     public DefaultIdentifierManager(
-            Map<String, ImportString> importTable, List<IdentifierString> declaredIdentifierTable, int preLength) {
+            Map<String, ImportString> importTable,
+            List<IdentifierString> declaredIdentifierTable,
+            int preLength,
+            Set<Integer> disableSet) {
         this.preLength = preLength;
         this.importTable = importTable;
         this.allIdentifierTable = declaredIdentifierTable.stream()
@@ -52,23 +58,26 @@ public class DefaultIdentifierManager implements IdentifierManager {
         importReferenceAfterIndex = allIdentifierTable.size();
         allIdentifierCache = new HashMap<>();
         this.declaredIdentifierMap = new HashMap<>();
+        this.disableSet = disableSet;
         initDeclareMapAndCache();
     }
 
     public DefaultIdentifierManager(
             Collection<ImportString> importTable,
-            int importReferenceAfterIndex, int preLength,
-            ArrayList<FullIdentifierString> allIdentifierTable) {
+            int importReferenceAfterIndex,
+            int preLength,
+            ArrayList<FullIdentifierString> allIdentifierTable,
+            Set<Integer> disableSet) {
         this.preLength = preLength;
-        this.importTable = importTable.stream().collect(Collectors.toMap(
-                i -> i.getTarget().getValue(), i -> i
-        ));
+        this.importTable = importTable.stream().collect(Collectors.toMap(i -> i.getTarget().getValue(), i -> i));
         this.allIdentifierTable = allIdentifierTable;
         this.importReferenceAfterIndex = importReferenceAfterIndex;
+        this.disableSet = disableSet;
         allIdentifierCache = new HashMap<>();
         this.declaredIdentifierMap = new HashMap<>();
         initDeclareMapAndCache();
     }
+
 
     /**
      * @param identifier 是文件级别的identifier
@@ -220,11 +229,15 @@ public class DefaultIdentifierManager implements IdentifierManager {
         if (fullname.length != 1) {
             return null;
         }
+        if (!canGetGenericDefine) {
+            return null;
+        }
         reference = tryGeneric(fullname[fullname.length - 1]);
         if (reference == null) {
             return null;
         }
         SourcePosition position = allIdentifierTable.get(reference).getPosition();
+
         return new ReferenceElement(position, ReferenceType.GENERIC_IDENTIFIER, reference);
     }
 
@@ -275,4 +288,11 @@ public class DefaultIdentifierManager implements IdentifierManager {
         }
         return allIdentifierTable.get(reference.getReference());
     }
+
+    @Override
+    public void canGetGenericDefineOnStructure(boolean can) {
+        this.canGetGenericDefine = can;
+    }
+
+
 }

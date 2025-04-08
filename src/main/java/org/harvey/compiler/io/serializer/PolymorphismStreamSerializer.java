@@ -1,8 +1,8 @@
 package org.harvey.compiler.io.serializer;
 
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
 import org.harvey.compiler.exception.io.CompilerFileWriteException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.io.IOException;
 import java.io.InputStream;

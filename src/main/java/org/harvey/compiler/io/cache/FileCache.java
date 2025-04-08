@@ -6,7 +6,7 @@ import org.harvey.compiler.common.util.FileUtil;
 import org.harvey.compiler.common.util.StringUtil;
 import org.harvey.compiler.core.CoreCompiler;
 import org.harvey.compiler.declare.define.FileDefinition;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.io.PackageMessage;
 import org.harvey.compiler.io.PackageMessageFactory;

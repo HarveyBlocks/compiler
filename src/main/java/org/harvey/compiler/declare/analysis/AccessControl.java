@@ -2,7 +2,7 @@ package org.harvey.compiler.declare.analysis;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 /**
  * <h3 id='访问控制'><span>访问控制</span></h3>

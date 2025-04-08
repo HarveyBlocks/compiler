@@ -1,6 +1,6 @@
 package org.harvey.compiler.common.util;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 /**
  * 大端

@@ -30,6 +30,7 @@ import org.harvey.compiler.type.raw.RelationUsing;
  * @date 2025-03-27 16:13
  */
 @Getter
+@Deprecated
 public class RelatedParameterizedAlias implements ParameterizedRelation {
     private final RelationRawType rawType;
     /**
@@ -67,7 +68,7 @@ public class RelatedParameterizedAlias implements ParameterizedRelation {
             RelatedParameterizedAlias aliasOrigin = (RelatedParameterizedAlias) parameterizedRelation;
             ParameterizedType<RelationUsing> originToEnd = aliasOrigin.aliasToEndOrigin(parameterizedRelationCache)
                     .getValue()
-                    .cloneThis();
+                    .cloneThis(); // 使用 clone
             originToEnd.getTree().forEach((l, i) -> {
                 MultipleTree<RelationUsing> node = l.get(i);
                 RelationUsing value = node.getValue();
@@ -122,7 +123,11 @@ public class RelatedParameterizedAlias implements ParameterizedRelation {
      * 3. 继承映射, MM 到 AX的继承路径是 MM < AX
      *      映射MM<T0>,到AX 就是 AX<T0,MM<T>,MMM<T>>
      *      此时检查AX的Parameterized list, 由于AX只到RawType阶段, 所以也只检查RawType
-     *      此时检查AX的Parameterized list, 由于AX只到RawType阶段, 所以不行
+     *      RawType姑且算通过了吧
+     *      AX<T,MM<T>,MMM<T>> 到 AX<T0,T1 extends AX<T0,MM<T0>,MMM<T0>>,T2 extends AX<T0,MM<T>,MMM<T>>>
+     *          T 确实是 T0 的子集
+     *          MM<T> 赋值给 MM<T> 确实行
+     *          MMM<T> 赋值给 MMM<T> 确实行
      * 检查GenericDefine, GenericDefine没有检查完毕
      * GenericDefine依赖于还没有检查的Structure, 但是正在进行时的Structure
      * 此时, 要先构建GenericDefine了, 没办法了

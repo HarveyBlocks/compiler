@@ -57,9 +57,8 @@ public class GenericDefineAssignable implements Assignable {
         if (fromRawType.isGenericDefine()) {
             RelatedGenericDefineReference reference = (RelatedGenericDefineReference) fromRawType;
             RelatedGenericDefine fromGenericDefine = relatedGenericDefineCache.get(reference);
-            CanNotAssignUtil.catchCanNotAssign(() -> assign(fromGenericDefine), (f, e, m) -> {
-                throw CanNotAssignUtil.canNotAssign(from.getRawType().getFromFile(), from.getPosition(), m);
-            });
+            CanNotAssignUtil.catchCanNotAssign(
+                    () -> assign(fromGenericDefine), from.getRawType().getFromFile(), from.getPosition());
             return;
         }
         // to.lower <= from
@@ -80,9 +79,9 @@ public class GenericDefineAssignable implements Assignable {
         // 怎么匹配 constructor的
         // constructor 的param有参数
         CanNotAssignUtil.catchCanNotAssign(
-                () -> matchConstructors(constructorHave, from, from.getRawType().getFromFile()), (f, e, m) -> {
-                    throw CanNotAssignUtil.canNotAssign(from.getRawType().getFromFile(), from.getPosition(), m);
-                });
+                () -> matchConstructors(constructorHave, from, from.getRawType().getFromFile()),
+                from.getRawType().getFromFile(), from.getPosition()
+        );
         /*endOrigin*/
     }
 

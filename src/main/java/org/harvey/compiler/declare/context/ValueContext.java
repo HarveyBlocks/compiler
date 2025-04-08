@@ -8,13 +8,13 @@ import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.analysis.Embellish;
 import org.harvey.compiler.declare.define.FieldDefinition;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
-import org.harvey.compiler.execute.expression.ExpressionElement;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.serializer.*;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.type.generic.GenericFactory;
+import org.harvey.compiler.type.generic.RawType;
 import org.harvey.compiler.type.generic.define.GenericDefine;
 import org.harvey.compiler.type.generic.using.ParameterizedType;
 
@@ -63,7 +63,7 @@ public class ValueContext implements DeclaredContext {
     }
 
     private static ParameterizedType<ReferenceElement> dealType(
-            Pair<ExpressionElement, SourceTextContext> typePair, IdentifierManager identifierManager) {
+            Pair<RawType, SourceTextContext> typePair, IdentifierManager identifierManager) {
         ReferenceElement referenceElement = GenericFactory.rawType2Reference(typePair.getKey(), identifierManager);
         ListIterator<SourceString> iterator = typePair.getValue().listIterator();
         return GenericFactory.parameterizedType(referenceElement, iterator, identifierManager);

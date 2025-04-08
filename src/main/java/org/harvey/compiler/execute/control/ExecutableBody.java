@@ -2,7 +2,7 @@ package org.harvey.compiler.execute.control;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 import org.harvey.compiler.io.serializer.StreamSerializerUtil;

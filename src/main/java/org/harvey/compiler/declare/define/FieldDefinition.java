@@ -6,15 +6,15 @@ import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.common.util.ExceptionUtil;
 import org.harvey.compiler.declare.analysis.*;
 import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
-import org.harvey.compiler.execute.expression.ExpressionElement;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;
 import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.type.generic.GenericFactory;
+import org.harvey.compiler.type.generic.RawType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class FieldDefinition implements Definition {
 
     private final AccessControl permissions;
     private final Embellish embellish;
-    private final Pair<ExpressionElement, SourceTextContext> type;
+    private final Pair<RawType, SourceTextContext> type;
     private final List<Pair<ReferenceElement, SourceTextContext>> identifierMap;
 
     @Override
@@ -46,7 +46,7 @@ public class FieldDefinition implements Definition {
         private final Environment environment;
         private AccessControl permissions;
         private Embellish embellish;
-        private Pair<ExpressionElement, SourceTextContext> type;
+        private Pair<RawType, SourceTextContext> type;
         private List<Pair<ReferenceElement, SourceTextContext>> identifierMap;
 
         public Builder(IdentifierPoolFactory identifierPoolFactory, Environment environment) {

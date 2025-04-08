@@ -8,6 +8,7 @@ import org.harvey.compiler.execute.expression.ReferenceElement;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * TODO
@@ -50,4 +51,8 @@ public interface IdentifierManager {
     List<FullIdentifierString> getAllIdentifierTable();
 
     Map<String, ImportString> getImportTable();
+
+    void canGetGenericDefineOnStructure(boolean can);
+
+    Set<Integer> getDisableSet();
 }

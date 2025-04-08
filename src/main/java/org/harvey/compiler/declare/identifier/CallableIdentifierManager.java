@@ -11,6 +11,7 @@ import org.harvey.compiler.io.source.SourcePosition;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * TODO
@@ -127,6 +128,16 @@ public class CallableIdentifierManager implements IdentifierManager {
     @Override
     public Map<String, ImportString> getImportTable() {
         return identifierManager.getImportTable();
+    }
+
+    @Override
+    public void canGetGenericDefineOnStructure(boolean can) {
+        identifierManager.canGetGenericDefineOnStructure(can);
+    }
+
+    @Override
+    public Set<Integer> getDisableSet() {
+        return identifierManager.getDisableSet();
     }
 
     public void openVisitedGenericCheck() {

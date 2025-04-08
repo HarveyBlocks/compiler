@@ -1,6 +1,7 @@
 package org.harvey.compiler.common.collecction;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
+import org.harvey.compiler.exception.self.ReadOnlyException;
 
 import java.util.Iterator;
 import java.util.Stack;
@@ -15,28 +16,25 @@ import java.util.function.Function;
  */
 public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneable, Iterable<E> {
 
-    protected final RandomlyAccessAble<E> value;
+    protected final RandomlyAccessAble<E> randomlyAccessAble;
     private final int length;
-    private final Stack<Integer> mark = new Stack<>();
+    private final Stack<Integer> randomlyAccessMark = new Stack<>();
     // 指向下一个元素
     protected int index;
 
     public DefaultRandomlyIterator(RandomlyAccessAble<E> sourceList, int initIndex) {
         // 能够随机访问
         this.index = initIndex;
-        mark.push(initIndex);
+        randomlyAccessMark.push(initIndex);
         this.length = sourceList.length();
-        this.value = sourceList;
+        this.randomlyAccessAble = sourceList;
     }
 
 
-    public DefaultRandomlyIterator(RandomlyAccessAble<E> value) {
-        this(value, 0);
+    public DefaultRandomlyIterator(RandomlyAccessAble<E> randomlyAccessAble) {
+        this(randomlyAccessAble, 0);
     }
 
-    public static <T> void A() {
-
-    }
 
     public DefaultRandomlyIterator<E> toBegin() {
         index = 0;
@@ -57,7 +55,7 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
         StringBuilder b = new StringBuilder();
         b.append('[');
         for (int i = 0; ; i++) {
-            E at = value.at(i);
+            E at = randomlyAccessAble.at(i);
             b.append(at);
             if (i == iMax) {
                 return b.append(']').toString();
@@ -73,15 +71,15 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
 
     @Override
     public E next() {
-        return value.at(index++);
+        return randomlyAccessAble.at(index++);
     }
 
     public E previousWithoutMove() {
-        return value.at(index - 1);
+        return randomlyAccessAble.at(index - 1);
     }
 
     public E nextWithoutMove() {
-        return value.at(index);
+        return randomlyAccessAble.at(index);
     }
 
     @Override
@@ -91,7 +89,7 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
 
     @Override
     public E previous() {
-        return value.at(--index);
+        return randomlyAccessAble.at(--index);
     }
 
     @Override
@@ -106,23 +104,23 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException();
+        throw new ReadOnlyException();
     }
 
     @Override
     public void set(E character) {
-        throw new UnsupportedOperationException();
+        throw new ReadOnlyException();
     }
 
     @Override
     public void add(E character) {
-        throw new UnsupportedOperationException();
+        throw new ReadOnlyException();
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Object clone() {
-        DefaultRandomlyIterator<?> newSit = new DefaultRandomlyIterator<>(this.value);
+        DefaultRandomlyIterator<?> newSit = new DefaultRandomlyIterator<>(this.randomlyAccessAble);
         newSit.index = this.index;
         return newSit;
     }
@@ -142,7 +140,7 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
 
     @Override
     public Iterator<E> iterator() {
-        return new DefaultRandomlyIterator<>(value);
+        return new DefaultRandomlyIterator<>(randomlyAccessAble);
     }
 
     @Override
@@ -161,7 +159,7 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
      */
     @Override
     public void mark() {
-        this.mark.push(index);
+        this.randomlyAccessMark.push(index);
     }
 
     /**
@@ -169,7 +167,7 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
      */
     @Override
     public void returnToMark() {
-        this.index = mark.peek();
+        this.index = randomlyAccessMark.peek();
     }
 
     /**
@@ -177,7 +175,11 @@ public class DefaultRandomlyIterator<E> implements RandomlyIterator<E>, Cloneabl
      */
     @Override
     public void returnToAndRemoveMark() {
-        this.index = mark.pop();
+        this.index = randomlyAccessMark.pop();
     }
 
+    @Override
+    public void removeMark() {
+        randomlyAccessMark.pop();
+    }
 }

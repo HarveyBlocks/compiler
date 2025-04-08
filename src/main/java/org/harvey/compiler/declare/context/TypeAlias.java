@@ -5,9 +5,9 @@ import org.harvey.compiler.common.Serializes;
 import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.define.AliasDefinition;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.expression.ReferenceType;
 import org.harvey.compiler.io.serializer.*;
@@ -63,12 +63,13 @@ public class TypeAlias {
                 .map(e -> GenericFactory.genericForDefine(e.getKey(), e.getValue(), manager))
                 .toArray(GenericDefine[]::new);
         ListIterator<SourceString> iterator = definition.getOrigin().listIterator();
+        this.staticAlias = definition.isStaticAlias();
+        manager.canGetGenericDefineOnStructure(!staticAlias);
         this.origin = GenericFactory.parameterizedType(iterator, manager);
+        manager.canGetGenericDefineOnStructure(true);
         if (this.origin.getRawType().getType() == ReferenceType.GENERIC_IDENTIFIER) {
             throw new AnalysisException(this.origin.getRawType().getPosition(), "can not be a generic");
         }
-        this.staticAlias = definition.isStaticAlias();
-
         if (iterator.hasNext()) {
             throw new CompilerException("unexpected after parameterized type");
         }

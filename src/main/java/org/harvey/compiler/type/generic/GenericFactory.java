@@ -6,8 +6,8 @@ import org.harvey.compiler.common.util.ExceptionUtil;
 import org.harvey.compiler.declare.analysis.Keyword;
 import org.harvey.compiler.declare.analysis.Keywords;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.*;
 import org.harvey.compiler.io.source.SourcePosition;
@@ -39,6 +39,11 @@ public class GenericFactory {
     private GenericFactory() {
     }
 
+    public static ParameterizedType<ReferenceElement>[] genericList(
+            SourcePosition position, ListIterator<SourceString> iterator, IdentifierManager manager) {
+        ReferenceElement fake = new ReferenceElement(position, ReferenceType.IDENTIFIER, -1);
+        return parameterizedType(fake, iterator, manager).getChildren();
+    }
 
     /**
      * rawType<type,type,type>
@@ -49,16 +54,18 @@ public class GenericFactory {
     public static ParameterizedType<ReferenceElement> parameterizedType(
             ReferenceElement rawType, ListIterator<SourceString> iterator, IdentifierManager manager) {
         if (!iterator.hasNext()) {
-            return new ParameterizedType<>(rawType);
+            ParameterizedType<ReferenceElement> result = new ParameterizedType<>(rawType);
+            result.setReadOnly(true);
+            return result;
         }
         SourcePosition position = genericPreCheck(iterator, rawType.getPosition());
         Stack<ParameterizedType<ReferenceElement>> stack = new Stack<>();
         stack.push(new ParameterizedType<>(rawType));
         while (iterator.hasNext()) {
-            ExpressionElement element = rawType(iterator);
+            RawType element = rawType(iterator);
             position = element.getPosition();
             ReferenceElement reference = rawType2Reference(element, manager);
-            ParameterizedType<ReferenceElement> parameter = toParameter(reference, manager);
+            ParameterizedType<ReferenceElement> parameter = toParameter(reference);
             ParameterizedType<ReferenceElement> top = stack.pop();
             top.addParameter(parameter);
             stack.push(top);
@@ -76,6 +83,7 @@ public class GenericFactory {
             if (element instanceof FullIdentifierString && skipIf(iterator, Operator.GENERIC_LIST_POST)) {
                 ParameterizedType<ReferenceElement> pop = stack.pop();
                 if (stack.empty()) {
+                    pop.setReadOnly(true);
                     return pop;
                 } else {
                     continue;
@@ -86,7 +94,8 @@ public class GenericFactory {
         throw new AnalysisExpressionException(position, "not a generic message: not completed");
     }
 
-    public static ReferenceElement rawType2Reference(ExpressionElement element, IdentifierManager manager) {
+
+    public static ReferenceElement rawType2Reference(RawType element, IdentifierManager manager) {
         if (element instanceof KeywordString) {
             return ReferenceElement.of(((KeywordString) element));
         } else if (element instanceof FullIdentifierString) {
@@ -123,28 +132,25 @@ public class GenericFactory {
 
 
     private static ParameterizedType<ReferenceElement> toParameter(
-            ReferenceElement reference, IdentifierManager manager) {
+            ReferenceElement reference) {
         return new ParameterizedType<>(reference);
     }
 
 
     private static boolean skipIf(ListIterator<SourceString> iterator, Operator target) {
-        return CollectionUtil.skipIf(
-                iterator,
+        return CollectionUtil.skipIf(iterator,
                 ss -> ss.getType() == SourceType.OPERATOR && target.nameEquals(ss.getValue())
         );
     }
 
     private static boolean nextIs(ListIterator<SourceString> iterator) {
-        return CollectionUtil.nextIs(
-                iterator,
+        return CollectionUtil.nextIs(iterator,
                 ss -> ss.getType() == SourceType.OPERATOR && Operator.GENERIC_LIST_PRE.nameEquals(ss.getValue())
         );
     }
 
     private static boolean skipIf(ListIterator<SourceString> iterator, Keyword target) {
-        return CollectionUtil.skipIf(
-                iterator,
+        return CollectionUtil.skipIf(iterator,
                 ss -> ss.getType() == SourceType.KEYWORD && target.equals(ss.getValue())
         );
     }
@@ -187,8 +193,7 @@ public class GenericFactory {
                 if (lower == null) {
                     lower = parameterizedType(partIterator, manager);
                 } else {
-                    throw new AnalysisExpressionException(
-                            partIterator.previous().getPosition(),
+                    throw new AnalysisExpressionException(partIterator.previous().getPosition(),
                             "Only one lower bound is allowed"
                     );
                 }
@@ -248,8 +253,7 @@ public class GenericFactory {
         List<SourceString> each = new ArrayList<>();
         while (iterator.hasNext()) {
             if (defaultType != null) {
-                throw new AnalysisExpressionException(
-                        iterator.previous().getPosition(),
+                throw new AnalysisExpressionException(iterator.previous().getPosition(),
                         "default type should at the last"
                 );
             }
@@ -279,19 +283,23 @@ public class GenericFactory {
 
     public static ParameterizedType<ReferenceElement> parameterizedType(
             ListIterator<SourceString> iterator, IdentifierManager manager) {
-        ExpressionElement rawType = rawType(iterator);
+        RawType rawType = rawType(iterator);
         ReferenceElement reference = rawType2Reference(rawType, manager);
         if (!iterator.hasNext()) {
-            return new ParameterizedType<>(reference);
+            ParameterizedType<ReferenceElement> result = new ParameterizedType<>(reference);
+            result.setReadOnly(true);
+            return result;
         }
-        return parameterizedType(reference, iterator, manager);
+        ParameterizedType<ReferenceElement> result = parameterizedType(reference, iterator, manager);
+        result.setReadOnly(true);
+        return result;
     }
 
 
     /**
      * 一定要有type, 没有type报错
      */
-    public static ExpressionElement rawType(ListIterator<SourceString> iterator) {
+    public static RawType rawType(ListIterator<SourceString> iterator) {
         ExceptionUtil.iteratorHasNext(iterator, "type can not be empty");
         SourceString identifier = iterator.next();
         Keyword mayKeyword = Keyword.get(identifier.getValue());
@@ -388,8 +396,8 @@ public class GenericFactory {
      * @param iterator iterator.next()==rawType
      * @see #parameterizedType(ListIterator, IdentifierManager)
      */
-    public static Pair<ExpressionElement, SourceTextContext> skipSourceForUse(ListIterator<SourceString> iterator) {
-        ExpressionElement element = rawType(iterator);
+    public static Pair<RawType, SourceTextContext> skipSourceForUse(ListIterator<SourceString> iterator) {
+        RawType element = rawType(iterator);
         SourceTextContext genericList = new SourceTextContext();
         skipGenericList(iterator, genericList);
         return new Pair<>(element, genericList);

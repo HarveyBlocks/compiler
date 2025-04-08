@@ -1,7 +1,6 @@
 package org.harvey.compiler.type.transform;
 
 import org.harvey.compiler.exception.VieGenericAssignableException;
-import org.harvey.compiler.execute.expression.KeywordString;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.type.generic.relate.entity.RelatedGenericDefine;
 import org.harvey.compiler.type.generic.relate.entity.RelatedLocalParameterizedType;

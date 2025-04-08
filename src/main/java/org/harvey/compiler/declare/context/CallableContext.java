@@ -9,8 +9,8 @@ import org.harvey.compiler.declare.define.LocalTypeDefinition;
 import org.harvey.compiler.declare.define.ParamDefinition;
 import org.harvey.compiler.declare.identifier.CallableIdentifierManager;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
@@ -228,7 +228,7 @@ public class CallableContext implements DeclaredContext {
 
             return StreamSerializerUtil.writeHeads(
                     os,
-                    new HeadMap(accessControl, HEAD_LENGTH_BITS[0]).inRange(true, "access control"),
+                    new HeadMap(accessControl, HEAD_LENGTH_BITS[0]).inRange(true, "access version2"),
                     new HeadMap(embellish, HEAD_LENGTH_BITS[1]),
                     new HeadMap(type, HEAD_LENGTH_BITS[2]).inRange(true, "callable type ordinal"),
                     new HeadMap(body, HEAD_LENGTH_BITS[3]).inRange(true, "body size"),

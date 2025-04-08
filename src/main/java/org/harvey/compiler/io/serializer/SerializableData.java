@@ -1,9 +1,9 @@
 package org.harvey.compiler.io.serializer;
 
 import org.harvey.compiler.common.Serializes;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
 import org.harvey.compiler.exception.io.CompilerFileWriteException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 /**
  * 写进二进制文件的元素的元素

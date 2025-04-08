@@ -24,81 +24,81 @@ public enum Operator {
     // Array<int> arr = new(length,defaultValue);
     // Array<int> arr = new(length,index->{return index++;});// 初始化
     // 这样好吗?
-    CALLABLE_DECLARE("()", 8, OperandCount.UNARY, Associativity.RIGHT), // 重载
-    ARRAY_DECLARE("[]", 8, OperandCount.UNARY, Associativity.RIGHT), // 重载
-    MULTIPLE_TYPE("...", 9, OperandCount.UNARY, Associativity.RIGHT), // 不定参数
-    GENERIC_LIST_PRE("[", 9, OperandCount.UNARY, Associativity.RIGHT), // 声明泛型, 前缀
-    GENERIC_LIST_POST("]", 9, OperandCount.UNARY, Associativity.RIGHT), // 声明泛型, 前缀
-    CALL_PRE("(", 9, OperandCount.BINARY, Associativity.RIGHT), // 函数调用前缀
-    CALL_POST(")", 9, OperandCount.BINARY, Associativity.RIGHT),  // 函数调用后缀
-    ARRAY_AT_PRE("[", 10, OperandCount.BINARY, Associativity.LEFT), // 取索引, 前缀
-    ARRAY_AT_POST("]", 10, OperandCount.BINARY, Associativity.LEFT), // 取索引, 后缀
-    PARENTHESES_PRE("(", 10, OperandCount.NONE, Associativity.LEFT), // 括号前缀
-    PARENTHESES_POST(")", 10, OperandCount.NONE, Associativity.LEFT),  // 括号后缀
-    GET_MEMBER(String.valueOf(SourceFileConstant.GET_MEMBER), 10, OperandCount.BINARY, Associativity.LEFT), // 成员调用
+    CALLABLE_DECLARE("()", 8, OperandCount.UNARY, Associativity.LEFT), // 重载
+    ARRAY_DECLARE("[]", 8, OperandCount.UNARY, Associativity.LEFT), // 重载
+    MULTIPLE_TYPE("...", 8, OperandCount.UNARY, Associativity.RIGHT), // 不定参数
+    // 
+    GENERIC_LIST_PRE("[", 16, OperandCount.NONE, Associativity.LEFT), // 声明泛型, 前缀
+    GENERIC_LIST_POST("]", 16, OperandCount.NONE, Associativity.LEFT), // 声明泛型, 前缀
+
+    CALL_PRE("(", 16, OperandCount.NONE, Associativity.LEFT), // 函数调用前缀
+    CALL_POST(")", 16, OperandCount.NONE, Associativity.LEFT),  // 函数调用后缀
+    ARRAY_AT_PRE("[", 24, OperandCount.NONE, Associativity.LEFT), // 取索引, 前缀
+    ARRAY_AT_POST("]", 24, OperandCount.NONE, Associativity.LEFT), // 取索引, 后缀
+    PARENTHESES_PRE("(", 24, OperandCount.NONE, Associativity.LEFT), // 括号前缀
+    PARENTHESES_POST(")", 24, OperandCount.NONE, Associativity.LEFT),  // 括号后缀
+    GET_MEMBER(String.valueOf(SourceFileConstant.GET_MEMBER), 24, OperandCount.BINARY, Associativity.LEFT), // 成员调用
 
     // 符号
-    NEGATIVE("-", 11, OperandCount.UNARY, Associativity.RIGHT), // 负
-    POSITIVE("+", 11, OperandCount.UNARY, Associativity.RIGHT), // 正
-    LEFT_INCREASING("++", 11, OperandCount.UNARY, Associativity.LEFT), // 左自增
-    RIGHT_INCREASING("++", 11, OperandCount.UNARY, Associativity.RIGHT), // 右自增
-    LEFT_DECREASING("--", 11, OperandCount.UNARY, Associativity.LEFT),  // 左自减
-    RIGHT_DECREASING("--", 11, OperandCount.UNARY, Associativity.RIGHT), // 右自减
-    NOT("!", 11, OperandCount.UNARY, Associativity.RIGHT), // 逻辑非
-    BITWISE_NEGATION("~", 11, OperandCount.UNARY, Associativity.RIGHT), // 按位取反
+    NEGATIVE("-", 32, OperandCount.UNARY, Associativity.RIGHT), // 负
+    POSITIVE("+", 32, OperandCount.UNARY, Associativity.RIGHT), // 正
+    LEFT_INCREASING("++", 32, OperandCount.UNARY, Associativity.RIGHT), // 左自增
+    RIGHT_INCREASING("++", 32, OperandCount.UNARY, Associativity.LEFT), // 右自增 a ++ ++ ++
+    LEFT_DECREASING("--", 32, OperandCount.UNARY, Associativity.RIGHT),  // 左自减
+    RIGHT_DECREASING("--", 32, OperandCount.UNARY, Associativity.LEFT), // 右自减
+    NOT("!", 32, OperandCount.UNARY, Associativity.RIGHT), // 逻辑非
+    BITWISE_NEGATION("~", 32, OperandCount.UNARY, Associativity.RIGHT), // 按位取反
 
     // 乘除取余
-    DIVIDE("/", 12, OperandCount.BINARY, Associativity.LEFT), // 除
-    MULTIPLY("*", 12, OperandCount.BINARY, Associativity.LEFT), // 乘
-    REMAINDER("%", 12, OperandCount.BINARY, Associativity.LEFT), // 取余
-    ADD("+", 13, OperandCount.BINARY, Associativity.LEFT), // 加
-    SUBTRACT("-", 13, OperandCount.BINARY, Associativity.LEFT), // 减法
-    BITWISE_LEFT_MOVE("<<", 14, OperandCount.BINARY, Associativity.LEFT),  // 位左移
-    BITWISE_RIGHT_MOVE(">>", 14, OperandCount.BINARY, Associativity.LEFT),  // 位右移
+    DIVIDE("/", 40, OperandCount.BINARY, Associativity.LEFT), // 除
+    MULTIPLY("*", 40, OperandCount.BINARY, Associativity.LEFT), // 乘
+    REMAINDER("%", 40, OperandCount.BINARY, Associativity.LEFT), // 取余
+    ADD("+", 48, OperandCount.BINARY, Associativity.LEFT), // 加
+    SUBTRACT("-", 48, OperandCount.BINARY, Associativity.LEFT), // 减法
+    BITWISE_LEFT_MOVE("<<", 56, OperandCount.BINARY, Associativity.LEFT),  // 位左移
+    BITWISE_RIGHT_MOVE(">>", 56, OperandCount.BINARY, Associativity.LEFT),  // 位右移
 
 
     // 比较
-    LARGER(">", 15, OperandCount.BINARY, Associativity.LEFT), //
-    LARGER_EQUALS(">=", 15, OperandCount.BINARY, Associativity.LEFT),//
-    LESS("<", 15, OperandCount.BINARY, Associativity.LEFT),//
-    LESS_EQUALS("<=", 15, OperandCount.BINARY, Associativity.LEFT), //
+    LARGER(">", 64, OperandCount.BINARY, Associativity.LEFT),
+    LARGER_EQUALS(">=", 64, OperandCount.BINARY, Associativity.LEFT),
+    LESS("<", 64, OperandCount.BINARY, Associativity.LEFT),
+    LESS_EQUALS("<=", 64, OperandCount.BINARY, Associativity.LEFT),
     // 偏序关系 obj is Type
-    IS("is", 16, OperandCount.BINARY, Associativity.LEFT), // a is b is c
-    IN("in", 17, OperandCount.BINARY, Associativity.LEFT), // 'a' is 'b' collectionIn 'c'
-    EQUALS("==", 18, OperandCount.BINARY, Associativity.LEFT), //
-    NOT_EQUALS("!=", 18, OperandCount.BINARY, Associativity.LEFT), //
+    IS("is", 72, OperandCount.BINARY, Associativity.LEFT), // a is b is c
+    IN("in", 80, OperandCount.BINARY, Associativity.LEFT), // 'a' is 'b' collectionIn 'c'
+    EQUALS("==", 88, OperandCount.BINARY, Associativity.LEFT),
+    NOT_EQUALS("!=", 88, OperandCount.BINARY, Associativity.LEFT),
 
     // 位操作
-    BITWISE_AND("&", 19, OperandCount.BINARY, Associativity.LEFT), //
-    BITWISE_XOR("^", 20, OperandCount.BINARY, Associativity.LEFT), //
-    BITWISE_OR("|", 21, OperandCount.BINARY, Associativity.LEFT), //
-    AND("&&", 22, OperandCount.BINARY, Associativity.LEFT), //
-    OR("||", 23, OperandCount.BINARY, Associativity.LEFT), //
+    BITWISE_AND("&", 96, OperandCount.BINARY, Associativity.LEFT),
+    BITWISE_XOR("^", 104, OperandCount.BINARY, Associativity.LEFT),
+    BITWISE_OR("|", 112, OperandCount.BINARY, Associativity.LEFT),
+    // 逻辑表达式
+    AND("&&", 120, OperandCount.BINARY, Associativity.LEFT),
+    OR("||", 128, OperandCount.BINARY, Associativity.LEFT),
 
 
-    CONDITION_CHECK("?", 24, OperandCount.BINARY, Associativity.RIGHT), //
-    CONDITION_DECIDE(":", 24, OperandCount.BINARY, Associativity.RIGHT), //
+    CONDITION_CHECK("?", 136, OperandCount.BINARY, Associativity.RIGHT),
+    CONDITION_DECIDE(":", 136, OperandCount.BINARY, Associativity.RIGHT),
 
     // 赋值和复合赋值
-    ASSIGN("=", 25, OperandCount.BINARY, Associativity.RIGHT), //
-    DIVIDE_ASSIGN("/=", 25, OperandCount.BINARY, Associativity.RIGHT), //
-    MULTIPLY_ASSIGN("*=", 25, OperandCount.BINARY, Associativity.RIGHT), //
-    REMAINDER_ASSIGN("%=", 25, OperandCount.BINARY, Associativity.RIGHT), //
-    ADD_ASSIGN("+=", 25, OperandCount.BINARY, Associativity.RIGHT), //
-    SUBTRACT_ASSIGN("-=", 25, OperandCount.BINARY, Associativity.RIGHT),//
-    BITWISE_LEFT_MOVE_ASSIGN("<<=", 25, OperandCount.BINARY, Associativity.RIGHT), //
-    BITWISE_RIGHT_MOVE_ASSIGN(">>=", 25, OperandCount.BINARY, Associativity.RIGHT), //
-    BITWISE_AND_ASSIGN("&=", 25, OperandCount.BINARY, Associativity.RIGHT),  //
-    BITWISE_XOR_ASSIGN("^=", 25, OperandCount.BINARY, Associativity.RIGHT),  // ^=
-    BITWISE_OR_ASSIGN("|=", 25, OperandCount.BINARY, Associativity.RIGHT),  // |=
+    ASSIGN("=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    DIVIDE_ASSIGN("/=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    MULTIPLY_ASSIGN("*=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    REMAINDER_ASSIGN("%=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    ADD_ASSIGN("+=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    SUBTRACT_ASSIGN("-=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_LEFT_MOVE_ASSIGN("<<=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_RIGHT_MOVE_ASSIGN(">>=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_AND_ASSIGN("&=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_XOR_ASSIGN("^=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_OR_ASSIGN("|=", 144, OperandCount.BINARY, Associativity.RIGHT),
 
     // 逗号运算符
-    COMMA(",", 26, OperandCount.BINARY, Associativity.LEFT),//
-    LAMBDA("->", 27, OperandCount.BINARY, Associativity.NONE),//
-    // foreach的时候, case 的时候
-    // ?:的时候....
-    // COLON(":", 27, OperandCount.NONE, Associativity.NONE)
-    ;
+    LAMBDA("->", 152, OperandCount.BINARY, Associativity.NONE),
+    COMMA(",", 160, OperandCount.BINARY, Associativity.LEFT);
+
     // TODO ...More
     // 运算符的符号
     private final String name;

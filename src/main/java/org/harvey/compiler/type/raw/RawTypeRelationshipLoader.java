@@ -9,8 +9,8 @@ import org.harvey.compiler.declare.context.StructureType;
 import org.harvey.compiler.declare.context.TypeAlias;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
 import org.harvey.compiler.exception.CompileMultipleFileException;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.io.PackageMessageFactory;
 import org.harvey.compiler.io.cache.FileCache;
@@ -199,6 +199,10 @@ public class RawTypeRelationshipLoader {
             RelationRawType upper,
             LinkedList<RelationRawType> newUncheckedAtChecking) throws IOException {
         if (upper.isStatic()) {
+            return true;
+        }
+        if (lower.isAlias()) {
+            // lower是alias, 那么其upper, 不需要实例化, 也可以访问
             return true;
         }
         Stack<String[]> lowerOuters = packageMessageFactory.getOuterStructureFilenameStack(
@@ -558,7 +562,7 @@ public class RawTypeRelationshipLoader {
         } else if (upper.isStructure()) {
             accessControl = upperResource.getAccessControl();
         } else {
-            throw new CompilerException("can not get access control of " + upper.getJoinedFullname());
+            throw new CompilerException("can not get access version2 of " + upper.getJoinedFullname());
         }
         return accessControl;
     }

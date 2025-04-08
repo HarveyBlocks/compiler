@@ -2,8 +2,8 @@ package org.harvey.compiler.declare.analysis;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.io.source.SourcePosition;

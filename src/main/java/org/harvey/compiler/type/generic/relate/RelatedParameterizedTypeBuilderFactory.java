@@ -3,7 +3,7 @@ package org.harvey.compiler.type.generic.relate;
 import lombok.AllArgsConstructor;
 import org.harvey.compiler.common.util.StringUtil;
 import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.io.cache.FileCache;
 import org.harvey.compiler.io.cache.node.FileNode;

@@ -6,17 +6,21 @@ import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.common.util.ArrayUtil;
 import org.harvey.compiler.common.util.StringUtil;
 import org.harvey.compiler.declare.analysis.DetailedDeclarationType;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.calculate.Operators;
-import org.harvey.compiler.execute.expression.*;
+import org.harvey.compiler.execute.expression.IdentifierString;
+import org.harvey.compiler.execute.expression.NormalOperatorString;
+import org.harvey.compiler.execute.expression.ReferenceElement;
+import org.harvey.compiler.execute.expression.ReferenceType;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;
 import org.harvey.compiler.text.context.SourceTextContext;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 1. using, type, generic中对于引用的解析, 依据当前环境, 获取期望的声明
@@ -56,6 +60,8 @@ public class IdentifierPoolFactory {
     private final Map<String, Integer> declaredIdentifierMap;
     @Getter
     private final int preLength;
+    @Getter
+    private final Set<Integer> disableSet;
     private String outer = null;
 
     public IdentifierPoolFactory(String filePathPre) {
@@ -67,9 +73,11 @@ public class IdentifierPoolFactory {
         genericDefinitions = new HashSet<>();
         declaredIdentifierPool = new ArrayList<>();
         declaredIdentifierMap = new HashMap<>();
+        disableSet = new HashSet<>();
     }
 
-    private IdentifierPoolFactory(IdentifierPoolFactory outerFactory, String outerPathPre) {
+    private IdentifierPoolFactory(
+            IdentifierPoolFactory outerFactory, Stack<ReferenceElement> referenceStack, String outerPathPre) {
         this.outerPre = outerPathPre;
         preLength = StringUtil.count(outerPre, SourceFileConstant.GET_MEMBER) - 1;
         structure = new HashSet<>(outerFactory.structure);
@@ -78,16 +86,47 @@ public class IdentifierPoolFactory {
         genericDefinitions = new HashSet<>(outerFactory.genericDefinitions);
         declaredIdentifierPool = new ArrayList<>(outerFactory.declaredIdentifierPool);
         declaredIdentifierMap = new HashMap<>(outerFactory.declaredIdentifierMap);
+        List<String> ablePres = referenceStack.stream()
+                .map(ReferenceElement::getReference)
+                .map(outerFactory.declaredIdentifierPool::get)
+                .map(IdentifierString::getValue)
+                .collect(Collectors.toList());
+        disableSet = new HashSet<>(outerFactory.disableSet);
+        removeDisable(ablePres);
     }
 
+    private void removeDisable(List<String> ablePres) {
+        for (int i = 0; i < declaredIdentifierPool.size(); i++) {
+            if (disableSet.contains(i)) {
+                continue;
+            }
+            IdentifierString identifierString = declaredIdentifierPool.get(i);
+            String value = identifierString.getValue();
+            boolean able = false;
+            for (String ablePre : ablePres) {
+                if (!value.endsWith(GENERIC_LIST_POST_NAME) || value.startsWith(ablePre)) {
+                    able = true;
+                    break;
+                }
+                // 不对
+            }
+            if (!able) {
+                genericDefinitions.remove(value);
+                disableSet.add(i);
+                declaredIdentifierMap.remove(value);
+            }
+        }
+    }
 
 
     /**
      * @return 新类型的identifier reference, clone出来的factory
      */
-    public IdentifierPoolFactory cloneForInner(ReferenceElement thisReference) {
+    public IdentifierPoolFactory cloneForInner(ReferenceElement thisReference, Stack<ReferenceElement> referenceStack) {
         return new IdentifierPoolFactory(
-                this, this.declaredIdentifierPool.get(thisReference.getReference()).getValue() + MEMBER);
+                this, referenceStack,
+                this.declaredIdentifierPool.get(thisReference.getReference()).getValue() + MEMBER
+        );
     }
 
 
@@ -108,8 +147,7 @@ public class IdentifierPoolFactory {
      * @param type FIELD CALLABLE STRUCTURE
      */
     private ReferenceElement testRepeatedAndReAdd(
-            DetailedDeclarationType type, String identifierToAdd,
-            SourcePosition position, int reference) {
+            DetailedDeclarationType type, String identifierToAdd, SourcePosition position, int reference) {
         switch (type) {
             case FIELD:
                 // 不在identifierPool内
@@ -190,8 +228,7 @@ public class IdentifierPoolFactory {
      *                       如果本身是static, 那么size只有1
      */
     public ReferenceElement addStructureGeneric(
-            Stack<ReferenceElement> referenceStack, String genericName,
-            SourcePosition position) {
+            Stack<ReferenceElement> referenceStack, String genericName, SourcePosition position) {
         if (referenceStack.isEmpty()) {
             throw new CompilerException("outerStructuresList can not be empty", new IllegalArgumentException());
         }
@@ -202,12 +239,18 @@ public class IdentifierPoolFactory {
     }
 
     private String genericIdentifier(String genericName, ReferenceElement outerReference) {
-        return declaredIdentifierPool.get(outerReference.getReference()).getValue() + MEMBER + GENERIC_LIST_PRE_NAME +
-               genericName + GENERIC_LIST_POST_NAME;
+        return declaredIdentifierPool.get(outerReference.getReference()).getValue() +
+               MEMBER +
+               GENERIC_LIST_PRE_NAME +
+               genericName +
+               GENERIC_LIST_POST_NAME;
     }
 
     private int resetGenericReference(
-            int genericReference, String genericName, String identifierToAdd, SourcePosition position,
+            int genericReference,
+            String genericName,
+            String identifierToAdd,
+            SourcePosition position,
             Stack<ReferenceElement> referenceStack) {
         if (genericReference != -1) {
             // 同级重复
@@ -221,9 +264,7 @@ public class IdentifierPoolFactory {
     }
 
     public void testGenericReference(
-            String genericName,
-            SourcePosition position,
-            Stack<ReferenceElement> referenceStack) {
+            String genericName, SourcePosition position, Stack<ReferenceElement> referenceStack) {
         Stack<ReferenceElement> referenceStackVar = CollectionUtil.cloneStack(referenceStack);
         // 不在STRUCTURE内
         // 例如class的内部类, identifier会在外部类存一份, 本类类名会在本类文件存一份
@@ -278,11 +319,11 @@ public class IdentifierPoolFactory {
         }
         String value = identifier.getValue();
         if (type == SourceType.OPERATOR) {
-            Operator oper = Operators.reloadableOperator(value);
+            Operator[] oper = Operators.reloadableOperator(value);
             if (oper == null) {
                 throw new CompilerException("Unknown operator");
             }
-            return ReferenceElement.of(new OperatorString(position, oper));
+            return ReferenceElement.of(new NormalOperatorString(position, oper[0]));
         }
         if (suitableType == null) {
             throw new CompilerException("suitable type can not be null");

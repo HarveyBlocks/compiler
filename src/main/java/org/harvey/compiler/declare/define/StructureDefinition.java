@@ -12,7 +12,6 @@ import org.harvey.compiler.declare.identifier.IdentifierManager;
 import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.execute.calculate.Operator;
-import org.harvey.compiler.execute.expression.ExpressionElement;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.source.SourceString;
@@ -21,6 +20,7 @@ import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.text.depart.DeclaredDepartedPart;
 import org.harvey.compiler.text.depart.SourceTypeAlias;
 import org.harvey.compiler.type.generic.GenericFactory;
+import org.harvey.compiler.type.generic.RawType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,8 +48,8 @@ public class StructureDefinition implements Definition {
     /**
      * super  nullable
      */
-    private final Pair<ExpressionElement, SourceTextContext> superType;
-    private final List<Pair<ExpressionElement, SourceTextContext>> implementsList;
+    private final Pair<RawType, SourceTextContext> superType;
+    private final List<Pair<RawType, SourceTextContext>> implementsList;
     // 结构
     // reference-arguments list
     private final LinkedList<EnumConstant> enumConstants;
@@ -64,7 +64,6 @@ public class StructureDefinition implements Definition {
 
 
     public static class Builder {
-        private final IdentifierPoolFactory identifierPoolFactory;
         private final Environment thisEnvironment;
         private IdentifierPoolFactory identifierPoolFactoryForInner;
         // 声明
@@ -74,8 +73,8 @@ public class StructureDefinition implements Definition {
         private StructureType type;
         private ReferenceElement identifierReference;
         private List<Pair<ReferenceElement, SourceTextContext>> genericDefine;
-        private Pair<ExpressionElement, SourceTextContext> superType;
-        private List<Pair<ExpressionElement, SourceTextContext>> implementsList;
+        private Pair<RawType, SourceTextContext> superType;
+        private List<Pair<RawType, SourceTextContext>> implementsList;
         // 结构
         private LinkedList<EnumConstant> enumConstants;
         private List<SourceTextContext> staticBlocks;
@@ -90,31 +89,40 @@ public class StructureDefinition implements Definition {
         private Stack<ReferenceElement> referenceStack;
         private Environment environmentToInner;
 
-        public Builder(Environment thisEnvironment, IdentifierPoolFactory identifierPoolFactory) {
-            this.identifierPoolFactory = identifierPoolFactory;
+        public Builder(Environment thisEnvironment) {
             this.thisEnvironment = thisEnvironment;
         }
 
         public Builder identifierManager(Map<String, ImportString> importTable) {
             Definition.notNullValid(identifierPoolFactoryForInner, "identifier pool factory for inner");
+            Definition.notNullValid(referenceStack, "identifier pool factory for inner");
             this.identifierManager = new DefaultIdentifierManager(importTable,
-                    identifierPoolFactoryForInner.getDeclaredIdentifierPool(), identifierPoolFactory.getPreLength()
+                    identifierPoolFactoryForInner.getDeclaredIdentifierPool(),
+                    identifierPoolFactoryForInner.getPreLength(),
+                    identifierPoolFactoryForInner.getDisableSet()
             );
             return this;
         }
 
 
-        public Builder identifierReference(SourceString identifier) {
-            this.identifierReference = identifierPoolFactory.add(
-                    DetailedDeclarationType.STRUCTURE,
+        public Builder identifierReference(IdentifierPoolFactory identifierPoolFactory, SourceString identifier) {
+            this.identifierReference = identifierPoolFactory.add(DetailedDeclarationType.STRUCTURE,
                     identifier.getValue(), identifier.getPosition()
             );
             return this;
         }
 
-        public Builder identifierPoolFactoryForInner() {
+        public Builder referenceStack(Stack<ReferenceElement> outerReferenceStack) {
+            Definition.notNullValid(embellish, "embellish");
+            this.referenceStack = Definition.resetReferenceStack(
+                    outerReferenceStack, identifierReference, false, embellish.isMarkedStatic());
+            return this;
+        }
+
+        public Builder identifierPoolFactoryForInner(IdentifierPoolFactory identifierPoolFactory) {
             Definition.notNullValid(identifierReference, "identifier reference");
-            identifierPoolFactoryForInner = identifierPoolFactory.cloneForInner(identifierReference);
+            Definition.notNullValid(referenceStack, "reference stack");
+            identifierPoolFactoryForInner = identifierPoolFactory.cloneForInner(identifierReference, referenceStack);
             return this;
         }
 
@@ -152,12 +160,6 @@ public class StructureDefinition implements Definition {
             return this;
         }
 
-        public Builder referenceStack(Stack<ReferenceElement> outerReferenceStack) {
-            Definition.notNullValid(embellish, "embellish");
-            this.referenceStack = Definition.resetReferenceStack(
-                    outerReferenceStack, identifierReference, false, embellish.isMarkedStatic());
-            return this;
-        }
 
         public Builder genericDefine(ListIterator<SourceString> attachmentIterator) {
             Definition.notNullValid(identifierPoolFactoryForInner, "identifier pool factory for inner");
@@ -184,8 +186,7 @@ public class StructureDefinition implements Definition {
             }
             Definition.notNullValid(type, "structure type");
             if (type == StructureType.ENUM) {
-                throw new AnalysisExpressionException(
-                        meyExtends.getPosition(), "enum can not extends");
+                throw new AnalysisExpressionException(meyExtends.getPosition(), "enum can not extends");
             }
             if (type == StructureType.INTERFACE) {
                 this.implementsList = new ArrayList<>();
@@ -204,8 +205,7 @@ public class StructureDefinition implements Definition {
                 return this;
             }
             SourceString mayImplements = attachmentIterator.next();
-            if (mayImplements.getType() != SourceType.KEYWORD ||
-                !Keyword.IMPLEMENTS.equals(mayImplements.getValue())) {
+            if (mayImplements.getType() != SourceType.KEYWORD || !Keyword.IMPLEMENTS.equals(mayImplements.getValue())) {
                 this.implementsList = Collections.emptyList();
                 return this;
             }
@@ -222,8 +222,7 @@ public class StructureDefinition implements Definition {
         private void setInterfaces(ListIterator<SourceString> attachmentIterator) {
 
             while (attachmentIterator.hasNext()) {
-                Pair<ExpressionElement, SourceTextContext> eachThrows = GenericFactory.skipSourceForUse(
-                        attachmentIterator);
+                Pair<RawType, SourceTextContext> eachThrows = GenericFactory.skipSourceForUse(attachmentIterator);
                 if (Definition.skipIf(attachmentIterator, Operator.COMMA)) {
                     implementsList.add(eachThrows);
                 } else {

@@ -8,10 +8,10 @@ import org.harvey.compiler.common.constant.CompileFileConstant;
 import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.exception.CompileException;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.exception.analysis.AnalysisException;
 import org.harvey.compiler.exception.command.CommandException;
 import org.harvey.compiler.exception.io.VieIOException;
+import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.io.source.SourcePosition;
 

@@ -2,7 +2,6 @@ package org.harvey.compiler.type.generic.relate.entity;
 
 import lombok.Getter;
 import org.harvey.compiler.common.tree.MultipleTree;
-import org.harvey.compiler.exception.CompilerException;
 import org.harvey.compiler.type.generic.using.ParameterizedType;
 import org.harvey.compiler.type.raw.RelationUsing;
 

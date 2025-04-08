@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.common.collecction.PairList;
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.util.*;
 import java.util.function.Function;
@@ -22,12 +22,21 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
     private final List<MultipleTree<T>> children = new ArrayList<>();
     @Setter
     private T value;
+    @Setter
+    private boolean readOnly;
+
+
 
     public DefaultMultipleTree(T value) {
         this.value = value;
     }
 
-    public static <T> DefaultMultipleTree<T> toTree(List<Pair<Integer, T>> sequence) {
+    public DefaultMultipleTree(T value, boolean readOnly) {
+        this.value = value;
+        this.readOnly = readOnly;
+    }
+
+    public static <T> DefaultMultipleTree<T> toTree(List<Pair<Integer, T>> sequence, boolean readOnly) {
         if (sequence == null || sequence.isEmpty()) {
             return null;
         }
@@ -35,7 +44,7 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
         LinkedList<Pair<Integer, DefaultMultipleTree<T>>> queue = new LinkedList<>();
         Pair<Integer, T> first = iterator.next();
         int size0 = first.getKey();
-        DefaultMultipleTree<T> type0 = new DefaultMultipleTree<>(first.getValue());
+        DefaultMultipleTree<T> type0 = new DefaultMultipleTree<>(first.getValue(), readOnly);
         if (size0 > 0) {
             queue.addLast(new Pair<>(size0, type0));
         } else {
@@ -80,6 +89,11 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
     }
 
     @Override
+    public boolean readOnly() {
+        return readOnly;
+    }
+
+    @Override
     public MultipleTree<T> getChild(int index) {
         return children.get(index);
     }
@@ -97,6 +111,9 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
 
     @Override
     public void addChild(MultipleTree<T> child) {
+        if (readOnly) {
+            throw new CompilerException("read only", new UnsupportedOperationException());
+        }
         this.children.add(child);
     }
 
@@ -112,7 +129,7 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
 
 
     @Deprecated
-    private List<String> recurStringList(String separator, String pre, String post) {
+    private List<String> recursiveStringList(String separator, String pre, String post) {
         if (this.isNull()) {
             return Collections.emptyList();
         }
@@ -124,7 +141,7 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
         list.add(pre);
         for (MultipleTree<T> child : children) {
             // 递归
-            List<String> childList = ((DefaultMultipleTree<T>) child).recurStringList(separator, pre, post);
+            List<String> childList = ((DefaultMultipleTree<T>) child).recursiveStringList(separator, pre, post);
             list.addAll(childList);
             list.add(separator);
         }
@@ -178,6 +195,9 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
     }
 
 
+    /**
+     * 由于会改变结构, 所以记得使用{@link #cloneThis()} 来避免结构的破坏
+     */
     @Override
     public void forEach(ForEachConsumer<T> n) {
         if (this.isNull()) {
@@ -189,7 +209,9 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
             StackElement<T> top = stack.peek();
             MultipleTree<T> node = top.node;
             // top.result.add(mapper.apply(node.getValue()));
-            n.accept(top.brothers, top.indexInParent);
+
+            List<MultipleTree<T>> brothers = readOnly ? Collections.unmodifiableList(top.brothers) : top.brothers;
+            n.accept(brothers, top.indexInParent);
             if (node.childrenSize() != 0) {
                 stack.push(new StackElement<>(null, node.getChildren(), node.getChild(0), 0));
                 continue;
@@ -205,11 +227,8 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
                 if (stack.empty()) {
                     break;
                 }
-                StackElement<T> parent = stack.peek();
-                parent.result.addAll(peek.result);
             }
         }
-        return;
     }
 
     @Override
@@ -235,6 +254,6 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
 
     @Override
     public MultipleTree<T> cloneThis() {
-        return DefaultMultipleTree.toTree(this.toSequence());
+        return DefaultMultipleTree.toTree(this.toSequence(), false);
     }
 }

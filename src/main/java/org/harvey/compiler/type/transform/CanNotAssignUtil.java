@@ -41,10 +41,24 @@ public class CanNotAssignUtil {
             task.run();
             return true;
         } catch (CanNotAssign cna) {
-            if (afterThrow!=null){
+            if (afterThrow != null) {
                 afterThrow.accept(cna.file, cna.errorPosition, cna.message);
             }
             return false;
+        }
+    }
+
+    public static void catchCanNotAssign(Runnable castTask, File changeFile, SourcePosition changePosition) {
+        try {
+            castTask.run();
+        } catch (CanNotAssign e) {
+            if (changeFile == null) {
+                changeFile = e.file;
+            }
+            if (changePosition == null) {
+                changePosition = e.errorPosition;
+            }
+            throw canNotAssign(changeFile, changePosition, e.message);
         }
     }
 }

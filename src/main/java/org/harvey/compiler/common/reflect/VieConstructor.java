@@ -1,6 +1,6 @@
 package org.harvey.compiler.common.reflect;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

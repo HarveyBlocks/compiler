@@ -1,6 +1,6 @@
 package org.harvey.compiler.io;
 
-import org.harvey.compiler.exception.CompilerException;
+import org.harvey.compiler.exception.self.CompilerException;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -14,4 +14,12 @@ public class PairList<K, V> extends ArrayList<Pair<K, V>> {
         this.add(new Pair<>(k, v));
         return this;
     }
+
+    public V getValue(int index) {
+        return this.get(index).getValue();
+    }
+
+    public K getKey(int index) {
+        return this.get(index).getKey();
+    }
 }
