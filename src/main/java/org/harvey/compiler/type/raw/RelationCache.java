@@ -64,6 +64,7 @@ public class RelationCache {
     public boolean containsKey(String key) {
         return get(key) != null;
     }
+
     public boolean containsKey(FullIdentifierString key) {
         return get(key) != null;
     }
@@ -72,6 +73,7 @@ public class RelationCache {
     public RelationRawType get(String identifier) {
         return relationCache.get(identifier);
     }
+
     public RelationRawType get(FullIdentifierString fullIdentifier) {
         return relationCache.get(fullIdentifier.joinFullnameString(GET_MEMBER));
     }

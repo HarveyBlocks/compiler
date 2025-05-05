@@ -2,14 +2,13 @@ package org.harvey.compiler.execute.test.version1.env;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.test.version1.manager.MemberManager;
 import org.harvey.compiler.execute.test.version1.manager.RelationManager;
 import org.harvey.compiler.execute.test.version1.msg.MemberSupplier;
 import org.harvey.compiler.execute.test.version1.msg.MemberType;
 import org.harvey.compiler.execute.test.version1.msg.PossibleCallableSupplier;
-import org.harvey.compiler.execute.test.version1.msg.UnsureConstructorSupplier;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.type.generic.using.ParameterizedType;
 
@@ -26,7 +25,7 @@ public class DefaultOuterEnvironment implements OuterEnvironment {
     private final OuterEnvironment outer;
     private final int type;
     private final MemberManager memberManager;
-    private final IdentifierManager identifierManager;
+    private final DIdentifierManager identifierManager;
     private final RelationManager relationManager;
     private final MemberType determinedType;
 
@@ -56,7 +55,6 @@ public class DefaultOuterEnvironment implements OuterEnvironment {
     }
 
 
-
     @Override
     public boolean typeDetermined() {
         return determinedType != null;
@@ -66,8 +64,6 @@ public class DefaultOuterEnvironment implements OuterEnvironment {
     public MemberType determinedType() {
         return determinedType;
     }
-
-
 
 
 }

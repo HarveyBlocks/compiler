@@ -2,6 +2,7 @@ package org.harvey.compiler.type.generic.define;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.serializer.HeadMap;
 import org.harvey.compiler.io.serializer.StreamSerializer;
@@ -26,9 +27,10 @@ import java.util.List;
  */
 @AllArgsConstructor
 @Getter
+@Deprecated
 public class GenericDefine {
 
-    private final ReferenceElement name;
+    private final IdentifierString name;
     private final boolean multiple;
     private final List<LocalParameterizedType[]> constructorParameters;
     // nullable
@@ -40,7 +42,7 @@ public class GenericDefine {
      */
     private final ParameterizedType<ReferenceElement>[] uppers;
 
-    public GenericDefine(ReferenceElement name) {
+    public GenericDefine(IdentifierString name) {
         this(name, false, Collections.emptyList(), null, null, new ParameterizedType[0]);
     }
 
@@ -71,8 +73,8 @@ public class GenericDefine {
                 GenericUsingSerializer.class);
         private static final LocalParameterizedType.Serializer LOCAL_PARAMETERIZED_TYPE_SERIALIZER = StreamSerializerRegister.get(
                 LocalParameterizedType.Serializer.class);
-        private static final ReferenceElement.Serializer IDENTIFIER_REFERENCE_SERIALIZER = StreamSerializerRegister.get(
-                ReferenceElement.Serializer.class);
+        private static final IdentifierString.Serializer IDENTIFIER_SERIALIZER = StreamSerializerRegister.get(
+                IdentifierString.Serializer.class);
         private static final ReferenceElement.Serializer REFERENCE_ELEMENT_SERIALIZER = StreamSerializerRegister.get(
                 ReferenceElement.Serializer.class);
 
@@ -92,7 +94,7 @@ public class GenericDefine {
             boolean existDefault = headMaps[2].getUnsignedValue() != 0;
             boolean existLower = headMaps[3].getUnsignedValue() != 0;
             int upperSize = (int) headMaps[4].getUnsignedValue();
-            ReferenceElement name = REFERENCE_ELEMENT_SERIALIZER.in(is);
+            IdentifierString name = IDENTIFIER_SERIALIZER.in(is);
             List<LocalParameterizedType[]> constructorParameters = new ArrayList<>(constructorSize);
             for (int i = 0; i < constructorSize; i++) {
                 long eachSize = StreamSerializerUtil.readNumber(is, 8, false);
@@ -118,7 +120,7 @@ public class GenericDefine {
                     new HeadMap(src.defaultType != null ? 1 : 0, 1).inRange(true, "default exist"),
                     new HeadMap(src.lower != null ? 1 : 0, 1).inRange(true, "lower exist"),
                     new HeadMap(src.uppers.length, 8).inRange(true, "default exist")
-            ) + REFERENCE_ELEMENT_SERIALIZER.out(os, src.name);
+            ) + IDENTIFIER_SERIALIZER.out(os, src.name);
             for (LocalParameterizedType[] types : src.constructorParameters) {
                 length += StreamSerializerUtil.writeNumber(os, types.length, 8, false) +
                           StreamSerializerUtil.writeElements(os, types, LOCAL_PARAMETERIZED_TYPE_SERIALIZER);

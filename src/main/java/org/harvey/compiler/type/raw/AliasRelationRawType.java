@@ -23,17 +23,11 @@ public class AliasRelationRawType implements RelationRawType {
     private final String joinedFullname;
     private final FullIdentifierString declareIdentifier;
     private final File fromFile;
+    private final boolean staticMarked;
     public RelationRawType origin;
     public List<RelationRawType> interfaces;
     private RelationshipBuildStage stage;
     private RelationRawType endOrigin;
-    private final boolean staticMarked;
-
-    @Override
-    public RelationRawType getParent() {
-        originPrepared();
-        return endOrigin;
-    }
 
     public AliasRelationRawType(
             FullIdentifierString fullname,
@@ -52,6 +46,25 @@ public class AliasRelationRawType implements RelationRawType {
         this.joinedFullname = joinedFullname;
         this.fromFile = fromFile;
         this.staticMarked = staticMarked;
+    }
+
+    @Override
+    public RelationRawType getParent() {
+        originPrepared();
+        return endOrigin;
+    }
+
+    @Override
+    public void setParent(RelationRawType rawType) {
+        if (!rawType.isAlias()) {
+            if (needSetEndOrigin()) {
+                endOrigin = rawType;
+            } else {
+                throw new CompilerException("has set end origin");
+            }
+        }
+        this.origin = rawType;
+
     }
 
     @Override
@@ -102,19 +115,6 @@ public class AliasRelationRawType implements RelationRawType {
     @Override
     public boolean hasImplements() {
         return !interfaces.isEmpty();
-    }
-
-    @Override
-    public void setParent(RelationRawType rawType) {
-        if (!rawType.isAlias()) {
-            if (needSetEndOrigin()) {
-                endOrigin = rawType;
-            } else {
-                throw new CompilerException("has set end origin");
-            }
-        }
-        this.origin = rawType;
-
     }
 
     @Override

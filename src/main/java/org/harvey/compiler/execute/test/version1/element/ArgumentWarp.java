@@ -11,8 +11,8 @@ import org.harvey.compiler.io.source.SourcePosition;
  * @date 2025-04-05 22:11
  */
 public class ArgumentWarp extends DefaultComplexExpressionWrap {
-    private final int index ;
-    private final CallableArgumentOuter callableArgumentOuter ;
+    private final int index;
+    private final CallableArgumentOuter callableArgumentOuter;
 
     public ArgumentWarp(SourcePosition position, int index, CallableArgumentOuter callableArgumentOuter) {
         super(position);

@@ -11,9 +11,7 @@ import org.harvey.compiler.type.generic.define.GenericDefine;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * TODO
@@ -31,7 +29,6 @@ public class ConstructorContext implements DeclaredContext {
     private final boolean lastMultiply;
     private final List<LocalType> throwsExceptions;
     private final int body;
-    private final Map<String, Integer> genericMap;
 
     public ConstructorContext(
             AccessControl accessControl,
@@ -46,7 +43,6 @@ public class ConstructorContext implements DeclaredContext {
         this.body = body;
         this.throwsExceptions = throwsExceptions;
         this.lastMultiply = lastMultiply;
-        this.genericMap = new HashMap<>();
     }
 
     public ConstructorContext(CallableContext method) {
@@ -62,7 +58,6 @@ public class ConstructorContext implements DeclaredContext {
         this.body = method.getBody();
         this.throwsExceptions = method.getThrowsExceptions();
         this.lastMultiply = method.isLastMultiply();
-        this.genericMap = method.getGenericMap();
     }
 
     @Override

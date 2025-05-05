@@ -6,7 +6,7 @@ import org.harvey.compiler.declare.analysis.Declarable;
 import org.harvey.compiler.declare.analysis.DeclarableFactory;
 import org.harvey.compiler.declare.analysis.Keyword;
 import org.harvey.compiler.declare.context.ImportString;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisTextException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.io.source.SourcePosition;
@@ -49,11 +49,11 @@ public class DepartedBodyFactory {
             }
             afterImport = true;
             if (importPart) {
-                throw new AnalysisExpressionException(part.getPosition(), "Import only allowed at the top");
+                throw new AnalysisTextException(part.getPosition(), "Import only allowed at the top");
             }
             Boolean staticBlock = isStaticBlock(part);
             if (staticBlock != null) {
-                // throw new AnalysisExpressionException(part.getPosition(),"code blocks is not allowed here.");
+                // throw new AnalysisTextException(part.getPosition(),"code blocks is not allowed here.");
                 blocks.add(new SimpleBlock(staticBlock, part.getBody()));
                 continue;
             }
@@ -66,7 +66,7 @@ public class DepartedBodyFactory {
                 continue;
             }
             if (part.isSentenceEnd()) {
-                // throw new AnalysisExpressionException(part.getPosition(),"file variable is not allowed.");
+                // throw new AnalysisTextException(part.getPosition(),"file variable is not allowed.");
                 assert part.getBody() == null || part.getBody().isEmpty();
                 declarableSentenceList.add(declarable);
                 continue;
@@ -74,7 +74,7 @@ public class DepartedBodyFactory {
             // 命名声明的是variable, 但是没用sentenceEnd
             // 索取更多, 直到获取到一个完整的类型位置
             DepartedBodyFactory.completeVariableAttachment(iterator, declarable.getAttachment(), part.getBody());
-            // throw new AnalysisExpressionException(part.getPosition(),"file variable is not allowed.");
+            // throw new AnalysisTextException(part.getPosition(),"file variable is not allowed.");
             declarableSentenceList.add(declarable);
         }
         return new DepartedBody(importContext, blocks, declarableSentenceList, declarableRecursiveList);
@@ -108,18 +108,18 @@ public class DepartedBodyFactory {
             SourceString expectIdentifier = iterator.next();
             if (!CollectionUtil.skipIf(iterator, s -> Operator.GET_MEMBER.nameEquals(s.getValue()))) {
                 if (iterator.hasNext()) {
-                    throw new AnalysisExpressionException(iterator.next().getPosition(), "expected a dot: `.`");
+                    throw new AnalysisTextException(iterator.next().getPosition(), "expected a dot: `.`");
                 }
             }
             if (expectIdentifier.getType() != SourceType.IDENTIFIER) {
-                throw new AnalysisExpressionException(expectIdentifier.getPosition(), "expected an identifier");
+                throw new AnalysisTextException(expectIdentifier.getPosition(), "expected an identifier");
 
             }
             identifiers.add(expectIdentifier);
         }
         IdentifierString[] array = identifiers.stream().map(IdentifierString::new).toArray(IdentifierString[]::new);
         if (array.length == 0) {
-            throw new AnalysisExpressionException(mark.getPosition(), "expect something to import");
+            throw new AnalysisTextException(mark.getPosition(), "expect something to import");
         }
         return new ImportString(array, mark.getPosition());
     }
@@ -163,12 +163,12 @@ public class DepartedBodyFactory {
         if (Arrays.equals(hasInMap.getStringPath(), importStatement.getStringPath())) {
             return;
         }
-        throw new AnalysisExpressionException(importStatement.getPosition(), "Repeat target name of " +
-                                                                             hasInMap.getTarget().getValue() +
-                                                                             " with import cache at: " +
-                                                                             hasInMap.getPosition() +
-                                                                             " and " +
-                                                                             importStatement.getPosition());
+        throw new AnalysisTextException(importStatement.getPosition(), "Repeat target name of " +
+                                                                       hasInMap.getTarget().getValue() +
+                                                                       " with import cache at: " +
+                                                                       hasInMap.getPosition() +
+                                                                       " and " +
+                                                                       importStatement.getPosition());
     }
 
 
@@ -192,7 +192,7 @@ public class DepartedBodyFactory {
             }
             lastPosition = moreBody.getLast().getPosition();
         }
-        throw new AnalysisExpressionException(lastPosition, "expected " + SourceFileConstant.SENTENCE_END);
+        throw new AnalysisTextException(lastPosition, "expected " + SourceFileConstant.SENTENCE_END);
     }
 
 

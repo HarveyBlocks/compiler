@@ -10,11 +10,12 @@ package org.harvey.compiler.execute.calculate;
  */
 public enum OperandCount {
     // 不需要操作数的运算
-    NONE,
+    MEANINGLESS,
     // 单元运算符
     UNARY,
     // 二元运算符
     BINARY,
     // 三元运算符
+    @Deprecated
     TERNARY
 }

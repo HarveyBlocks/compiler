@@ -50,4 +50,5 @@ public class SourceFileConstant {
     public static final char INT64_SUFFIX = 'L';
     public static final char FLOAT32_SUFFIX = 'F';
     public static final String LINE_SEPARATOR = System.lineSeparator();
+    public static final String CASE_CONDITION = ":";
 }

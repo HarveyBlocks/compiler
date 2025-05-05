@@ -15,4 +15,5 @@ import org.harvey.compiler.execute.expression.IExpressionElement;
  * @date 2025-04-06 15:55
  */
 public interface ItemString extends IExpressionElement {
+
 }

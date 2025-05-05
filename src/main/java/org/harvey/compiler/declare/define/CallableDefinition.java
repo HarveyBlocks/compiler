@@ -3,14 +3,16 @@ package org.harvey.compiler.declare.define;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.common.collecction.Pair;
+import org.harvey.compiler.common.util.ArrayUtil;
 import org.harvey.compiler.declare.analysis.*;
 import org.harvey.compiler.declare.context.CallableType;
 import org.harvey.compiler.declare.identifier.CallableIdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierPoolFactory;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
+import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.KeywordString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
@@ -39,20 +41,23 @@ public class CallableDefinition implements Definition {
     private final CallableType type;
     private final List<LocalTypeDefinition> returnTypes;
     private final ReferenceElement identifierReference;
-    private final List<Pair<IdentifierString, SourceTextContext>> genericDefines;
-    private final Map<String, Integer> genericMap;
     private final List<ParamDefinition> paramLists;
     private final List<LocalTypeDefinition> throwsTypes;
     private final SourceTextContext body;
+    private List<Pair<IdentifierString, SourceTextContext>> genericDefine;
 
-    public final CallableIdentifierManager wrap(IdentifierManager origin) {
+    public final CallableIdentifierManager wrap(DIdentifierManager origin) {
         // 如果用这种方法获取的Generic, 怎么直到是方法内的Generic呢, 还是方法外的Generic呢?
         // 获取到一个Generic,
+        Map<String, Integer> genericMap = new HashMap<>();
+        for (int i = 0; i < genericDefine.size(); i++) {
+            genericMap.put(genericDefine.get(i).getKey().getValue(), i);
+        }
         return new CallableIdentifierManager(genericMap, origin);
     }
 
     public static class Builder {
-        private final IdentifierPoolFactory identifierPoolFactory;
+        private final DIdentifierPoolFactory identifierPoolFactory;
         private final Environment environment;
 
         private AccessControl permission;
@@ -60,15 +65,13 @@ public class CallableDefinition implements Definition {
         private CallableType type;
         private List<LocalTypeDefinition> returnTypes;
         private ReferenceElement identifierReference = null;
-
         private List<Pair<IdentifierString, SourceTextContext>> genericDefine;
         private List<ParamDefinition> paramLists;
         private List<LocalTypeDefinition> throwsTypes;
         private SourceTextContext body;
-        private Map<String, Integer> genericMap;
 
 
-        public Builder(IdentifierPoolFactory identifierPoolFactory, Environment environment) {
+        public Builder(DIdentifierPoolFactory identifierPoolFactory, Environment environment) {
             this.identifierPoolFactory = identifierPoolFactory;
             this.environment = environment;
         }
@@ -95,7 +98,7 @@ public class CallableDefinition implements Definition {
                         .type(iterator)
                         .build();
                 if (eachThrows.isMarkFinal()) {
-                    throw new AnalysisExpressionException(eachThrows.getMarkConst(), "not allowed here");
+                    throw new AnalysisDeclareException(eachThrows.getMarkConst(), "not allowed here");
                 }
                 if (Definition.skipIf(iterator, Operator.COMMA)) {
                     result.add(eachThrows);
@@ -111,16 +114,15 @@ public class CallableDefinition implements Definition {
                 SourcePosition forEmpty,
                 SourceTextContext returnType,
                 SourcePosition positionForNoIdentifier) {
-            return environment == Environment.FILE ? identifierReferenceAtFile(
-                    identifier, forEmpty) : identifierReferenceForMember(
-                    returnType, identifier, positionForNoIdentifier);
+            return environment == Environment.FILE ? identifierReferenceAtFile(identifier, forEmpty) :
+                    identifierReferenceForMember(returnType, identifier, positionForNoIdentifier);
         }
 
         public Builder identifierReferenceAtFile(SourceString identifier, SourcePosition position) {
             if (identifier == null) {
-                throw new AnalysisExpressionException(position, "expected identifier");
+                throw new AnalysisDeclareException(position, "expected identifier");
             } else {
-                this.identifierReference = identifierPoolFactory.functionIdentifier(identifier);
+                this.identifierReference = suitableCallableIdentifier(identifier, SourceType.IDENTIFIER);
             }
 
             this.type = CallableType.FUNCTION;
@@ -128,16 +130,89 @@ public class CallableDefinition implements Definition {
         }
 
         public Builder identifierReferenceForMember(
-                SourceTextContext returnType,
-                SourceString identifier,
-                SourcePosition positionForNoIdentifier) {
+                SourceTextContext returnType, SourceString identifier, SourcePosition positionForNoIdentifier) {
             if (identifier == null) {
-                identifierReference = identifierPoolFactory.noIdentifierMethodReference(returnType);
+                identifierReference = noIdentifierMethodReference(returnType);
             } else {
-                identifierReference = identifierPoolFactory.normalMethodReference(identifier);
+                identifierReference = suitableCallableIdentifier(
+                        identifier, SourceType.IDENTIFIER, SourceType.OPERATOR);
             }
             this.type = decideType(positionForNoIdentifier);
             return this;
+        }
+
+        /**
+         * 构造器 or cast
+         * 如果是和外部类的类名一致, 认为是构造器, 否则, 不管是否合法, 认为是cast, 然后返回
+         */
+        private ReferenceElement noIdentifierMethodReference(SourceTextContext type) {
+            // 构造器 or cast
+            if (type.isEmpty()) {
+                throw new CompilerException("expected type");
+            }
+            SourcePosition position = type.get(0).getPosition();
+            if (type.size() == 1) {
+                SourceString typeString = type.get(0);
+                String structureName = identifierPoolFactory.getSimpleNameFromOuter();
+                if (typeString.getType() == SourceType.IDENTIFIER && structureName.equals(typeString.getValue())) {
+                    //  构造器
+                    // 返回值的rawType和simpleStructureName一致
+                    return ReferenceElement.ofConstructor(position);
+                } else {
+                    return ReferenceElement.ofCast(position);
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            boolean expectedDot = false;
+            for (SourceString sourceString : type) {
+                if (expectedDot) {
+                    if (sourceString.getType() != SourceType.OPERATOR ||
+                        !Operator.GET_MEMBER.nameEquals(sourceString.getValue())) {
+                        // 不符合构造器
+                        return ReferenceElement.ofCast(position);
+                    }
+                    sb.append(Operator.GET_MEMBER.getName());
+                } else {
+                    if (sourceString.getType() != SourceType.IDENTIFIER) {
+                        // 不符合构造器
+                        return ReferenceElement.ofCast(position);
+                    }
+                    sb.append(sourceString.getValue());
+                }
+                expectedDot = !expectedDot;
+            }
+            // 如果从根目录开始表示这个类的呢?
+            return identifierPoolFactory.getOuter().contentEquals(sb) ? ReferenceElement.ofConstructor(position) :
+                    ReferenceElement.ofCast(position);
+        }
+
+
+        /**
+         * @param suitableType can't be null
+         */
+        private ReferenceElement suitableCallableIdentifier(SourceString identifier, SourceType... suitableType) {
+            if (identifier == null) {
+                throw new CompilerException("identifier can not be null", new IllegalArgumentException());
+            }
+            SourceType type = identifier.getType();
+            SourcePosition position = identifier.getPosition();
+            if (!ArrayUtil.contains(suitableType, type)) {
+                throw new AnalysisDeclareException(
+                        position, "the identifier is:" + type + " is not suitable at file.");
+            }
+            String value = identifier.getValue();
+            if (type == SourceType.OPERATOR) {
+                Operator[] oper = Operators.reloadableOperator(value);
+                if (oper == null) {
+                    throw new CompilerException("Unknown operator");
+                }
+                // ReferenceElement.of(new NormalOperatorString(position, oper[0]));
+                return identifierPoolFactory.operatorCallable(position, oper[0]);
+            }
+            if (suitableType == null) {
+                throw new CompilerException("suitable type can not be null");
+            }
+            return identifierPoolFactory.addIdentifier(DetailedDeclarationType.CALLABLE, value, position);
         }
 
         private CallableType decideType(SourcePosition positionForNoIdentifier) {
@@ -148,7 +223,7 @@ public class CallableDefinition implements Definition {
                     return CallableType.CAST_OPERATOR;
                 case CONSTRUCTOR:
                     if (environment == Environment.INTERFACE) {
-                        throw new AnalysisExpressionException(
+                        throw new AnalysisDeclareException(
                                 positionForNoIdentifier, "constructor is illegal in interface");
                     }
                     return CallableType.CONSTRUCTOR;
@@ -166,7 +241,7 @@ public class CallableDefinition implements Definition {
                 return this;
             }
             if (embellish.isMarkedAbstract() && !permission.canChildrenClass()) {
-                throw new AnalysisExpressionException(permissions.getFirst().getPosition(),
+                throw new AnalysisDeclareException(permissions.getFirst().getPosition(),
                         permissions.getLast().getPosition(), "permission is conflict with abstract"
                 );
             }
@@ -202,7 +277,7 @@ public class CallableDefinition implements Definition {
         public Builder returnTypes(SourceTextContext type, SourcePosition forEmpty) {
             // (type1,type2)
             if (type.isEmpty()) {
-                throw new AnalysisExpressionException(forEmpty, "expect type");
+                throw new AnalysisDeclareException(forEmpty, "expect type");
             }
 
             boolean parenthesesPre = Operator.PARENTHESES_PRE.nameEquals(type.getFirst().getValue());
@@ -212,12 +287,12 @@ public class CallableDefinition implements Definition {
                 type.removeFirst();
             } else if (parenthesesPre != parenthesesPost) {
                 if (!parenthesesPre) {
-                    throw new AnalysisExpressionException(type.getFirst().getPosition(), "expected (");
+                    throw new AnalysisDeclareException(type.getFirst().getPosition(), "expected (");
                 } else {
-                    throw new AnalysisExpressionException(type.getLast().getPosition(), "expected )");
+                    throw new AnalysisDeclareException(type.getLast().getPosition(), "expected )");
                 }
             } else if (this.type == CallableType.CAST_OPERATOR) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisDeclareException(
                         type.getFirst().getPosition(),
                         "expected () circle return type when it is a cast operator overload"
                 );
@@ -235,18 +310,17 @@ public class CallableDefinition implements Definition {
             ListIterator<SourceString> iterator = type.listIterator();
             this.returnTypes = localTypesOnDeclare(iterator);
             if (iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "expected )");
+                throw new AnalysisDeclareException(iterator.next().getPosition(), "expected )");
             }
             return this;
         }
 
         public Builder genericDefine(
-                ListIterator<SourceString> attachmentIterator,
-                Stack<ReferenceElement> outerReferenceStack) {
+                ListIterator<SourceString> attachmentIterator) {
             Definition.notNullValid(identifierReference, "identifier reference");
             Definition.notNullValid(embellish, "embellish");
             ListIterator<SourceString> genericDefineIterator = trueGenericDefineIterator(attachmentIterator);
-            setGenericDefine(outerReferenceStack, genericDefineIterator);
+            setGenericDefine(genericDefineIterator);
             return this;
         }
 
@@ -270,32 +344,13 @@ public class CallableDefinition implements Definition {
         }
 
         private void setGenericDefine(
-                Stack<ReferenceElement> outerReferenceStack,
                 ListIterator<SourceString> genericDefineIterator) {
             if (!GenericFactory.genericPreCheck(genericDefineIterator)) {
                 this.genericDefine = Collections.emptyList();
-                this.genericMap = Collections.emptyMap();
                 return;
             }
-            List<Pair<IdentifierString, SourceTextContext>> pairs = GenericFactory.defineSourceDepart(
-                    genericDefineIterator);
-            this.genericMap = new HashMap<>();
-            for (int i = 0; i < pairs.size(); i++) {
-                Pair<IdentifierString, SourceTextContext> pair = pairs.get(i);
-                // not repeated
-                IdentifierString identifier = pair.getKey();
-                String identifierValue = identifier.getValue();
-                if (genericMap.containsKey(identifierValue)) {
-                    // 本级不重复
-                    throw new AnalysisExpressionException(
-                            identifier.getPosition(), "repeated in this callable definition");
-                }
-                // 往后不重复
-                identifierPoolFactory.testGenericReference(
-                        identifierValue, identifier.getPosition(), outerReferenceStack);
-                genericMap.put(identifierValue, i);
-            }
-            this.genericDefine = pairs;
+            this.genericDefine = GenericFactory.defineSourceDepart(genericDefineIterator);
+            Definition.notRepeat(genericDefine);
         }
 
         public Builder paramList(ListIterator<SourceString> attachmentIterator) {
@@ -321,12 +376,12 @@ public class CallableDefinition implements Definition {
                 SourceString next = paramListIterator.next();
                 if (Operator.COMMA.nameEquals(next.getValue())) {
                     if (!paramListIterator.hasNext()) {
-                        throw new AnalysisExpressionException(
+                        throw new AnalysisDeclareException(
                                 paramListIterator.previous().getPosition(), "empty is illegal after ','");
                     }
                     continue;
                 }
-                throw new AnalysisExpressionException(paramListIterator.previous().getPosition(), "expect ','");
+                throw new AnalysisDeclareException(paramListIterator.previous().getPosition(), "expect ','");
             }
             this.paramLists = factory.getParams();
             return this;
@@ -351,7 +406,7 @@ public class CallableDefinition implements Definition {
 
         public Builder noMore(ListIterator<SourceString> attachmentIterator) {
             if (attachmentIterator.hasNext()) {
-                throw new AnalysisExpressionException(attachmentIterator.next().getPosition(), "expected {");
+                throw new AnalysisDeclareException(attachmentIterator.next().getPosition(), "expected {");
             }
             return this;
         }
@@ -363,8 +418,8 @@ public class CallableDefinition implements Definition {
 
         public CallableDefinition build() {
             valid();
-            return new CallableDefinition(permission, embellish, type, returnTypes, identifierReference, genericDefine,
-                    genericMap, paramLists, throwsTypes, body
+            return new CallableDefinition(permission, embellish, type, returnTypes, identifierReference,
+                    paramLists, throwsTypes, body, genericDefine
             );
         }
 
@@ -375,7 +430,6 @@ public class CallableDefinition implements Definition {
             Definition.notNullValid(type, "type");
             Definition.notNullValid(returnTypes, "return types");
             Definition.notNullValid(genericDefine, "generic define");
-            Definition.notNullValid(genericMap, "generic define map");
             Definition.notNullValid(paramLists, "param lists");
             Definition.notNullValid(throwsTypes, "throws types");
             Definition.notNullValid(body, "body");

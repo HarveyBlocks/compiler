@@ -2,7 +2,7 @@ package org.harvey.compiler.execute.test.version1.env;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.execute.test.version1.manager.MemberManager;
 import org.harvey.compiler.execute.test.version1.manager.RelationManager;
 import org.harvey.compiler.execute.test.version1.msg.MemberType;
@@ -16,9 +16,12 @@ import org.harvey.compiler.execute.test.version1.msg.MemberType;
  */
 public class OuterEnvironmentBuilder {
     private OuterEnvironment outer;
-
+    @Accessors(chain = true)
+    @Setter
     private MemberManager memberManager;
-    private IdentifierManager identifierManager;
+    @Accessors(chain = true)
+    @Setter
+    private DIdentifierManager identifierManager;
     @Accessors(chain = true)
     private RelationManager relationManager;
     private int type;

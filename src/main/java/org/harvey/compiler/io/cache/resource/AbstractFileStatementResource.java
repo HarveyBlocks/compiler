@@ -56,10 +56,12 @@ public abstract class AbstractFileStatementResource implements StatementResource
     public AccessControl getAccessControl() {
         throw new CompilerException("resource is a file", new UnsupportedOperationException());
     }
+
     @Override
     public GenericDefine[] getGenericMessage() {
         throw new CompilerException("resource is a file", new UnsupportedOperationException());
     }
+
     @Override
     public final ImportType getImportType() {
         return ImportType.FILE;

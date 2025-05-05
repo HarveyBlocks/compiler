@@ -16,6 +16,10 @@ public class Label {
 
     private LineWarp line = null;
 
+    public Label(int id) {
+        name = "L" + id;
+    }
+
     public void setLine(int line) {
         if (this.line == null) {
             this.line = new LineWarp(line);
@@ -25,10 +29,6 @@ public class Label {
             return;
         }
         throw new CompilerException("goto uncertain label: " + name);
-    }
-
-    public Label(int id) {
-        name = "L" + id;
     }
 
     @Override

@@ -2,11 +2,11 @@ package org.harvey.compiler.execute.expression;
 
 import lombok.Getter;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.execute.test.version1.element.ItemString;
 import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
 import org.harvey.compiler.io.serializer.StringStreamSerializer;
 import org.harvey.compiler.io.source.SourcePosition;
-import org.harvey.compiler.io.source.SourcePositionSupplier;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;
 import org.harvey.compiler.type.generic.RawType;
@@ -22,7 +22,7 @@ import java.io.OutputStream;
  * @date 2025-01-08 16:47
  */
 @Getter
-public class IdentifierString implements RawType, SourcePositionSupplier {
+public class IdentifierString implements RawType, ItemString {
     private static final String IGNORE_VALUE = "";
     private final SourcePosition position;
     /**
@@ -60,6 +60,10 @@ public class IdentifierString implements RawType, SourcePositionSupplier {
         return value.isEmpty();
     }
 
+    @Override
+    public String toString() {
+        return this.position + this.value;
+    }
 
     public static class Serializer implements StreamSerializer<IdentifierString> {
         public static final SourcePosition.Serializer SOURCE_POSITION_SERIALIZER = StreamSerializerRegister.get(

@@ -3,11 +3,11 @@ package org.harvey.compiler.execute.test.version1.pipeline;
 import org.harvey.compiler.exception.self.CompilerException;
 
 /**
- * TODO  
+ * TODO
  *
- * @date 2025-04-03 23:30
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-04-03 23:30
  */
 public class TempStack {
     public int top = 0;

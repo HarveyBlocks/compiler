@@ -2,7 +2,7 @@ package org.harvey.compiler.declare.analysis;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.calculate.Operators;
@@ -56,7 +56,7 @@ public class Embellish {
         for (EmbellishWord word : illegalWord(onIllegal)) {
             SourcePosition position = word.at(source);
             if (position != null) {
-                throw new AnalysisExpressionException(position, onIllegal + "can not embellish " + word);
+                throw new AnalysisDeclareException(position, onIllegal + "can not embellish " + word);
             }
         }
         return new Embellish(concat(words, source, constForOperator));
@@ -101,7 +101,7 @@ public class Embellish {
         if (canEmbellishConst) {
             return true;
         } else if (constMark != null) {
-            throw new AnalysisExpressionException(constMark, operator.getName() + "can not embellish const");
+            throw new AnalysisDeclareException(constMark, operator.getName() + "can not embellish const");
         } else {
             return false;
         }

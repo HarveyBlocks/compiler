@@ -17,4 +17,5 @@ public abstract class ExpressionElement implements IExpressionElement {
 
     private SourcePosition position;
 
+
 }

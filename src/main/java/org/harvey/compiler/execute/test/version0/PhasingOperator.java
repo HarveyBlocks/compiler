@@ -7,9 +7,9 @@ import org.harvey.compiler.execute.calculate.Operators;
 /**
  * TODO
  *
- * @date 2025-04-03 14:46
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-04-03 14:46
  */
 public abstract class PhasingOperator {
 
@@ -22,10 +22,10 @@ public abstract class PhasingOperator {
 
     public abstract boolean isPre();
 
-     static class Normal extends PhasingOperator {
+    static class Normal extends PhasingOperator {
         private final Operator operator;
 
-         Normal(Operator operator) {
+        Normal(Operator operator) {
             this.operator = operator;
         }
 
@@ -52,8 +52,8 @@ public abstract class PhasingOperator {
     }
 
 
-     static class Call extends PhasingOperator {
-         Call() {
+    static class Call extends PhasingOperator {
+        Call() {
         }
 
         @Override
@@ -77,7 +77,6 @@ public abstract class PhasingOperator {
             return false;
         }
     }
-
 
 
 }

@@ -1,7 +1,7 @@
 package org.harvey.compiler.exception;
 
 /**
- *   VieCompiler的异常
+ * VieCompiler的异常
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

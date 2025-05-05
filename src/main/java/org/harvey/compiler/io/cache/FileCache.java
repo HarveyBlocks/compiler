@@ -49,6 +49,7 @@ public class FileCache {
     public FileNode getInCache(FullIdentifierString fullIdentifier) {
         return getInCache(fullIdentifier.joinFullnameString(GET_MEMBER));
     }
+
     /**
      * @return null for not exist
      */
@@ -179,9 +180,6 @@ public class FileCache {
         return parent;
     }
 
-    public void loadOuterUntilStaticToCache(File file) {
-        // TODO
-    }
 
     private void loadBeforePackage(FullIdentifierString fullIdentifier, int end) {
         StringJoiner joiner = new StringJoiner(GET_MEMBER);
@@ -221,7 +219,7 @@ public class FileCache {
     }
 
     /**
-     * readFileInTarget and add to cache
+     * readFileInTarget and addIdentifier to cache
      *
      * @return null if success;
      * {@link }

@@ -114,30 +114,30 @@ public class RelatedParameterizedAlias implements ParameterizedRelation {
      * 现在就需要把GenericDefine检查了,
      * GenericDefine发现涉及了类,
      * 1. 类是没检查过的Structure->先检查GenericDefine的RawType
-     *      类是没检查过的Alias->先检查GenericDefine的界限的RawType
-     *      类是没检查过的GenericDefine界限的RawType
+     * 类是没检查过的Alias->先检查GenericDefine的界限的RawType
+     * 类是没检查过的GenericDefine界限的RawType
      * 2. GenericParameters的RawType尝试注入, 能注入
-     *      T0能注入, 因为没有上下界
-     *      MM<T0>能注入T1, 因为 MM extends AX
-     *      MM<T0>能注入T2, 因为 MM extends AX
+     * T0能注入, 因为没有上下界
+     * MM<T0>能注入T1, 因为 MM extends AX
+     * MM<T0>能注入T2, 因为 MM extends AX
      * 3. 继承映射, MM 到 AX的继承路径是 MM < AX
-     *      映射MM<T0>,到AX 就是 AX<T0,MM<T>,MMM<T>>
-     *      此时检查AX的Parameterized list, 由于AX只到RawType阶段, 所以也只检查RawType
-     *      RawType姑且算通过了吧
-     *      AX<T,MM<T>,MMM<T>> 到 AX<T0,T1 extends AX<T0,MM<T0>,MMM<T0>>,T2 extends AX<T0,MM<T>,MMM<T>>>
-     *          T 确实是 T0 的子集
-     *          MM<T> 赋值给 MM<T> 确实行
-     *          MMM<T> 赋值给 MMM<T> 确实行
+     * 映射MM<T0>,到AX 就是 AX<T0,MM<T>,MMM<T>>
+     * 此时检查AX的Parameterized list, 由于AX只到RawType阶段, 所以也只检查RawType
+     * RawType姑且算通过了吧
+     * AX<T,MM<T>,MMM<T>> 到 AX<T0,T1 extends AX<T0,MM<T0>,MMM<T0>>,T2 extends AX<T0,MM<T>,MMM<T>>>
+     * T 确实是 T0 的子集
+     * MM<T> 赋值给 MM<T> 确实行
+     * MMM<T> 赋值给 MMM<T> 确实行
      * 检查GenericDefine, GenericDefine没有检查完毕
      * GenericDefine依赖于还没有检查的Structure, 但是正在进行时的Structure
      * 此时, 要先构建GenericDefine了, 没办法了
      * GenericDefine
      * 1. Generic Define 可以先检查 raw type的正确性
      * 2. 从任务栈中弹出, 上面的例子就是弹出
-     *
-     *
-     *
-     *
+     * <p>
+     * <p>
+     * <p>
+     * <p>
      * GenericDefine没有
      */
     private ParameterizedType<RelationUsing> map(RelationUsing v, RelatedParameterizedAlias aliasOrigin) {

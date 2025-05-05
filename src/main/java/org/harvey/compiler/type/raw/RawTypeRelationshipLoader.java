@@ -7,7 +7,7 @@ import org.harvey.compiler.common.util.StringUtil;
 import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.context.StructureType;
 import org.harvey.compiler.declare.context.TypeAlias;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.exception.CompileMultipleFileException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
 import org.harvey.compiler.exception.self.CompilerException;
@@ -390,7 +390,7 @@ public class RawTypeRelationshipLoader {
         RelationRawType relationRawType = dealAlias(joinedFullnameString, identifier, lower, resource, stage,
                 resourceFile, lowerIdentifiers, queue
         );
-        IdentifierManager manager = resource.getManager();
+        DIdentifierManager manager = resource.getManager();
         FullIdentifierString outerIdentifier = manager.getIdentifier(resource.getDeclareIdentifierReference());
         if (!relationCache.containsKey(outerIdentifier)) {
             dealStructure(resource, lowerIdentifiers, stage, resourceFile, queue);
@@ -431,7 +431,7 @@ public class RawTypeRelationshipLoader {
             RelationshipBuildStage stage,
             File resourceFile,
             LinkedList<BuildToCacheQueueElement> queue) {
-        IdentifierManager manager = resource.getManager();
+        DIdentifierManager manager = resource.getManager();
         FullIdentifierString identifier = manager.getIdentifier(resource.getDeclareIdentifierReference());
         FullIdentifierString superIdentifier = manager.getIdentifier(resource.getSuperComplexStructure().getRawType());
         FullIdentifierString[] interfaceIdentifiers = resource.getInterfaceList()
@@ -570,7 +570,7 @@ public class RawTypeRelationshipLoader {
 
     private Pair<RelationRawType, FullIdentifierString> getAliasPair(
             StatementResource resource, TypeAlias typeAlias, RelationshipBuildStage stage, File resourceFile) {
-        IdentifierManager manager = resource.getManager();
+        DIdentifierManager manager = resource.getManager();
         FullIdentifierString declareIdentifier = manager.getIdentifier(typeAlias.getAliasNameReference());
         RelationRawType result = new AliasRelationRawType(declareIdentifier, stage, resourceFile, resource.isStatic());
         // 需要result向上去找, 找到alias为止

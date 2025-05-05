@@ -61,6 +61,7 @@ public class ByteUtil {
         boolean minus = bytes.length > 0 && bytes[0] < 0;
         byte[] bytes8 = new byte[8];
         for (int i = 0; i < 8 - bytes.length; i++) {
+            // 复制到高位
             bytes8[i] = (byte) (minus ? 0xff : 0);
         }
         System.arraycopy(bytes, 0, bytes8, 8 - bytes.length, bytes.length);

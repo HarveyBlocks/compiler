@@ -31,7 +31,7 @@ public class DefaultIfHandler implements IfHandler {
         // after
         context.bodyStackNotEmpty();
         IfSentence ifSentence = context.bodyStack.sentenceForIf();
-        if (!ifSentence.starting()){
+        if (!ifSentence.starting()) {
             ifSentence.initSentence();
         }
         ifSentence.pushLastIfFalse(label);

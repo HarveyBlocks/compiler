@@ -1,6 +1,6 @@
 package org.harvey.compiler.execute.test.version1.env;
 
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.test.version1.element.ArrayInitEachWarp;
@@ -50,7 +50,7 @@ public class ArrayElementOuter implements OuterEnvironment {
     }
 
     @Override
-    public IdentifierManager getIdentifierManager() {
+    public DIdentifierManager getIdentifierManager() {
         return environment.getIdentifierManager();
     }
 

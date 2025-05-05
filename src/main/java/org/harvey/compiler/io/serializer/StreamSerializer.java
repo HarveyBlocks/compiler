@@ -3,7 +3,6 @@ package org.harvey.compiler.io.serializer;
 
 import org.harvey.compiler.execute.expression.ExpressionElement;
 import org.harvey.compiler.execute.local.LocalType;
-import org.harvey.compiler.execute.local.LocalVariableDeclare;
 
 import java.io.InputStream;
 import java.io.OutputStream;

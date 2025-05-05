@@ -11,11 +11,11 @@ import org.harvey.compiler.io.source.SourcePosition;
  * @date 2024-11-17 00:00
  */
 public class AnalysisException extends CompileFileException {
-    public AnalysisException(SourcePosition errorPosition, String message) {
+    protected AnalysisException(SourcePosition errorPosition, String message) {
         super(errorPosition, message);
     }
 
-    public AnalysisException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd, String message) {
+    protected AnalysisException(SourcePosition errorPositionBegin, SourcePosition errorPositionEnd, String message) {
         super(errorPositionBegin, errorPositionEnd, message);
     }
 }

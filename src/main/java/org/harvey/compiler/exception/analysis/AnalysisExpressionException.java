@@ -9,7 +9,7 @@ import org.harvey.compiler.io.source.SourcePosition;
  * @version 1.0
  * @date 2024-11-16 23:57
  */
-public class AnalysisExpressionException extends AnalysisException {
+public class AnalysisExpressionException extends AnalysisExecutableException {
 
     public AnalysisExpressionException(SourcePosition errorPosition, String message) {
         super(errorPosition, message);

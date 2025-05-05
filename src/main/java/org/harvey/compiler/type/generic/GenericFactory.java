@@ -3,10 +3,11 @@ package org.harvey.compiler.type.generic;
 import org.harvey.compiler.common.collecction.CollectionUtil;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.common.util.ExceptionUtil;
+import org.harvey.compiler.declare.analysis.DeclarableFactory;
 import org.harvey.compiler.declare.analysis.Keyword;
 import org.harvey.compiler.declare.analysis.Keywords;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.exception.analysis.AnalysisTypeException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.*;
@@ -30,6 +31,7 @@ import java.util.*;
  * @version 1.0
  * @date 2025-03-01 19:39
  */
+@Deprecated
 public class GenericFactory {
 
     private static final String GENERIC_LIST_PRE_NAME = Operator.GENERIC_LIST_PRE.getName();
@@ -40,7 +42,7 @@ public class GenericFactory {
     }
 
     public static ParameterizedType<ReferenceElement>[] genericList(
-            SourcePosition position, ListIterator<SourceString> iterator, IdentifierManager manager) {
+            SourcePosition position, ListIterator<SourceString> iterator, DIdentifierManager manager) {
         ReferenceElement fake = new ReferenceElement(position, ReferenceType.IDENTIFIER, -1);
         return parameterizedType(fake, iterator, manager).getChildren();
     }
@@ -52,7 +54,7 @@ public class GenericFactory {
      * @param iterator <type,type,type>
      */
     public static ParameterizedType<ReferenceElement> parameterizedType(
-            ReferenceElement rawType, ListIterator<SourceString> iterator, IdentifierManager manager) {
+            ReferenceElement rawType, ListIterator<SourceString> iterator, DIdentifierManager manager) {
         if (!iterator.hasNext()) {
             ParameterizedType<ReferenceElement> result = new ParameterizedType<>(rawType);
             result.setReadOnly(true);
@@ -74,7 +76,7 @@ public class GenericFactory {
             }
             if (skipIf(iterator, Operator.GENERIC_LIST_PRE)) {
                 if (top.getRawType().getType() == ReferenceType.GENERIC_IDENTIFIER) {
-                    throw new AnalysisExpressionException(
+                    throw new AnalysisTypeException(
                             iterator.previous().getPosition(), "illegal for generic parameter in generic define");
                 }
                 stack.push(parameter);
@@ -89,13 +91,13 @@ public class GenericFactory {
                     continue;
                 }
             }
-            throw new AnalysisExpressionException(position, "not expected what after type");
+            throw new AnalysisTypeException(position, "not expected what after type");
         }
-        throw new AnalysisExpressionException(position, "not a generic message: not completed");
+        throw new AnalysisTypeException(position, "not a generic message: not completed");
     }
 
 
-    public static ReferenceElement rawType2Reference(RawType element, IdentifierManager manager) {
+    public static ReferenceElement rawType2Reference(RawType element, DIdentifierManager manager) {
         if (element instanceof KeywordString) {
             return ReferenceElement.of(((KeywordString) element));
         } else if (element instanceof FullIdentifierString) {
@@ -121,11 +123,11 @@ public class GenericFactory {
      */
     private static SourcePosition genericPreCheck(ListIterator<SourceString> iterator, SourcePosition spForEmpty) {
         if (!iterator.hasNext()) {
-            throw new AnalysisExpressionException(spForEmpty, "genericMessage can not be empty, expected: <");
+            throw new AnalysisTypeException(spForEmpty, "genericMessage can not be empty, expected: <");
         }
         SourceString first = iterator.next();
         if (first.getType() != SourceType.OPERATOR || !GENERIC_LIST_PRE_NAME.equals(first.getValue())) {
-            throw new AnalysisExpressionException(first.getPosition(), "not a generic message");
+            throw new AnalysisTypeException(first.getPosition(), "not a generic message");
         }
         return first.getPosition();
     }
@@ -138,19 +140,22 @@ public class GenericFactory {
 
 
     private static boolean skipIf(ListIterator<SourceString> iterator, Operator target) {
-        return CollectionUtil.skipIf(iterator,
+        return CollectionUtil.skipIf(
+                iterator,
                 ss -> ss.getType() == SourceType.OPERATOR && target.nameEquals(ss.getValue())
         );
     }
 
     private static boolean nextIs(ListIterator<SourceString> iterator) {
-        return CollectionUtil.nextIs(iterator,
+        return CollectionUtil.nextIs(
+                iterator,
                 ss -> ss.getType() == SourceType.OPERATOR && Operator.GENERIC_LIST_PRE.nameEquals(ss.getValue())
         );
     }
 
     private static boolean skipIf(ListIterator<SourceString> iterator, Keyword target) {
-        return CollectionUtil.skipIf(iterator,
+        return CollectionUtil.skipIf(
+                iterator,
                 ss -> ss.getType() == SourceType.KEYWORD && target.equals(ss.getValue())
         );
     }
@@ -160,7 +165,7 @@ public class GenericFactory {
     }
 
     public static GenericDefine genericForDefine(
-            ReferenceElement name, SourceTextContext define, IdentifierManager manager) {
+            IdentifierString name, SourceTextContext define, DIdentifierManager manager) {
         // <T extends BaseClass & BaseInterfaces & super LowerInterface & new<int,int> & new<long> = DefaultType >
 
         ListIterator<SourceString> iterator = define.listIterator();
@@ -193,7 +198,8 @@ public class GenericFactory {
                 if (lower == null) {
                     lower = parameterizedType(partIterator, manager);
                 } else {
-                    throw new AnalysisExpressionException(partIterator.previous().getPosition(),
+                    throw new AnalysisTypeException(
+                            partIterator.previous().getPosition(),
                             "Only one lower bound is allowed"
                     );
                 }
@@ -205,7 +211,7 @@ public class GenericFactory {
                 position = previous.getPosition();
                 constructorParameters.add(forLocalGenericListCircleUse(partIterator, manager, position));
             } else {
-                throw new AnalysisExpressionException(partIterator.previous().getPosition(), "expected ,");
+                throw new AnalysisTypeException(partIterator.previous().getPosition(), "expected ,");
             }
         }
         return new GenericDefine(name, multiple, constructorParameters, defaultType, lower,
@@ -217,7 +223,7 @@ public class GenericFactory {
      * {@code <const result[0],const final result[1], final result[2],...>}
      */
     public static LocalParameterizedType[] forLocalGenericListCircleUse(
-            ListIterator<SourceString> iterator, IdentifierManager manager, SourcePosition spForEmpty) {
+            ListIterator<SourceString> iterator, DIdentifierManager manager, SourcePosition spForEmpty) {
         genericPreCheck(iterator, spForEmpty);
         List<LocalParameterizedType> result = new ArrayList<>();
         while (iterator.hasNext()) {
@@ -229,15 +235,15 @@ public class GenericFactory {
             ParameterizedType<ReferenceElement> type = parameterizedType(iterator, manager);
             result.add(new LocalParameterizedType(constMark, null, type));
             if (!iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.previous().getPosition(), "not complete generic");
+                throw new AnalysisTypeException(iterator.previous().getPosition(), "not complete generic");
             }
             if (skipIf(iterator, Operator.GENERIC_LIST_POST)) {
                 return result.toArray(LocalParameterizedType[]::new);
             } else if (!skipIf(iterator, Operator.COMMA)) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "not complete: expected comma");
+                throw new AnalysisTypeException(iterator.next().getPosition(), "not complete: expected comma");
             }
         }
-        throw new AnalysisExpressionException(iterator.previous().getPosition(), "not complete generic");
+        throw new AnalysisTypeException(iterator.previous().getPosition(), "not complete generic");
     }
 
 
@@ -246,14 +252,15 @@ public class GenericFactory {
      */
     private static ParameterizedType<ReferenceElement> splitDefineWithAnd(
             ListIterator<SourceString> iterator,
-            IdentifierManager manager,
+            DIdentifierManager manager,
             SourcePosition spForEmpty,
             List<List<SourceString>> splitWithAnd) {
         ParameterizedType<ReferenceElement> defaultType = null;
         List<SourceString> each = new ArrayList<>();
         while (iterator.hasNext()) {
             if (defaultType != null) {
-                throw new AnalysisExpressionException(iterator.previous().getPosition(),
+                throw new AnalysisTypeException(
+                        iterator.previous().getPosition(),
                         "default type should at the last"
                 );
             }
@@ -262,7 +269,7 @@ public class GenericFactory {
                 each = new ArrayList<>();
             } else if (skipIf(iterator, Operator.ASSIGN)) {
                 if (each.isEmpty()) {
-                    throw new AnalysisExpressionException(iterator.previous().getPosition(), "empty is illegal");
+                    throw new AnalysisTypeException(iterator.previous().getPosition(), "empty is illegal");
                 }
                 splitWithAnd.add(each);
                 defaultType = parameterizedType(iterator, manager);
@@ -271,7 +278,7 @@ public class GenericFactory {
             }
         }
         if (each.isEmpty()) {
-            throw new AnalysisExpressionException(
+            throw new AnalysisTypeException(
                     iterator.hasPrevious() ? iterator.previous().getPosition() : spForEmpty,
                     "expected end with `,`, but not `&`"
             );
@@ -282,7 +289,7 @@ public class GenericFactory {
 
 
     public static ParameterizedType<ReferenceElement> parameterizedType(
-            ListIterator<SourceString> iterator, IdentifierManager manager) {
+            ListIterator<SourceString> iterator, DIdentifierManager manager) {
         RawType rawType = rawType(iterator);
         ReferenceElement reference = rawType2Reference(rawType, manager);
         if (!iterator.hasNext()) {
@@ -304,22 +311,36 @@ public class GenericFactory {
         SourceString identifier = iterator.next();
         Keyword mayKeyword = Keyword.get(identifier.getValue());
         if (identifier.getType() == SourceType.IDENTIFIER) {
-            return ExpressionFactory.fullIdentifier(identifier.getPosition(), identifier.getValue(), iterator);
+            return fullIdentifier(identifier.getPosition(), identifier.getValue(), iterator);
         } else if (identifier.getType() == SourceType.KEYWORD && Keywords.isBasicType(mayKeyword)) {
             if (iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "not basic type");
+                throw new AnalysisTypeException(iterator.next().getPosition(), "not basic type");
             }
             String value = identifier.getValue();
             if (Keyword.VAR.equals(value)) {
-                throw new AnalysisExpressionException(identifier.getPosition(), "var is illegal here");
+                throw new AnalysisTypeException(identifier.getPosition(), "var is illegal here");
             }
             if (Keyword.VOID.equals(value)) {
-                throw new AnalysisExpressionException(identifier.getPosition(), "var is illegal here");
+                throw new AnalysisTypeException(identifier.getPosition(), "var is illegal here");
             }
             return new KeywordString(identifier.getPosition(), mayKeyword);
         } else {
-            throw new AnalysisExpressionException(identifier.getPosition(), "not a type");
+            throw new AnalysisTypeException(identifier.getPosition(), "not a type");
         }
+    }
+
+    public static FullIdentifierString fullIdentifier(
+            SourcePosition position, String firstName, ListIterator<SourceString> iterator) {
+        List<SourceString> fullIdentifierString = DeclarableFactory.departFullIdentifier(position, firstName, iterator);
+        return fullIdentifier(fullIdentifierString);
+    }
+
+    private static FullIdentifierString fullIdentifier(List<SourceString> fullIdentifierString) {
+        String[] fullname = fullIdentifierString.stream().map(SourceString::getValue).toArray(String[]::new);
+        SourcePosition[] positions = fullIdentifierString.stream()
+                .map(SourceString::getPosition)
+                .toArray(SourcePosition[]::new);
+        return new FullIdentifierString(positions, fullname);
     }
 
     /**
@@ -343,7 +364,7 @@ public class GenericFactory {
             } else if (sourceType == SourceType.IDENTIFIER) {
                 genericName = new IdentifierString(position, expectedName.getValue());
             } else {
-                throw new AnalysisExpressionException(position, "expected identifier");
+                throw new AnalysisTypeException(position, "expected identifier");
             }
             SourceTextContext define = skipOneDefine(genericDefineIterator, position);
             if (!define.isEmpty()) {
@@ -353,10 +374,10 @@ public class GenericFactory {
             if (skipIf(genericDefineIterator, Operator.GENERIC_LIST_POST)) {
                 return result;
             } else if (!skipIf(genericDefineIterator, Operator.COMMA)) {
-                throw new AnalysisExpressionException(position, "expected " + Operator.COMMA.getName());
+                throw new AnalysisTypeException(position, "expected " + Operator.COMMA.getName());
             }
         }
-        throw new AnalysisExpressionException(position, "not a generic message: not completed");
+        throw new AnalysisTypeException(position, "not a generic message: not completed");
     }
 
     private static SourceTextContext skipOneDefine(
@@ -378,7 +399,7 @@ public class GenericFactory {
                     return result;
                 }
             } else if (inGeneric < 0) {
-                throw new AnalysisExpressionException(position, "Illegal generic list match");
+                throw new AnalysisTypeException(position, "Illegal generic list match");
             }
             if (GENERIC_LIST_PRE_NAME.equals(value)) {
                 inGeneric++;
@@ -387,14 +408,14 @@ public class GenericFactory {
             }
             result.add(next);
         }
-        throw new AnalysisExpressionException(position, "Illegal generic list match");
+        throw new AnalysisTypeException(position, "Illegal generic list match");
     }
 
     /**
      * 以逗号分割
      *
      * @param iterator iterator.next()==rawType
-     * @see #parameterizedType(ListIterator, IdentifierManager)
+     * @see #parameterizedType(ListIterator, DIdentifierManager)
      */
     public static Pair<RawType, SourceTextContext> skipSourceForUse(ListIterator<SourceString> iterator) {
         RawType element = rawType(iterator);

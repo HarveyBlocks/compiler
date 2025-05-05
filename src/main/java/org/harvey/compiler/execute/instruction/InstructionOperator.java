@@ -22,7 +22,7 @@ public enum InstructionOperator {
     POSITIVE(2),
     NEGATIVE(2),
     // 算术
-    // add type num1 num2
+    // addIdentifier type num1 num2
     ADD(3),
     SUBTRACT(3),
     MULTIPLY(3),
@@ -63,17 +63,3 @@ public enum InstructionOperator {
     }
 }
 
-enum TypeCode {
-    REFERENCE,
-    INT8,
-    INT16,
-    INT32,
-    INT64,
-    UINT8,
-    UINT16,
-    UINT32,
-    UINT64,
-    FLOAT32,
-    FLOAT64,
-    BOOL
-}

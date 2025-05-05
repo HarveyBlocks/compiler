@@ -19,10 +19,12 @@ import java.io.Reader;
  */
 public class SourceFileReader<R extends Reader> {
     public static final String LINE_SEPARATOR = SourceFileConstant.LINE_SEPARATOR;
-    private final VieConstructor<R> constructor;
+    private final VieConstructor<R> constructorOnFileName;
+    private final VieConstructor<R> constructorOnFile;
 
     public SourceFileReader(Class<R> readerType) {
-        this.constructor = new VieConstructor<>(readerType, String.class);
+        this.constructorOnFileName = new VieConstructor<>(readerType, String.class);
+        this.constructorOnFile = new VieConstructor<>(readerType, File.class);
     }
 
     private static boolean incompleteLineSeparator(String buff) {
@@ -36,7 +38,7 @@ public class SourceFileReader<R extends Reader> {
 
     public SourceTextContext read(String filename, SourceFileManager manager) throws IOException {
         char[] buffer = new char[CompileProperties.FILE_READ_BUFFER_SIZE];
-        try (R reader = constructor.instance(filename)) {
+        try (R reader = constructorOnFileName.instance(filename)) {
             read0(manager, reader, buffer);
         }
         return manager.get();
@@ -44,7 +46,7 @@ public class SourceFileReader<R extends Reader> {
 
     public SourceTextContext read(File file, SourceFileManager manager) throws IOException {
         char[] buffer = new char[CompileProperties.FILE_READ_BUFFER_SIZE];
-        try (R reader = constructor.instance(file)) {
+        try (R reader = constructorOnFile.instance(file)) {
             read0(manager, reader, buffer);
         }
         return manager.get();

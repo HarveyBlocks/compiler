@@ -2,7 +2,6 @@ package org.harvey.compiler.execute.test.version1.msg;
 
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.io.source.SourcePosition;
-import org.harvey.compiler.io.source.SourcePositionSupplier;
 
 /**
  * TODO
@@ -11,8 +10,7 @@ import org.harvey.compiler.io.source.SourcePositionSupplier;
  * @version 1.0
  * @date 2025-04-05 15:52
  */
-public interface MemberType extends SourcePositionSupplier {
-    boolean atLocal();
+public interface MemberType {
 
     MemberSupplier find(SourcePosition position, String innerMemberName);
 
@@ -22,7 +20,7 @@ public interface MemberType extends SourcePositionSupplier {
 
     PossibleCallableSupplier findPossibleCallable(SourcePosition position, String callableName);
 
-    PossibleCallableSupplier findCast(SourcePosition position, MemberType castTarget);
+    PossibleCallableSupplier findCastOperator(SourcePosition position, MemberType castTarget);
 
     PossibleCallableSupplier findConstructor(SourcePosition position);
 
@@ -31,5 +29,10 @@ public interface MemberType extends SourcePositionSupplier {
      */
     PossibleCallableSupplier findInnerTypeConstructor(SourcePosition position, MemberType memberType);
 
+    /**
+     * param的类型是否匹配
+     */
     boolean strictSame(MemberType other);
+
+
 }

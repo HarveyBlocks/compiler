@@ -34,10 +34,6 @@ public interface MultipleTree<T> {
 
     void setReadOnly(boolean readOnly);
 
-    interface ForEachConsumer<T> {
-        void accept(List<MultipleTree<T>> brothers, int indexOfThisNode);
-    }
-
     /**
      * 有一个坏处, 一直向brother加辈孩子 就会无限循环下去
      */
@@ -56,4 +52,8 @@ public interface MultipleTree<T> {
      * @return 克隆结构, 而不是克隆值
      */
     MultipleTree<T> cloneThis();
+
+    interface ForEachConsumer<T> {
+        void accept(List<MultipleTree<T>> brothers, int indexOfThisNode);
+    }
 }

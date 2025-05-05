@@ -14,26 +14,8 @@ import java.io.File;
  * @date 2025-03-25 23:57
  */
 public class CanNotAssignUtil {
-    private static class CanNotAssign extends CompileMultipleFileException {
-        private final File file;
-        private final SourcePosition errorPosition;
-        private final String message;
-
-        public CanNotAssign(File file, SourcePosition errorPosition, String message) {
-            super(file, errorPosition, message);
-            this.file = file;
-            this.errorPosition = errorPosition;
-            this.message = message;
-        }
-    }
-
     public static VieCompilerException canNotAssign(File file, SourcePosition errorPosition, String message) {
         return new CanNotAssign(file, errorPosition, message);
-    }
-
-    @FunctionalInterface
-    public interface OnCanNotAssign {
-        public void accept(File file, SourcePosition errorPosition, String message);
     }
 
     public static boolean catchCanNotAssign(Runnable task, OnCanNotAssign afterThrow) {
@@ -59,6 +41,24 @@ public class CanNotAssignUtil {
                 changePosition = e.errorPosition;
             }
             throw canNotAssign(changeFile, changePosition, e.message);
+        }
+    }
+
+    @FunctionalInterface
+    public interface OnCanNotAssign {
+        void accept(File file, SourcePosition errorPosition, String message);
+    }
+
+    private static class CanNotAssign extends CompileMultipleFileException {
+        private final File file;
+        private final SourcePosition errorPosition;
+        private final String message;
+
+        public CanNotAssign(File file, SourcePosition errorPosition, String message) {
+            super(file, errorPosition, message);
+            this.file = file;
+            this.errorPosition = errorPosition;
+            this.message = message;
         }
     }
 }

@@ -26,6 +26,7 @@ public class Operators {
     public static final Set<Character> OPERATOR_SIGN_SET;
     private static final Map<Operator, Operator> PRE_POST;
     private static final Map<Operator, Operator> POST_PRE;
+    private static final Map<String, Operator[]> CACHE = new HashMap<>();
 
     static {
         ENUM_NAME_MAP = Arrays.stream(Operator.values()).collect(Collectors.toMap(Enum::name, op -> op));
@@ -178,8 +179,6 @@ public class Operators {
         return NAME_SET.contains(s);
     }
 
-    private static final Map<String, Operator[]> CACHE = new HashMap<>();
-
     /**
      * () 前Identifier->函数调用
      * 前Operator->括号
@@ -203,19 +202,34 @@ public class Operators {
         return operators;
     }
 
-    @Deprecated
-    private static void repeatedOperatorName() {
-        // [[=2, ]=2, --=2, ++=2, (=2, )=2, +=2, -=2]
-        Map<String, Integer> m = new HashMap<>();
-        for (Operator value : Operator.values()) {
-            m.computeIfAbsent(value.getName(), s -> 0);
-            m.computeIfPresent(value.getName(), (k, v) -> v + 1);
-        }
-        System.out.println(m.entrySet().stream().filter(e -> e.getValue() > 1).collect(Collectors.toList()));
-    }
-
     public static boolean isPre(Operator oper) {
         return PRE_POST.containsKey(oper);
+    }
+
+    public static boolean isPre(String value) {
+        Operator[] operators = Operators.get(value);
+        if (operators == null) {
+            return false;
+        }
+        for (Operator operator : operators) {
+            if (Operators.isPre(operator)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isPost(String value) {
+        Operator[] operators = Operators.get(value);
+        if (operators == null) {
+            return false;
+        }
+        for (Operator operator : operators) {
+            if (Operators.isPost(operator)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean isPost(Operator oper) {
@@ -242,13 +256,13 @@ public class Operators {
                operator == Operator.CALL_POST ||
                operator == Operator.ARRAY_AT_PRE ||
                operator == Operator.ARRAY_AT_POST ||
-               operator == Operator.COMMA ||
-               operator == Operator.LAMBDA;
+               operator == Operator.COMMA || // 不行吗? 真的不行吗?
+               operator == Operator.LAMBDA; // 不行吗? 真的不行吗?
     }
 
     public static Operator[] reloadableOperator(String operatorString) {
         Operator[] operators = Operators.get(operatorString);
-        if (operators.length == 0) {
+        if (operators == null || operators.length == 0) {
             return null;
         } else if (operators.length == 1) {
             Operator operator = operators[0];
@@ -268,4 +282,6 @@ public class Operators {
         }
         return null;
     }
+
+
 }

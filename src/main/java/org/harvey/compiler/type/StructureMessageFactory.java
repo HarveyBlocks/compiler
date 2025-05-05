@@ -1,7 +1,7 @@
 package org.harvey.compiler.type;
 
 import org.harvey.compiler.common.collecction.Pair;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.type.generic.using.ParameterizedType;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class StructureMessageFactory {
     public static ParameterizedType<FullIdentifierString> map(
-            ParameterizedType<ReferenceElement> referred, IdentifierManager manager) {
+            ParameterizedType<ReferenceElement> referred, DIdentifierManager manager) {
         List<Pair<Integer, FullIdentifierString>> fullSequence = referred.toSequence()
                 .stream()
                 .map(e -> new Pair<>(e.getKey(), manager.getIdentifier(e.getValue())))

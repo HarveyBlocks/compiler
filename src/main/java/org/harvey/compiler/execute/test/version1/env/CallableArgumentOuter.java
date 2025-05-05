@@ -2,7 +2,7 @@ package org.harvey.compiler.execute.test.version1.env;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.test.version1.manager.MemberManager;
 import org.harvey.compiler.execute.test.version1.manager.RelationManager;
@@ -59,7 +59,7 @@ public class CallableArgumentOuter implements OuterEnvironment {
     }
 
     @Override
-    public IdentifierManager getIdentifierManager() {
+    public DIdentifierManager getIdentifierManager() {
         return environment.getIdentifierManager();
     }
 
@@ -97,6 +97,7 @@ public class CallableArgumentOuter implements OuterEnvironment {
             return first;
         }
         for (CallableRelatedDeclare callableRelatedDeclare : possibleCallableRelatedDeclares) {
+            // 类型是否匹配
             if (!first.strictSame(callableRelatedDeclare.getParameterType(this.finishedIndexOfParam))) {
                 return null;
             }

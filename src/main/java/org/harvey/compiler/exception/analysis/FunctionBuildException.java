@@ -3,8 +3,6 @@ package org.harvey.compiler.exception.analysis;
 import org.harvey.compiler.io.source.SourcePosition;
 
 /**
- *
- *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-11-26 23:21

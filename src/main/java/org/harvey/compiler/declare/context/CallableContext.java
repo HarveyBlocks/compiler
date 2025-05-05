@@ -1,5 +1,6 @@
 package org.harvey.compiler.declare.context;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.harvey.compiler.declare.analysis.AccessControl;
@@ -8,13 +9,10 @@ import org.harvey.compiler.declare.define.CallableDefinition;
 import org.harvey.compiler.declare.define.LocalTypeDefinition;
 import org.harvey.compiler.declare.define.ParamDefinition;
 import org.harvey.compiler.declare.identifier.CallableIdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
-import org.harvey.compiler.exception.self.CompilerException;
-import org.harvey.compiler.execute.expression.FullIdentifierString;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
-import org.harvey.compiler.execute.expression.ReferenceType;
 import org.harvey.compiler.execute.local.LocalType;
 import org.harvey.compiler.io.serializer.*;
 import org.harvey.compiler.type.generic.GenericFactory;
@@ -22,9 +20,7 @@ import org.harvey.compiler.type.generic.define.GenericDefine;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +38,7 @@ import java.util.stream.Collectors;
  */
 @EqualsAndHashCode
 @Getter
+@AllArgsConstructor
 public class CallableContext implements DeclaredContext {
     private final ReferenceElement identifierReference;
     private final AccessControl accessControl;
@@ -52,41 +49,18 @@ public class CallableContext implements DeclaredContext {
      * 包含前后缀`<>`
      */
     private final List<GenericDefine> genericMessage;
+
     private final List<ParamContext> paramList;
 
     private final int body;
     // throws的要不要考虑const? catch的
     private final List<LocalType> throwsExceptions;
     private final boolean lastMultiply;
-    private final Map<String, Integer> genericMap;
 
-    public CallableContext(
-            ReferenceElement identifierReference,
-            AccessControl accessControl,
-            Embellish embellish,
-            CallableType type,
-            List<LocalType> returnType,
-            List<GenericDefine> genericMessage,
-            List<ParamContext> paramList,
-            int body,
-            List<LocalType> throwsExceptions,
-            boolean lastMultiply) {
-        this.identifierReference = identifierReference;
-        this.accessControl = accessControl;
-        this.embellish = embellish;
-        this.type = type;
-        this.returnType = returnType;
-        this.genericMessage = genericMessage;
-        this.paramList = paramList;
-        this.body = body;
-        this.throwsExceptions = throwsExceptions;
-        this.lastMultiply = lastMultiply;
-        this.genericMap = new HashMap<>();
-    }
 
     public CallableContext(
             CallableDefinition definition,
-            IdentifierManager manager,
+            DIdentifierManager manager,
             SourceStringContextPoolFactory poolFactory,
             boolean openCheckVisited) {
         this.identifierReference = definition.getIdentifierReference();
@@ -99,9 +73,9 @@ public class CallableContext implements DeclaredContext {
         if (openCheckVisited) {
             managerInCallable.openVisitedGenericCheck();
         }
-        this.genericMessage = definition.getGenericDefines()
+        this.genericMessage = definition.getGenericDefine()
                 .stream()
-                .map(p -> GenericFactory.genericForDefine(genericOnCallableToReference(p.getKey(), managerInCallable),
+                .map(p -> GenericFactory.genericForDefine(p.getKey(),
                         p.getValue(), managerInCallable
                 ))
                 .collect(Collectors.toList());
@@ -110,13 +84,12 @@ public class CallableContext implements DeclaredContext {
         if (notVisitedGeneric >= 0) {
             // 只能通过Param确定GenericDefine
             GenericDefine define = genericMessage.get(notVisitedGeneric);
-            throw new AnalysisExpressionException(
+            throw new AnalysisDeclareException(
                     define.getPosition(),
                     "define can not analysis from param. So, it's meaning less"
             );
         }
         managerInCallable.closeVisitedGenericCheck();
-        this.genericMap = definition.getGenericMap();
         this.returnType = localTypeList(definition.getReturnTypes(), managerInCallable);
         this.lastMultiply = hasMultipleType(definition.getParamLists());
         this.throwsExceptions = localTypeList(definition.getThrowsTypes(), managerInCallable);
@@ -124,7 +97,7 @@ public class CallableContext implements DeclaredContext {
     }
 
     private static ReferenceElement genericOnCallableToReference(
-            IdentifierString identifierString, IdentifierManager managerInCallable) {
+            IdentifierString identifierString, DIdentifierManager managerInCallable) {
         return CallableIdentifierManager.getFromDeclare(
                 identifierString.getPosition(),
                 GenericFactory.rawType2Reference(identifierString, managerInCallable)
@@ -138,29 +111,19 @@ public class CallableContext implements DeclaredContext {
         return definitions.get(definitions.size() - 1).isMultipleType();
     }
 
-    public static List<LocalType> localTypeList(List<LocalTypeDefinition> definitions, IdentifierManager manager) {
+    public static List<LocalType> localTypeList(List<LocalTypeDefinition> definitions, DIdentifierManager manager) {
         return definitions.stream().map(d -> new LocalType(d, manager)).collect(Collectors.toList());
     }
 
     public static List<ParamContext> paramList(
-            List<ParamDefinition> definitions, IdentifierManager manager, SourceStringContextPoolFactory poolFactory) {
+            List<ParamDefinition> definitions, DIdentifierManager manager, SourceStringContextPoolFactory poolFactory) {
         return definitions.stream()
                 .map(d -> new ParamContext(new LocalType(d.getLocalTypeDefinition(), manager), d.getIdentifier(),
-                       poolFactory.add(d.getInitAssign())
+                        poolFactory.add(d.getInitAssign())
                 ))
                 .collect(Collectors.toList());
     }
 
-    public void buildGenericMap(IdentifierManager identifierManager) {
-        for (int i = 0, end = genericMessage.size(); i < end; i++) {
-            ReferenceElement reference = genericMessage.get(i).getName();
-            FullIdentifierString identifier = identifierManager.getIdentifier(reference);
-            if (reference.getType() != ReferenceType.CALLABLE_GENERIC_IDENTIFIER || identifier.length() != 1) {
-                throw new CompilerException("illegal generic serializer");
-            }
-            genericMap.put(identifier.get(0), i);
-        }
-    }
 
     public static class Serializer implements StreamSerializer<CallableContext> {
         public static final int[] HEAD_LENGTH_BITS = {8, 8, 8, 32, 12, 12, 11, 1, 12};
@@ -272,5 +235,5 @@ public class CallableContext implements DeclaredContext {
 // 复合类型(非基本数据类型), 可以被引用了
 // 实现的代码块, 可以被引用了
 // a = size()
-// add(block)
+// addIdentifier(block)
 // blockReference = a;

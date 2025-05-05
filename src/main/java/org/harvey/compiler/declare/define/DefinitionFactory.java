@@ -1,19 +1,22 @@
 package org.harvey.compiler.declare.define;
 
+import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.declare.analysis.Declarable;
 import org.harvey.compiler.declare.analysis.Embellish;
 import org.harvey.compiler.declare.analysis.Environment;
 import org.harvey.compiler.declare.context.ImportString;
 import org.harvey.compiler.declare.context.StructureType;
-import org.harvey.compiler.declare.identifier.DefaultIdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
-import org.harvey.compiler.execute.expression.ReferenceElement;
+import org.harvey.compiler.declare.identifier.DIdentifierPoolFactory;
+import org.harvey.compiler.declare.identifier.DeprecatedIdentifierManager;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.text.depart.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -64,9 +67,8 @@ public class DefinitionFactory {
 
     public static CallableDefinition buildCallableDefinition(
             DeclaredDepartedPart function,
-            IdentifierPoolFactory identifierPoolFactory,
-            Environment environment,
-            Stack<ReferenceElement> outerReferenceStack) {
+            DIdentifierPoolFactory identifierPoolFactory,
+            Environment environment) {
         Declarable statement = function.getStatement();
         SourcePosition forEmpty = statement.getStart();
         ListIterator<SourceString> attachmentIterator = statement.getAttachment().listIterator();
@@ -76,7 +78,7 @@ public class DefinitionFactory {
                 .embellish(statement.getEmbellish()) // 需要oper来判断需不需要加Const
                 .permission(statement.getPermissions()) // 需要embellish来判断abstract和private的矛盾
                 .returnTypes(statement.getType(), forEmpty) // 需要identifier是否是 constructor 来获取generic message
-                .genericDefine(attachmentIterator, outerReferenceStack) // 需要return type, 因为可能是 constructor
+                .genericDefine(attachmentIterator) // 需要return type, 因为可能是 constructor
                 .paramList(attachmentIterator)
                 .throwsList(attachmentIterator)
                 .noMore(attachmentIterator)
@@ -86,20 +88,19 @@ public class DefinitionFactory {
 
     public static AliasDefinition buildAliasDefinition(
             SourceTypeAlias alias,
-            IdentifierPoolFactory identifierPoolFactory,
-            Environment environment,
-            Stack<ReferenceElement> outerReferenceStack) {
+            DIdentifierPoolFactory identifierPoolFactory,
+            Environment environment) {
         return new AliasDefinition.Builder(identifierPoolFactory, environment).permissions(
                         environment, alias.getPermissions())
                 .staticAlias(alias.getStaticPosition())
                 .identifierReference(alias.getIdentifier())
-                .genericDefine(alias.getGenericMessage(), outerReferenceStack)
+                .genericDefine(alias.getGenericMessage())
                 .origin(alias.getOrigin())
                 .build();
     }
 
     public static FieldDefinition buildFieldDefinition(
-            Declarable field, Environment environment, IdentifierPoolFactory identifierPoolFactory) {
+            Declarable field, Environment environment, DIdentifierPoolFactory identifierPoolFactory) {
         SourceTextContext assigns = field.getAttachment();
         assigns.addFirst(field.getIdentifier());
         ListIterator<SourceString> assignIterator = assigns.listIterator();
@@ -124,17 +125,16 @@ public class DefinitionFactory {
      */
     public FileDefinition buildReferredDepartedBody(
             String filePath, RecursivelyDepartedBody body) {
-        String filePathPre = filePath + IdentifierPoolFactory.MEMBER;
-        IdentifierPoolFactory identifierPoolFactory = new IdentifierPoolFactory(filePathPre);
+        String filePathPre = filePath + SourceFileConstant.PACKAGE_SEPARATOR;
+        DIdentifierPoolFactory identifierPoolFactory = new DIdentifierPoolFactory(filePathPre);
         // generic message可以有generic define
         List<AliasDefinition> aliases = body.getAliasList()
                 .stream()
-                .map(e -> buildAliasDefinition(e, identifierPoolFactory, Environment.FILE, new Stack<>()))
+                .map(e -> buildAliasDefinition(e, identifierPoolFactory, Environment.FILE))
                 .collect(Collectors.toList());
         List<CallableDefinition> functions = body.getCallableList()
                 .stream()
-                .map(function -> buildCallableDefinition(function, identifierPoolFactory, Environment.FILE,
-                        new Stack<>()
+                .map(function -> buildCallableDefinition(function, identifierPoolFactory, Environment.FILE
                 ))
                 .collect(Collectors.toList());
         List<StructureDefinition> structureDefinitions = new ArrayList<>();
@@ -145,8 +145,8 @@ public class DefinitionFactory {
             structureDefinitions.add(definition);
         }
         return new FileDefinition(aliases, structureDefinitions, functions,
-                new DefaultIdentifierManager(importTable, identifierPoolFactory.getDeclaredIdentifierPool(),
-                        identifierPoolFactory.getPreLength(),identifierPoolFactory.getDisableSet()
+                new DeprecatedIdentifierManager(importTable, identifierPoolFactory.getDeclaredIdentifierPool(),
+                        identifierPoolFactory.getPreLength()
                 )
         );
     }
@@ -154,21 +154,19 @@ public class DefinitionFactory {
     public StructureDefinition buildStructureDefinition(
             SimpleStructure structure,
             List<StructureDefinition> structureDefinitions,
-            IdentifierPoolFactory identifierPoolFactory,
+            DIdentifierPoolFactory identifierPoolFactory,
             Map<String, ImportString> importTable) {
         StructureDefinition outerStructure = getOuterStructure(structure.getOuterStructure(), structureDefinitions);
         Declarable statement = structure.getDeclarable();
         Environment environment = getEnvironment(outerStructure);
         ListIterator<SourceString> attachmentIterator = statement.getAttachment().listIterator();
-        Stack<ReferenceElement> referenceStack = outerStaticReferenceStack(outerStructure, structureDefinitions);
         return new StructureDefinition.Builder(environment).outerStructure(
                         structure.getOuterStructure())
                 .depth(structure.getDepth())
                 .permissions(statement.getPermissions())
                 .embellish(statement.getEmbellish())
                 .type(statement.getType())
-                .identifierReference(identifierPoolFactory,statement.getIdentifier())
-                .referenceStack(referenceStack)
+                .identifierReference(identifierPoolFactory, statement.getIdentifier())
                 .identifierPoolFactoryForInner(identifierPoolFactory)
                 .genericDefine(attachmentIterator)
                 .superType(attachmentIterator)
@@ -185,18 +183,5 @@ public class DefinitionFactory {
                 .build();
     }
 
-    private Stack<ReferenceElement> outerStaticReferenceStack(
-            StructureDefinition outerStructure, List<StructureDefinition> structureDefinitions) {
-        Stack<ReferenceElement> stack = new Stack<>();
-        StructureDefinition cur = outerStructure;
-        while (cur != null) {
-            if (!cur.getEmbellish().isMarkedStatic()) {
-                break;
-            }
-            stack.push(cur.getIdentifierReference());
-            cur = getOuterStructure(outerStructure.getOuterStructure(), structureDefinitions);
-        }
-        return stack;
-    }
 
 }

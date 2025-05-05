@@ -26,6 +26,7 @@ public class RelatedParameterizedStructure implements ParameterizedRelation {
     private final List<CallableSignature> constructors;
     @Setter
     private Tense selfConsistentInspection;
+
     @Override
     public RelatedParameterizedStructure getEndOrigin() {
         return this;

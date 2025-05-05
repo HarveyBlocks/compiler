@@ -55,7 +55,7 @@ public class AssignableFactory {
         public RelatedGenericDefine get(RelatedGenericDefineReference reference) {
             if (reference.isOnCallable()) {
                 return defineOnCallable[reference.getGenericDefineIndexBase() +
-                                            reference.getGenericDefineIndexOffset()];
+                                        reference.getGenericDefineIndexOffset()];
             } else {
                 return super.get(reference);
             }

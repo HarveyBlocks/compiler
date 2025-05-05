@@ -85,6 +85,7 @@ public class CollectionUtil {
         E next = getNext(it);
         return next != null && predicate.test(next);
     }
+
     /**
      * 迭代器不移动
      */
@@ -202,6 +203,9 @@ public class CollectionUtil {
             ListIterator<E> it, Predicate<E> isPre, Predicate<E> isPost,
             Supplier<R> generator) {
         R result = generator == null ? null : generator.get();
+        if (!it.hasNext()) {
+            return result;
+        }
         if (!CollectionUtil.nextIs(it, isPre)) {
             return result;
         }
@@ -227,7 +231,7 @@ public class CollectionUtil {
                 }
             }
         }
-        throw new CompilerException("expect }");
+        throw new CompilerException("expect more...");
     }
 
     public static <T> Stack<T> cloneStack(Stack<T> referenceStack) {

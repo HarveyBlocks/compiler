@@ -3,11 +3,11 @@ package org.harvey.compiler.execute.test.version2.msg;
 import lombok.Getter;
 import org.harvey.compiler.common.collecction.DefaultRandomlyIterator;
 import org.harvey.compiler.common.collecction.RandomlyAccessAble;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisControlException;
+import org.harvey.compiler.execute.test.version1.env.OuterEnvironment;
 import org.harvey.compiler.execute.test.version2.command.SequentialCommand;
 import org.harvey.compiler.execute.test.version2.handler.*;
 import org.harvey.compiler.execute.test.version2.stack.BodyStack;
-import org.harvey.compiler.execute.test.version1.env.OuterEnvironment;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.text.context.SourceTextContext;
@@ -27,29 +27,26 @@ public class ControlContext extends DefaultRandomlyIterator<SourceString> {
 
 
     public final BodyStack bodyStack = new BodyStack();
-
-    public void bodyStackNotEmpty() {
-        if (bodyStack.empty()) {
-            throw new AnalysisExpressionException(now(), "expect in a block");
-        }
-    }
-
     private final List<SequentialControlElement> sequentialControl = new ArrayList<>();
     @Getter
     private final OuterEnvironment outerEnvironment;
     private final LabelFactory labelFactory = new LabelFactory();
-
+    private final ControlHandlerRegister handlerRegister;
     private SourceString now;
     private ExecutableControlHandler nowHandler;
-    private final ControlHandlerRegister handlerRegister;
 
-    ControlContext(
+    public ControlContext(
             OuterEnvironment outerEnvironment, SourceTextContext source, ControlHandlerRegister handlerRegister) {
         super(RandomlyAccessAble.forList(source), 0);
         this.outerEnvironment = outerEnvironment;
         this.handlerRegister = handlerRegister;
     }
 
+    public void bodyStackNotEmpty() {
+        if (bodyStack.empty()) {
+            throw new AnalysisControlException(now(), "expect in a block");
+        }
+    }
 
     public SourcePosition now() {
         return now.getPosition();
@@ -156,12 +153,12 @@ public class ControlContext extends DefaultRandomlyIterator<SourceString> {
     }
 
 
-    public ControlExpressionHandler conditionExpressionHandler() {
+    public NormalExpressionHandler conditionExpressionHandler() {
         return handlerRegister.conditionExpressionHandler;
     }
 
 
-    public ControlExpressionHandler sentenceExpressionHandler() {
+    public NormalExpressionHandler sentenceExpressionHandler() {
         return handlerRegister.sentenceExpressionHandler;
     }
 

@@ -26,7 +26,6 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
     private boolean readOnly;
 
 
-
     public DefaultMultipleTree(T value) {
         this.value = value;
     }
@@ -149,14 +148,6 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
         return list;
     }
 
-    @AllArgsConstructor
-    private static class StackElement<T> {
-        private final List<String> result;
-        private final List<MultipleTree<T>> brothers;
-        private MultipleTree<T> node;
-        private int indexInParent;
-    }
-
     @Override
     public List<String> toStringList(String separator, String pre, String post, Function<T, String> mapper) {
         if (this.isNull()) {
@@ -194,7 +185,6 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
         return result;
     }
 
-
     /**
      * 由于会改变结构, 所以记得使用{@link #cloneThis()} 来避免结构的破坏
      */
@@ -208,7 +198,7 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
         while (!stack.empty()) {
             StackElement<T> top = stack.peek();
             MultipleTree<T> node = top.node;
-            // top.result.add(mapper.apply(node.getValue()));
+            // top.result.addIdentifier(mapper.apply(node.getValue()));
 
             List<MultipleTree<T>> brothers = readOnly ? Collections.unmodifiableList(top.brothers) : top.brothers;
             n.accept(brothers, top.indexInParent);
@@ -255,5 +245,13 @@ public class DefaultMultipleTree<T> implements MultipleTree<T> {
     @Override
     public MultipleTree<T> cloneThis() {
         return DefaultMultipleTree.toTree(this.toSequence(), false);
+    }
+
+    @AllArgsConstructor
+    private static class StackElement<T> {
+        private final List<String> result;
+        private final List<MultipleTree<T>> brothers;
+        private MultipleTree<T> node;
+        private int indexInParent;
     }
 }

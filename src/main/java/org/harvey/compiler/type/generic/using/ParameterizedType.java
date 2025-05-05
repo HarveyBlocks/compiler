@@ -26,52 +26,52 @@ import java.util.function.IntFunction;
  * @version 1.0
  * @date 2025-03-02 00:04
  */
+@Deprecated
 @Getter
-public class ParameterizedType<T extends SourcePositionSupplier> {
+public class ParameterizedType<RAW extends SourcePositionSupplier> {
     /**
      * nullable
      */
-    private final MultipleTree<T> tree;
+    private final MultipleTree<RAW> tree;
 
-    public ParameterizedType(MultipleTree<T> tree) {
+    public ParameterizedType(MultipleTree<RAW> tree) {
         this.tree = tree;
     }
 
-    public ParameterizedType(T rawType) {
+    public ParameterizedType(RAW rawType) {
         this.tree = new DefaultMultipleTree<>(rawType, false);
+    }
+
+    public static <RAW extends SourcePositionSupplier> ParameterizedType<RAW> toTree(
+            List<Pair<Integer, RAW>> sequence) {
+        return new ParameterizedType<>(DefaultMultipleTree.toTree(sequence, true));
+    }
+
+    public static <RAW extends SourcePositionSupplier> List<Pair<Integer, RAW>> toSequence(ParameterizedType<RAW> type) {
+        return type == null ? Collections.emptyList() : type.toSequence();
+    }
+
+    public static <RAW extends SourcePositionSupplier> ParameterizedType<RAW> empty() {
+        return toTree(Collections.emptyList());
     }
 
     public void setReadOnly(boolean readOnly) {
         this.tree.setReadOnly(readOnly);
     }
 
-
-    public static <T extends SourcePositionSupplier> ParameterizedType<T> toTree(
-            List<Pair<Integer, T>> sequence) {
-        return new ParameterizedType<>(DefaultMultipleTree.toTree(sequence, true));
-    }
-
-    public static <T extends SourcePositionSupplier> List<Pair<Integer, T>> toSequence(ParameterizedType<T> type) {
-        return type == null ? Collections.emptyList() : type.toSequence();
-    }
-
-    public static <T extends SourcePositionSupplier> ParameterizedType<T> empty() {
-        return toTree(Collections.emptyList());
-    }
-
     public boolean isNull() {
         return tree == null || tree.isNull();
     }
 
-    public void addParameter(ParameterizedType<T> parameter) {
+    public void addParameter(ParameterizedType<RAW> parameter) {
         if (this.tree != null) {
             this.tree.addChild(parameter.tree);
         } else {
-            throw new CompilerException("can not add child", new NullPointerException());
+            throw new CompilerException("can not addIdentifier child", new NullPointerException());
         }
     }
 
-    public List<Pair<Integer, T>> toSequence() {
+    public List<Pair<Integer, RAW>> toSequence() {
         return tree == null ? Collections.emptyList() : tree.toSequence();
     }
 
@@ -79,20 +79,20 @@ public class ParameterizedType<T extends SourcePositionSupplier> {
         return tree == null ? SourcePosition.UNKNOWN : tree.getValue().getPosition();
     }
 
-    public T getRawType() {
+    public RAW getRawType() {
         return tree == null ? null : tree.getValue();
     }
 
-    public T[] getChildrenValue(IntFunction<T[]> generator) {
+    public RAW[] getChildrenValue(IntFunction<RAW[]> generator) {
         return tree.getChildrenValue(generator);
     }
 
     @SuppressWarnings("unchecked")
-    public ParameterizedType<T>[] getChildren() {
+    public ParameterizedType<RAW>[] getChildren() {
         return tree.getChildren().stream().map(ParameterizedType::new).toArray(ParameterizedType[]::new);
     }
 
-    public ParameterizedType<T> getChild(int index) {
+    public ParameterizedType<RAW> getChild(int index) {
         return new ParameterizedType<>(tree.getChild(index));
     }
 
@@ -121,7 +121,7 @@ public class ParameterizedType<T extends SourcePositionSupplier> {
                 Operator.COMMA.getName(), Operator.GENERIC_LIST_PRE.getName(), Operator.GENERIC_LIST_POST.getName());
     }
 
-    public List<String> toStringList(Function<T, String> toString) {
+    public List<String> toStringList(Function<RAW, String> toString) {
         return tree.toStringList(Operator.COMMA.getName(), Operator.GENERIC_LIST_PRE.getName(),
                 Operator.GENERIC_LIST_POST.getName(), toString
         );
@@ -130,32 +130,32 @@ public class ParameterizedType<T extends SourcePositionSupplier> {
     /**
      * @return 克隆结构, 而不是克隆值
      */
-    public ParameterizedType<T> cloneThis() {
+    public ParameterizedType<RAW> cloneThis() {
         return new ParameterizedType<>(this.tree.cloneThis());
     }
 
 
-    public abstract static class Serializer<T extends SourcePositionSupplier> implements
-            StreamSerializer<ParameterizedType<T>> {
-        protected abstract StreamSerializer<T> getRawTypeSerializer();
+    public abstract static class Serializer<RAW extends SourcePositionSupplier> implements
+            StreamSerializer<ParameterizedType<RAW>> {
+        protected abstract StreamSerializer<RAW> getRawTypeSerializer();
 
         @Override
-        public ParameterizedType<T> in(InputStream is) {
+        public ParameterizedType<RAW> in(InputStream is) {
             int size = (int) StreamSerializerUtil.readNumber(is, 8, false);
-            List<Pair<Integer, T>> sequence = new ArrayList<>(size);
+            List<Pair<Integer, RAW>> sequence = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
                 int n = (int) StreamSerializerUtil.readNumber(is, 8, false);
-                T reference = getRawTypeSerializer().in(is);
+                RAW reference = getRawTypeSerializer().in(is);
                 sequence.add(new Pair<>(n, reference));
             }
             return ParameterizedType.toTree(sequence);
         }
 
         @Override
-        public int out(OutputStream os, ParameterizedType<T> src) {
-            List<Pair<Integer, T>> sequence = src == null ? Collections.emptyList() : src.toSequence();
+        public int out(OutputStream os, ParameterizedType<RAW> src) {
+            List<Pair<Integer, RAW>> sequence = src == null ? Collections.emptyList() : src.toSequence();
             int length = StreamSerializerUtil.writeNumber(os, sequence.size(), 8, false);
-            for (Pair<Integer, T> pair : sequence) {
+            for (Pair<Integer, RAW> pair : sequence) {
                 length += StreamSerializerUtil.writeNumber(os, pair.getKey(), 8, false) +
                           getRawTypeSerializer().out(os, pair.getValue());
             }

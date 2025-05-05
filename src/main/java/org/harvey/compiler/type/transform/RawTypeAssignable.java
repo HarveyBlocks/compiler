@@ -22,7 +22,6 @@ public class RawTypeAssignable implements Assignable {
     private final AssignableFactory assignableFactory;
 
 
-
     @Override
     public void assign(RelatedGenericDefine from) {
 

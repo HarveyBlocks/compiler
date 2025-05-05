@@ -2,7 +2,7 @@ package org.harvey.compiler.type.generic.relate;
 
 import lombok.AllArgsConstructor;
 import org.harvey.compiler.common.util.StringUtil;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.io.cache.FileCache;
@@ -37,27 +37,6 @@ public class RelatedParameterizedTypeBuilderFactory {
     private final Map<String, RelatedParameterizedTypeBuilder> productCache = new HashMap<>();
     private volatile ParameterizedRelationLoader parameterizedRelationLoaderSingleton;
 
-    @AllArgsConstructor
-    public static final class Material {
-        private final String fullIdentifier;
-        private final File typeFromFile;
-        private final IdentifierManager manager;
-        private final CompileStage compileStage;
-
-        public Material(
-                FullIdentifierString fullIdentifier,
-                File typeFromFile,
-                IdentifierManager manager,
-                CompileStage compileStage) {
-            this(fullIdentifier.joinFullnameString(GET_MEMBER), typeFromFile, manager, compileStage);
-        }
-
-        public Material(
-                String[] fullIdentifier, File typeFromFile, IdentifierManager manager, CompileStage compileStage) {
-            this(StringUtil.join(fullIdentifier, GET_MEMBER), typeFromFile, manager, compileStage);
-        }
-    }
-
     public RelatedParameterizedTypeBuilderFactory(
             FileCache fileCache,
             AssignManager assignManager,
@@ -70,7 +49,6 @@ public class RelatedParameterizedTypeBuilderFactory {
         this.rawTypeRelationshipLoader = rawTypeRelationshipLoader;
         this.relatedGenericDefineCache = relatedGenericDefineCache;
     }
-
 
     public RelatedParameterizedTypeBuilder create(Material material) {
         RelatedParameterizedTypeBuilder inCache = productCache.get(material.fullIdentifier);
@@ -85,7 +63,7 @@ public class RelatedParameterizedTypeBuilderFactory {
     }
 
     private RelatedParameterizedTypeBuilder create0(
-            File typeFromFile, CompileStage compileStage, IdentifierManager manager) {
+            File typeFromFile, CompileStage compileStage, DIdentifierManager manager) {
         return new RelatedParameterizedTypeBuilder(assignManager, genericDefineReader, rawTypeRelationshipLoader,
                 relatedGenericDefineCache, typeFromFile, compileStage, manager
         );
@@ -129,5 +107,26 @@ public class RelatedParameterizedTypeBuilderFactory {
         }
 
         return parameterizedRelationLoaderSingleton;
+    }
+
+    @AllArgsConstructor
+    public static final class Material {
+        private final String fullIdentifier;
+        private final File typeFromFile;
+        private final DIdentifierManager manager;
+        private final CompileStage compileStage;
+
+        public Material(
+                FullIdentifierString fullIdentifier,
+                File typeFromFile,
+                DIdentifierManager manager,
+                CompileStage compileStage) {
+            this(fullIdentifier.joinFullnameString(GET_MEMBER), typeFromFile, manager, compileStage);
+        }
+
+        public Material(
+                String[] fullIdentifier, File typeFromFile, DIdentifierManager manager, CompileStage compileStage) {
+            this(StringUtil.join(fullIdentifier, GET_MEMBER), typeFromFile, manager, compileStage);
+        }
     }
 }

@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.declare.analysis.*;
-import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.declare.identifier.DIdentifierPoolFactory;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
@@ -15,9 +15,9 @@ import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.type.generic.GenericFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Stack;
 
 /**
  * 完成Alias的Declare Identifier的引用
@@ -31,7 +31,7 @@ import java.util.Stack;
 public class AliasDefinition implements Definition {
     private final AccessControl permissions;
     private final ReferenceElement identifierReference;
-    private final List<Pair<ReferenceElement, SourceTextContext>> genericDefine;
+    private final List<Pair<IdentifierString, SourceTextContext>> genericDefine;
     private final SourceTextContext origin;
     private final boolean staticAlias;
 
@@ -41,17 +41,17 @@ public class AliasDefinition implements Definition {
     }
 
     public static class Builder {
-        private final IdentifierPoolFactory factory;
+        private final DIdentifierPoolFactory factory;
         private final Environment environment;
 
         private AccessControl permissions;
         private ReferenceElement identifierReference;
-        private List<Pair<ReferenceElement, SourceTextContext>> genericDefine = new ArrayList<>();
+        private List<Pair<IdentifierString, SourceTextContext>> genericDefine = new ArrayList<>();
         private SourceTextContext origin;
         private Boolean staticAlias;
 
 
-        public Builder(IdentifierPoolFactory factory, Environment environment) {
+        public Builder(DIdentifierPoolFactory factory, Environment environment) {
             this.factory = factory;
             this.environment = environment;
         }
@@ -63,7 +63,7 @@ public class AliasDefinition implements Definition {
         }
 
         public Builder identifierReference(IdentifierString identifier) {
-            this.identifierReference = factory.add(DetailedDeclarationType.STRUCTURE, identifier.getValue(),
+            this.identifierReference = factory.addIdentifier(DetailedDeclarationType.STRUCTURE, identifier.getValue(),
                     identifier.getPosition()
             );
             return this;
@@ -76,7 +76,7 @@ public class AliasDefinition implements Definition {
 
         public Builder staticAlias(SourcePosition staticPosition) {
             if (environment == Environment.FILE && staticPosition != null) {
-                throw new AnalysisExpressionException(staticPosition, "alias on file can not embellish static");
+                throw new AnalysisDeclareException(staticPosition, "alias on file can not embellish static");
             }
             // 非file
             this.staticAlias = staticPosition != null;
@@ -90,31 +90,30 @@ public class AliasDefinition implements Definition {
         //
         // }
 
-        /**
-         * @param outerReferenceStack {@link Definition#mapStructureGenericReference(List, IdentifierPoolFactory, Stack)}
-         *                            注意要除去自身, 自身由本Builder提供
-         */
-        public Builder genericDefine(SourceTextContext genericMessage, Stack<ReferenceElement> outerReferenceStack) {
+
+        public Builder genericDefine(SourceTextContext genericMessage) {
             Definition.notNullValid(identifierReference, "identifier reference");
             if (environment != Environment.FILE && staticAlias == null) {
                 throw new CompilerException("set 'static alias' before invoke this generic define");
             }
             ListIterator<SourceString> genericMessageIterator = genericMessage.listIterator();
             if (!GenericFactory.genericPreCheck(genericMessageIterator)) {
+                this.genericDefine = Collections.emptyList();
                 return this;
             }
-            List<Pair<IdentifierString, SourceTextContext>> pairs = GenericFactory.defineSourceDepart(
-                    genericMessageIterator);
-            Stack<ReferenceElement> referenceStack = Definition.resetReferenceStack(
-                    outerReferenceStack, identifierReference, environment == Environment.FILE, staticAlias);
-            this.genericDefine = Definition.mapStructureGenericReference(pairs, factory, referenceStack);
+            this.genericDefine = GenericFactory.defineSourceDepart(genericMessageIterator);
+            Definition.notRepeat(genericDefine);
+            /*Stack<ReferenceElement> referenceStack = Definition.resetReferenceStack(
+                    outerReferenceStack, identifierReference, environment == Environment.FILE, staticAlias);*/
+
             return this;
         }
 
         public AliasDefinition build() {
             valid();
-            return new AliasDefinition(
-                    permissions, identifierReference, genericDefine, origin, Boolean.TRUE.equals(staticAlias));
+            return new AliasDefinition(permissions, identifierReference, genericDefine, origin,
+                    Boolean.TRUE.equals(staticAlias)
+            );
         }
 
         private void valid() {

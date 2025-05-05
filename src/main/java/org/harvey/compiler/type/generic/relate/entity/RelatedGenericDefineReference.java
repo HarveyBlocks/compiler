@@ -60,6 +60,10 @@ public class RelatedGenericDefineReference implements RelationRawType {
         this.onCallable = onCallable;
     }
 
+    public static RelatedGenericDefineReference adapt(RelationRawType rawType) {
+        return rawType instanceof RelatedGenericDefineReference ? (RelatedGenericDefineReference) rawType : null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -77,10 +81,6 @@ public class RelatedGenericDefineReference implements RelationRawType {
     @Override
     public int hashCode() {
         return Objects.hash(genericDefineIndexBase, genericDefineIndexOffset, onCallable);
-    }
-
-    public static RelatedGenericDefineReference adapt(RelationRawType rawType) {
-        return rawType instanceof RelatedGenericDefineReference ? (RelatedGenericDefineReference) rawType : null;
     }
 
     @Override

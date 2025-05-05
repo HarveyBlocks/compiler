@@ -5,8 +5,8 @@ import lombok.Getter;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.common.util.ExceptionUtil;
 import org.harvey.compiler.declare.analysis.*;
-import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.declare.identifier.DIdentifierPoolFactory;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.ReferenceElement;
@@ -42,14 +42,14 @@ public class FieldDefinition implements Definition {
     }
 
     public static class Builder {
-        private final IdentifierPoolFactory identifierPoolFactory;
+        private final DIdentifierPoolFactory identifierPoolFactory;
         private final Environment environment;
         private AccessControl permissions;
         private Embellish embellish;
         private Pair<RawType, SourceTextContext> type;
         private List<Pair<ReferenceElement, SourceTextContext>> identifierMap;
 
-        public Builder(IdentifierPoolFactory identifierPoolFactory, Environment environment) {
+        public Builder(DIdentifierPoolFactory identifierPoolFactory, Environment environment) {
             this.identifierPoolFactory = identifierPoolFactory;
             this.environment = environment;
             if (environment == Environment.FILE) {
@@ -73,7 +73,7 @@ public class FieldDefinition implements Definition {
             ListIterator<SourceString> iterator = type.listIterator();
             this.type = GenericFactory.skipSourceForUse(iterator);
             if (iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "expected identifier");
+                throw new AnalysisDeclareException(iterator.next().getPosition(), "expected identifier");
             }
             return this;
         }
@@ -84,13 +84,13 @@ public class FieldDefinition implements Definition {
             while (iterator.hasNext()) {
                 SourceTextContext assignMap = SourceTextContext.skipUntilComma(iterator);
                 if (assignMap.isEmpty()) {
-                    throw new AnalysisExpressionException(iterator.next().getPosition(), "can not be empty");
+                    throw new AnalysisDeclareException(iterator.next().getPosition(), "can not be empty");
                 }
                 SourceString mayIdentifier = assignMap.get(0);
                 if (mayIdentifier.getType() != SourceType.IDENTIFIER) {
-                    throw new AnalysisExpressionException(mayIdentifier.getPosition(), "expect identifier");
+                    throw new AnalysisDeclareException(mayIdentifier.getPosition(), "expect identifier");
                 }
-                ReferenceElement reference = identifierPoolFactory.add(
+                ReferenceElement reference = identifierPoolFactory.addIdentifier(
                         DetailedDeclarationType.FIELD,
                         mayIdentifier.getValue(),
                         mayIdentifier.getPosition()
@@ -100,10 +100,10 @@ public class FieldDefinition implements Definition {
                     break;
                 }
                 if (!Definition.skipIf(iterator, Operator.COMMA)) {
-                    throw new AnalysisExpressionException(iterator.next().getPosition(), "expected ,");
+                    throw new AnalysisDeclareException(iterator.next().getPosition(), "expected ,");
                 }
                 if (!iterator.hasNext()) {
-                    throw new AnalysisExpressionException(iterator.previous().getPosition(), "not expected empty");
+                    throw new AnalysisDeclareException(iterator.previous().getPosition(), "not expected empty");
                 }
             }
             return this;
@@ -111,7 +111,7 @@ public class FieldDefinition implements Definition {
 
         public Builder noMore(ListIterator<SourceString> iterator) {
             if (iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "expect ;");
+                throw new AnalysisDeclareException(iterator.next().getPosition(), "expect ;");
             }
             return this;
         }

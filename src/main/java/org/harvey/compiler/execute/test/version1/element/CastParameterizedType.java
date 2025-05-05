@@ -11,7 +11,7 @@ import org.harvey.compiler.io.source.SourcePosition;
  * @version 1.0
  * @date 2025-04-06 14:37
  */
-public class CastParameterizedType extends ExpressionElement implements ItemString{
+public class CastParameterizedType extends ExpressionElement implements ItemString {
     private final MemberType parameterizedType;
 
     public CastParameterizedType(

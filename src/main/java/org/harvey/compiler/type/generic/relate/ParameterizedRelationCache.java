@@ -40,9 +40,11 @@ public class ParameterizedRelationCache {
             return null;
         }
     }
+
     public RelatedParameterizedAlias getAlias(RelationRawType rawType) {
         return getAlias(rawType.getJoinedFullname());
     }
+
     public RelatedParameterizedStructure getStructure(RelationRawType rawType) {
         return getStructure(rawType.getJoinedFullname());
     }

@@ -53,7 +53,6 @@ public abstract class PossibleCallableSupplier extends MemberSupplier implements
     }
 
 
-
     public void eliminateImpossible(Predicate<CallableRelatedDeclare> predicate) {
         List<CallableRelatedDeclare> newPossible = new ArrayList<>();
         for (CallableRelatedDeclare callableRelatedDeclare : possible) {
@@ -67,6 +66,7 @@ public abstract class PossibleCallableSupplier extends MemberSupplier implements
         }
         resetPossibleCallableRelatedDeclare(newPossible.toArray(new CallableRelatedDeclare[0]));
     }
+
     public void eliminateImpossibleByLength(int argumentLength) {
         eliminateImpossible(d -> d.testParameterSize(argumentLength));
     }
@@ -74,7 +74,11 @@ public abstract class PossibleCallableSupplier extends MemberSupplier implements
     public void eliminateImpossibleByGenericList(MemberType[] genericList) {
         eliminateImpossible(d -> d.testGenericList(genericList));
     }
+
     public void eliminateImpossibleResultType(MemberType determinedType) {
-        eliminateImpossible(d->d.testOnlyResult(determinedType));
+        if (determinedType == null) {
+            return;
+        }
+        eliminateImpossible(d -> d.testOnlyResult(determinedType));
     }
 }

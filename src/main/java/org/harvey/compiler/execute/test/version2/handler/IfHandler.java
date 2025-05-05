@@ -1,6 +1,6 @@
 package org.harvey.compiler.execute.test.version2.handler;
 
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisControlException;
 import org.harvey.compiler.execute.test.version2.msg.ControlContext;
 
 /**
@@ -13,17 +13,17 @@ import org.harvey.compiler.execute.test.version2.msg.ControlContext;
 public interface IfHandler extends ExecutableControlHandler {
     @Override
     default void nextIsDeclareType(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "not expect declare in if");
+        throw new AnalysisControlException(context.now(), "not expect declare in if");
     }
 
     @Override
     default void nextIsElse(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "not expect else in if");
+        throw new AnalysisControlException(context.now(), "not expect else in if");
     }
 
     @Override
     default void notHaveNext(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "expect more after if");
+        throw new AnalysisControlException(context.now(), "expect more after if");
     }
 
     @Override

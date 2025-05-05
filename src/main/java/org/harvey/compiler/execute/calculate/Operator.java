@@ -3,6 +3,7 @@ package org.harvey.compiler.execute.calculate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.common.constant.SourceFileConstant;
+import org.harvey.compiler.common.util.Counter;
 import org.harvey.compiler.declare.analysis.Keyword;
 import org.harvey.compiler.declare.analysis.Keywords;
 
@@ -24,80 +25,85 @@ public enum Operator {
     // Array<int> arr = new(length,defaultValue);
     // Array<int> arr = new(length,index->{return index++;});// 初始化
     // 这样好吗?
-    CALLABLE_DECLARE("()", 8, OperandCount.UNARY, Associativity.LEFT), // 重载
-    ARRAY_DECLARE("[]", 8, OperandCount.UNARY, Associativity.LEFT), // 重载
-    MULTIPLE_TYPE("...", 8, OperandCount.UNARY, Associativity.RIGHT), // 不定参数
+    CALLABLE_DECLARE("()", Priority.next(), OperandCount.MEANINGLESS, Associativity.LEFT), // 重载
+    ARRAY_DECLARE("[]", Priority.stay(), OperandCount.MEANINGLESS, Associativity.LEFT), // 重载
+    MULTIPLE_TYPE("...", Priority.next(), OperandCount.UNARY, Associativity.RIGHT), // 不定参数
     // 
-    GENERIC_LIST_PRE("[", 16, OperandCount.NONE, Associativity.LEFT), // 声明泛型, 前缀
-    GENERIC_LIST_POST("]", 16, OperandCount.NONE, Associativity.LEFT), // 声明泛型, 前缀
+    GENERIC_LIST_PRE("[", Priority.next(), OperandCount.MEANINGLESS, Associativity.LEFT), // 声明泛型, 前缀
+    GENERIC_LIST_POST("]", Priority.stay(), OperandCount.MEANINGLESS, Associativity.LEFT), // 声明泛型, 前缀
 
-    CALL_PRE("(", 16, OperandCount.NONE, Associativity.LEFT), // 函数调用前缀
-    CALL_POST(")", 16, OperandCount.NONE, Associativity.LEFT),  // 函数调用后缀
-    ARRAY_AT_PRE("[", 24, OperandCount.NONE, Associativity.LEFT), // 取索引, 前缀
-    ARRAY_AT_POST("]", 24, OperandCount.NONE, Associativity.LEFT), // 取索引, 后缀
-    PARENTHESES_PRE("(", 24, OperandCount.NONE, Associativity.LEFT), // 括号前缀
-    PARENTHESES_POST(")", 24, OperandCount.NONE, Associativity.LEFT),  // 括号后缀
-    GET_MEMBER(String.valueOf(SourceFileConstant.GET_MEMBER), 24, OperandCount.BINARY, Associativity.LEFT), // 成员调用
+    CALL_PRE("(", Priority.stay(), OperandCount.MEANINGLESS, Associativity.LEFT), // 函数调用前缀
+    CALL_POST(")", Priority.stay(), OperandCount.MEANINGLESS, Associativity.LEFT),  // 函数调用后缀
+    ARRAY_AT_PRE("[", Priority.next(), OperandCount.MEANINGLESS, Associativity.LEFT), // 取索引, 前缀
+    ARRAY_AT_POST("]", Priority.stay(), OperandCount.MEANINGLESS, Associativity.LEFT), // 取索引, 后缀
+    PARENTHESES_PRE("(", Priority.stay(), OperandCount.MEANINGLESS, Associativity.LEFT), // 括号前缀
+    PARENTHESES_POST(")", Priority.stay(), OperandCount.MEANINGLESS, Associativity.LEFT),  // 括号后缀
+    GET_MEMBER(
+            String.valueOf(SourceFileConstant.GET_MEMBER), Priority.next(), OperandCount.BINARY,
+            Associativity.LEFT
+    ), // 成员调用
 
     // 符号
-    NEGATIVE("-", 32, OperandCount.UNARY, Associativity.RIGHT), // 负
-    POSITIVE("+", 32, OperandCount.UNARY, Associativity.RIGHT), // 正
-    LEFT_INCREASING("++", 32, OperandCount.UNARY, Associativity.RIGHT), // 左自增
-    RIGHT_INCREASING("++", 32, OperandCount.UNARY, Associativity.LEFT), // 右自增 a ++ ++ ++
-    LEFT_DECREASING("--", 32, OperandCount.UNARY, Associativity.RIGHT),  // 左自减
-    RIGHT_DECREASING("--", 32, OperandCount.UNARY, Associativity.LEFT), // 右自减
-    NOT("!", 32, OperandCount.UNARY, Associativity.RIGHT), // 逻辑非
-    BITWISE_NEGATION("~", 32, OperandCount.UNARY, Associativity.RIGHT), // 按位取反
+    NEGATIVE("-", Priority.next(), OperandCount.UNARY, Associativity.RIGHT), // 负
+    POSITIVE("+", Priority.stay(), OperandCount.UNARY, Associativity.RIGHT), // 正
+    LEFT_INCREASING("++", Priority.stay(), OperandCount.UNARY, Associativity.RIGHT), // 左自增
+    RIGHT_INCREASING("++", Priority.stay(), OperandCount.UNARY, Associativity.LEFT), // 右自增 a ++ ++ ++
+    LEFT_DECREASING("--", Priority.stay(), OperandCount.UNARY, Associativity.RIGHT),  // 左自减
+    RIGHT_DECREASING("--", Priority.stay(), OperandCount.UNARY, Associativity.LEFT), // 右自减
+    NOT("!", Priority.stay(), OperandCount.UNARY, Associativity.RIGHT), // 逻辑非
+    BITWISE_NEGATION("~", Priority.stay(), OperandCount.UNARY, Associativity.RIGHT), // 按位取反
 
     // 乘除取余
-    DIVIDE("/", 40, OperandCount.BINARY, Associativity.LEFT), // 除
-    MULTIPLY("*", 40, OperandCount.BINARY, Associativity.LEFT), // 乘
-    REMAINDER("%", 40, OperandCount.BINARY, Associativity.LEFT), // 取余
-    ADD("+", 48, OperandCount.BINARY, Associativity.LEFT), // 加
-    SUBTRACT("-", 48, OperandCount.BINARY, Associativity.LEFT), // 减法
-    BITWISE_LEFT_MOVE("<<", 56, OperandCount.BINARY, Associativity.LEFT),  // 位左移
-    BITWISE_RIGHT_MOVE(">>", 56, OperandCount.BINARY, Associativity.LEFT),  // 位右移
+    DIVIDE("/", Priority.next(), OperandCount.BINARY, Associativity.LEFT), // 除
+    MULTIPLY("*", Priority.stay(), OperandCount.BINARY, Associativity.LEFT), // 乘
+    REMAINDER("%", Priority.stay(), OperandCount.BINARY, Associativity.LEFT), // 取余
+    ADD("+", Priority.next(), OperandCount.BINARY, Associativity.LEFT), // 加
+    SUBTRACT("-", Priority.stay(), OperandCount.BINARY, Associativity.LEFT), // 减法
+    BITWISE_LEFT_MOVE("<<", Priority.next(), OperandCount.BINARY, Associativity.LEFT),  // 位左移
+    BITWISE_RIGHT_MOVE(">>", Priority.stay(), OperandCount.BINARY, Associativity.LEFT),  // 位右移
 
 
     // 比较
-    LARGER(">", 64, OperandCount.BINARY, Associativity.LEFT),
-    LARGER_EQUALS(">=", 64, OperandCount.BINARY, Associativity.LEFT),
-    LESS("<", 64, OperandCount.BINARY, Associativity.LEFT),
-    LESS_EQUALS("<=", 64, OperandCount.BINARY, Associativity.LEFT),
+    LARGER(">", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
+    LARGER_EQUALS(">=", Priority.stay(), OperandCount.BINARY, Associativity.LEFT),
+    LESS("<", Priority.stay(), OperandCount.BINARY, Associativity.LEFT),
+    LESS_EQUALS("<=", Priority.stay(), OperandCount.BINARY, Associativity.LEFT),
     // 偏序关系 obj is Type
-    IS("is", 72, OperandCount.BINARY, Associativity.LEFT), // a is b is c
-    IN("in", 80, OperandCount.BINARY, Associativity.LEFT), // 'a' is 'b' collectionIn 'c'
-    EQUALS("==", 88, OperandCount.BINARY, Associativity.LEFT),
-    NOT_EQUALS("!=", 88, OperandCount.BINARY, Associativity.LEFT),
+    IS("is", Priority.next(), OperandCount.BINARY, Associativity.LEFT), // a is b is c
+    IN("in", Priority.next(), OperandCount.BINARY, Associativity.RIGHT), // 'a' is 'b' collectionIn 'c'
+    // 等价关系
+    EQUALS("==", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
+    NOT_EQUALS("!=", Priority.stay(), OperandCount.BINARY, Associativity.LEFT),
 
     // 位操作
-    BITWISE_AND("&", 96, OperandCount.BINARY, Associativity.LEFT),
-    BITWISE_XOR("^", 104, OperandCount.BINARY, Associativity.LEFT),
-    BITWISE_OR("|", 112, OperandCount.BINARY, Associativity.LEFT),
+    BITWISE_AND("&", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
+    BITWISE_XOR("^", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
+    BITWISE_OR("|", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
     // 逻辑表达式
-    AND("&&", 120, OperandCount.BINARY, Associativity.LEFT),
-    OR("||", 128, OperandCount.BINARY, Associativity.LEFT),
+    AND("&&", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
+    OR("||", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
 
-
-    CONDITION_CHECK("?", 136, OperandCount.BINARY, Associativity.RIGHT),
-    CONDITION_DECIDE(":", 136, OperandCount.BINARY, Associativity.RIGHT),
+    // 条件运算符
+    CONDITION_CHECK("?", Priority.next(), OperandCount.BINARY, Associativity.LEFT),
+    CONDITION_DECIDE(":", Priority.stay(), OperandCount.BINARY, Associativity.LEFT),
 
     // 赋值和复合赋值
-    ASSIGN("=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    DIVIDE_ASSIGN("/=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    MULTIPLY_ASSIGN("*=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    REMAINDER_ASSIGN("%=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    ADD_ASSIGN("+=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    SUBTRACT_ASSIGN("-=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    BITWISE_LEFT_MOVE_ASSIGN("<<=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    BITWISE_RIGHT_MOVE_ASSIGN(">>=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    BITWISE_AND_ASSIGN("&=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    BITWISE_XOR_ASSIGN("^=", 144, OperandCount.BINARY, Associativity.RIGHT),
-    BITWISE_OR_ASSIGN("|=", 144, OperandCount.BINARY, Associativity.RIGHT),
+    ASSIGN("=", Priority.next(), OperandCount.BINARY, Associativity.RIGHT),
+    DIVIDE_ASSIGN("/=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    MULTIPLY_ASSIGN("*=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    REMAINDER_ASSIGN("%=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    ADD_ASSIGN("+=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    SUBTRACT_ASSIGN("-=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_LEFT_MOVE_ASSIGN("<<=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_RIGHT_MOVE_ASSIGN(">>=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_AND_ASSIGN("&=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_XOR_ASSIGN("^=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
+    BITWISE_OR_ASSIGN("|=", Priority.stay(), OperandCount.BINARY, Associativity.RIGHT),
 
+    // lambda
+    LAMBDA("->", Priority.next(), OperandCount.BINARY, Associativity.RIGHT),
     // 逗号运算符
-    LAMBDA("->", 152, OperandCount.BINARY, Associativity.NONE),
-    COMMA(",", 160, OperandCount.BINARY, Associativity.LEFT);
+    COMMA(",", Priority.next(), OperandCount.BINARY, Associativity.LEFT);
 
     // TODO ...More
     // 运算符的符号
@@ -126,5 +132,17 @@ public enum Operator {
 
     public boolean associativityIs(Associativity associativity) {
         return this.associativity == associativity;
+    }
+
+    private static class Priority {
+        static final Counter COUNTER = new Counter(0, 1);
+
+        static int next() {
+            return COUNTER.next();
+        }
+
+        static int stay() {
+            return COUNTER.gePrevious();
+        }
     }
 }

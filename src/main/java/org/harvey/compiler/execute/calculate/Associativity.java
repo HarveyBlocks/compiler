@@ -10,9 +10,9 @@ package org.harvey.compiler.execute.calculate;
  */
 public enum Associativity {
     /**
-     *  此运算符讨论结合性没有意义
+     * 此运算符讨论结合性没有意义
      */
-    NONE,
+    MEANINGLESS,
     /**
      * 左结合(自左向右)
      */

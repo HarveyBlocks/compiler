@@ -31,7 +31,6 @@ public class ParamContext {
     }
 
 
-
     public static class Serializer implements StreamSerializer<ParamContext> {
         private static final SourceStringStreamSerializer SOURCE_SERIALIZER = StreamSerializerRegister.get(
                 SourceStringStreamSerializer.class);

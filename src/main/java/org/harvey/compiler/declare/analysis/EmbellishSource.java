@@ -1,7 +1,7 @@
 package org.harvey.compiler.declare.analysis;
 
 import lombok.Getter;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.io.source.SourcePosition;
 
 /**
@@ -37,7 +37,7 @@ public class EmbellishSource {
         for (Embellish.EmbellishWord embellishWord : illegal) {
             SourcePosition position = embellishWord.at(this);
             if (position != null) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisDeclareException(
                         position,
                         name + " use embellish of '" + embellishWord + "' is not allowed."
                 );
@@ -51,7 +51,7 @@ public class EmbellishSource {
     public void contradictoryOnMethod() {
         if (staticMark != null) {
             if (sealedMark != null || abstractMark != null || finalMark != null || constMark != null) {
-                throw new AnalysisExpressionException(staticMark, "contradictory with final or abstract or sealed");
+                throw new AnalysisDeclareException(staticMark, "contradictory with final or abstract or sealed");
             }
         }
     }
@@ -61,7 +61,7 @@ public class EmbellishSource {
 
         public Builder setConst(SourcePosition constMark) {
             if (product.constMark != null) {
-                throw new AnalysisExpressionException(constMark, "repeated embellish");
+                throw new AnalysisDeclareException(constMark, "repeated embellish");
             }
             product.constMark = constMark;
             return this;
@@ -69,7 +69,7 @@ public class EmbellishSource {
 
         public Builder setStatic(SourcePosition staticMark) {
             if (product.staticMark != null) {
-                throw new AnalysisExpressionException(staticMark, "repeated embellish");
+                throw new AnalysisDeclareException(staticMark, "repeated embellish");
             }
             product.staticMark = staticMark;
             return this;
@@ -77,7 +77,7 @@ public class EmbellishSource {
 
         public Builder setFinal(SourcePosition finalMark) {
             if (product.finalMark != null) {
-                throw new AnalysisExpressionException(finalMark, "repeated embellish");
+                throw new AnalysisDeclareException(finalMark, "repeated embellish");
             }
             product.finalMark = finalMark;
             return this;
@@ -85,7 +85,7 @@ public class EmbellishSource {
 
         public Builder setSealed(SourcePosition sealedMark) {
             if (product.sealedMark != null) {
-                throw new AnalysisExpressionException(sealedMark, "repeated embellish");
+                throw new AnalysisDeclareException(sealedMark, "repeated embellish");
             }
             product.sealedMark = sealedMark;
             return this;
@@ -93,7 +93,7 @@ public class EmbellishSource {
 
         public Builder setAbstract(SourcePosition abstractMark) {
             if (product.abstractMark != null) {
-                throw new AnalysisExpressionException(abstractMark, "repeated embellish");
+                throw new AnalysisDeclareException(abstractMark, "repeated embellish");
             }
             product.abstractMark = abstractMark;
             return this;
@@ -111,18 +111,18 @@ public class EmbellishSource {
 
             if (!hasAbstract) {
                 if (hasSealed && hasFinal) {
-                    throw new AnalysisExpressionException(product.sealedMark, "contradictory with final");
+                    throw new AnalysisDeclareException(product.sealedMark, "contradictory with final");
                 } else {
                     return;
                 }
             }
             if (hasFinal) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisDeclareException(
                         product.finalMark,
                         "contradictory with abstract"
                 );
             } else if (hasSealed) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisDeclareException(
                         product.sealedMark,
                         "contradictory with abstract"
                 );

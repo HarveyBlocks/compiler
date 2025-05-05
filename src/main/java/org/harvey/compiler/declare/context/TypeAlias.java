@@ -4,8 +4,8 @@ import lombok.Getter;
 import org.harvey.compiler.common.Serializes;
 import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.define.AliasDefinition;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.analysis.AnalysisException;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.ReferenceElement;
@@ -55,7 +55,7 @@ public class TypeAlias {
         this.origin = origin;
     }
 
-    public TypeAlias(AliasDefinition definition, IdentifierManager manager) {
+    public TypeAlias(AliasDefinition definition, DIdentifierManager manager) {
         this.accessControl = definition.getPermissions();
         this.aliasNameReference = definition.getIdentifierReference();
         this.aliasGenericMessage = definition.getGenericDefine()
@@ -68,7 +68,7 @@ public class TypeAlias {
         this.origin = GenericFactory.parameterizedType(iterator, manager);
         manager.canGetGenericDefineOnStructure(true);
         if (this.origin.getRawType().getType() == ReferenceType.GENERIC_IDENTIFIER) {
-            throw new AnalysisException(this.origin.getRawType().getPosition(), "can not be a generic");
+            throw new AnalysisDeclareException(this.origin.getRawType().getPosition(), "can not be a generic");
         }
         if (iterator.hasNext()) {
             throw new CompilerException("unexpected after parameterized type");

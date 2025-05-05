@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * 编译器命令的配置, key
  * command 形式
- * vie.jar source=source_package_pre \ #必须给出
+ * vie_file.vie source=source_package_pre \ #必须给出, 地址
  * package=Package \ # 默认就是编译source下所有文件
  * file=source \ # 不给就是编译整个包, 如果只给出file而不给出package就只一层文件, 不要给出文件后缀
  * target="" \ # 默认就是source.getParent()+"target"

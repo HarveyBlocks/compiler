@@ -44,11 +44,11 @@ public class CallableInvokeResultSupplier extends MemberSupplier {
     }
 
 
-
     @Override
     public MemberType getType() {
         if (!finished()) {
-            throw new AnalysisExpressionException(getPosition(),
+            throw new AnalysisExpressionException(
+                    getPosition(),
                     "can not match possible callable before phase all arguments"
             );
         }
@@ -59,4 +59,8 @@ public class CallableInvokeResultSupplier extends MemberSupplier {
         return one.getReturnType(0);
     }
 
+    @Override
+    public String show() {
+        return "" + this.argumentWraps.length;
+    }
 }

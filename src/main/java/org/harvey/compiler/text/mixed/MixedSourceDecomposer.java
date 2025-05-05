@@ -3,7 +3,7 @@ package org.harvey.compiler.text.mixed;
 import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.common.util.CharacterUtil;
 import org.harvey.compiler.common.util.StringUtil;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisTextException;
 import org.harvey.compiler.exception.analysis.ConstantException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operators;
@@ -235,7 +235,7 @@ public class MixedSourceDecomposer {
                     preC = c;
                 }
                 if (i == source.length()) {
-                    throw new AnalysisExpressionException(nowPosition, "Character need other match");
+                    throw new AnalysisTextException(nowPosition, "Character need other match");
                 }
                 add();
                 continue;

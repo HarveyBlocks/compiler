@@ -1,6 +1,7 @@
 package org.harvey.compiler.declare.analysis;
 
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.text.context.SourceTextContext;
 
@@ -70,7 +71,7 @@ public class AccessControls {
                 return Permission.FILE_PROTECTED;
             }
         }
-        throw new AnalysisExpressionException(permissions.getFirst().getPosition(), permissions.getLast().getPosition(),
+        throw new AnalysisDeclareException(permissions.getFirst().getPosition(), permissions.getLast().getPosition(),
                 "illegal permission"
         );
     }
@@ -135,12 +136,12 @@ public class AccessControls {
                     "default access version2 of " + environment + " is in the illegal version2 set: " +
                     Arrays.toString(illegalPermission));
         } else if (permissions.size() == 1) {
-            throw new AnalysisExpressionException(
+            throw new AnalysisDeclareException(
                     permissions.getFirst().getPosition(),
                     "illegal in: " + environment
             );
         } else {
-            throw new AnalysisExpressionException(permissions.getFirst().getPosition(),
+            throw new AnalysisDeclareException(permissions.getFirst().getPosition(),
                     permissions.getLast().getPosition(), "illegal in: " + environment
             );
         }

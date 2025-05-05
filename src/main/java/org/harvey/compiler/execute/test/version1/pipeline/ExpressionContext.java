@@ -6,6 +6,7 @@ import org.harvey.compiler.common.collecction.RandomlyAccessAble;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.Expression;
 import org.harvey.compiler.execute.expression.ExpressionElement;
+import org.harvey.compiler.execute.test.version0.ExpressionPhaser0;
 import org.harvey.compiler.execute.test.version1.env.OuterEnvironment;
 import org.harvey.compiler.execute.test.version1.msg.MemberSupplier;
 import org.harvey.compiler.execute.test.version1.msg.PossibleCallableSupplier;
@@ -25,13 +26,18 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("unused")
 public class ExpressionContext extends DefaultRandomlyIterator<SourceString> {
+    final ExpressionPhaser0 expressionPhaser0;
     private final LinkedList<TodoTask> todoQueue = new LinkedList<>();
     private final Expression expression = new Expression();
     private final OuterEnvironment outerEnvironment;
 
-    public ExpressionContext(List<SourceString> source, OuterEnvironment outerEnvironment) {
+    public ExpressionContext(
+            List<SourceString> source,
+            OuterEnvironment outerEnvironment,
+            ExpressionPhaser0 expressionPhaser0) {
         super(RandomlyAccessAble.forList(source), 0);
         this.outerEnvironment = outerEnvironment;
+        this.expressionPhaser0 = expressionPhaser0;
     }
 
     public void addTodoTask(TodoTask todo) {
@@ -45,7 +51,6 @@ public class ExpressionContext extends DefaultRandomlyIterator<SourceString> {
     public TodoTask popTodoTask() {
         return todoQueue.removeFirst();
     }
-
 
     @Override
     public SourceString previous() {
@@ -61,11 +66,9 @@ public class ExpressionContext extends DefaultRandomlyIterator<SourceString> {
         return getPrevious(1);
     }
 
-
     public boolean expressionHasPrevious(int i) {
         return expression.size() >= i && i > 0;
     }
-
 
     public boolean expressionHasPrevious() {
         return expressionHasPrevious(1);
@@ -76,8 +79,10 @@ public class ExpressionContext extends DefaultRandomlyIterator<SourceString> {
     }
 
     public void add(ExpressionElement next) {
+        // toSequential(next);
         this.expression.add(next);
     }
+
 
     public boolean nextIs(Predicate<SourceString> predicate) {
         return CollectionUtil.nextIs(this, predicate);
@@ -117,6 +122,7 @@ public class ExpressionContext extends DefaultRandomlyIterator<SourceString> {
 
     public boolean typeDetermined() {
         // 已经解析完毕, 且对象有确定类型
-        return !this.hasNext()&& outerEnvironment.typeDetermined();
+        return !this.hasNext() && outerEnvironment.typeDetermined();
     }
+
 }

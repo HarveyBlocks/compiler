@@ -1,6 +1,6 @@
 package org.harvey.compiler.execute.test.version1.element;
 
-import org.harvey.compiler.exception.analysis.AnalysisException;
+import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.execute.test.version1.env.OuterEnvironment;
 import org.harvey.compiler.io.source.SourcePosition;
 
@@ -29,7 +29,7 @@ public class ArrayInitEachWarp extends DefaultComplexExpressionWrap {
         // TODO 解析完毕后检查类型
         // 一定要能确定类型
         if (environment.typeDetermined()) {
-            throw new AnalysisException(getPosition(), "expect determined type");
+            throw new AnalysisExpressionException(getPosition(), "expect determined type");
         }
     }
 }

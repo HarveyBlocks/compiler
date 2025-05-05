@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.harvey.compiler.io.source.SourcePosition;
 
 /**
- *   VieGenericAssignable的异常
+ * VieGenericAssignable的异常
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

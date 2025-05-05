@@ -3,7 +3,7 @@ package org.harvey.compiler.io.cache.resource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.declare.context.TypeAlias;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.io.serializer.OnlyFileStatementSerializer;
 
 import java.io.File;
@@ -25,7 +25,7 @@ public class FileContextResource extends AbstractFileStatementResource {
     }
 
     @Override
-    public IdentifierManager getManager() {
+    public DIdentifierManager getManager() {
         return serializer.getResource().getIdentifierManager();
     }
 

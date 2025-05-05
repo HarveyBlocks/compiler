@@ -157,7 +157,7 @@ public class Keywords {
         /*
          如何获取字节码对象?
          Type.instance<int>();->Type<int>
-         Type.instance<Object>();->Type<int>
+         Type.instance<Object>();->Type<Object>
          Type.instance<List<String>>();->Type<List<String>>
          public class Type<T>{
               public static native Type<T> instance<T>();
@@ -179,4 +179,10 @@ public class Keywords {
     }
 
 
+    /**
+     * @return 排除了void和var
+     */
+    public static boolean isNormalBasicType(Keyword keyword) {
+        return Keywords.isBasicType(keyword) || keyword == Keyword.VOID || keyword == Keyword.VAR;
+    }
 }

@@ -5,6 +5,7 @@ import org.harvey.compiler.execute.calculate.Associativity;
 import org.harvey.compiler.execute.calculate.OperandCount;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.ExpressionElement;
+import org.harvey.compiler.execute.expression.IExpressionElement;
 import org.harvey.compiler.io.source.SourcePosition;
 
 /**
@@ -17,7 +18,12 @@ import org.harvey.compiler.io.source.SourcePosition;
 public class CompileOperatorString extends ExpressionElement implements OperatorString {
     private final CompileOperator operator;
 
-    public static boolean is(ExpressionElement element, CompileOperator compileOperator) {
+    public CompileOperatorString(SourcePosition position, CompileOperator operator) {
+        super(position);
+        this.operator = operator;
+    }
+
+    public static boolean is(IExpressionElement element, CompileOperator compileOperator) {
         if (!(element instanceof CompileOperatorString)) {
             return false;
         }
@@ -39,12 +45,43 @@ public class CompileOperatorString extends ExpressionElement implements Operator
         return operator.getOperandCount();
     }
 
+    @Override
+    public String show() {
+        return this.operator.name();
+    }
+
+    @Override
+    public boolean isPost() {
+        return false;
+    }
+
+    @Override
+    public boolean isPre() {
+        return false;
+    }
+
+    @Override
+    public OperatorString pair() {
+        return null;
+    }
+
+    @Override
+    public boolean operatorEquals(OperatorString string) {
+        return string instanceof CompileOperatorString && ((CompileOperatorString) string).operator == this.operator;
+    }
+
+    @Override
+    public String toString() {
+        return operator.name();
+    }
+
     @Getter
     public enum CompileOperator {
         // 函数名 invoke 参数列表
-        INVOKE(Operator.CALLABLE_DECLARE.getPriority(), Associativity.LEFT, OperandCount.BINARY),
-        // 类型 cast 实例对象
-        CAST(Operator.POSITIVE.getPriority() - 1, Associativity.RIGHT, OperandCount.BINARY);
+        INVOKE(Operator.RIGHT_INCREASING.getPriority(), Associativity.LEFT, OperandCount.BINARY), // 类型 cast 实例对象
+        ARRAY_AT(Operator.RIGHT_INCREASING.getPriority(), Associativity.LEFT, OperandCount.BINARY), // 类型 cast 实例对象
+        CAST(Operator.POSITIVE.getPriority(), Associativity.RIGHT, OperandCount.UNARY);
+
         private final int priority;
         private final Associativity associativity;
         private final OperandCount operandCount;
@@ -54,10 +91,5 @@ public class CompileOperatorString extends ExpressionElement implements Operator
             this.associativity = associativity;
             this.operandCount = operandCount;
         }
-    }
-
-    public CompileOperatorString(SourcePosition position, CompileOperator operator) {
-        super(position);
-        this.operator = operator;
     }
 }

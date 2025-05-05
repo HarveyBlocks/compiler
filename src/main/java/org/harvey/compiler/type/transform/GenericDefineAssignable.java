@@ -163,7 +163,8 @@ public class GenericDefineAssignable implements Assignable {
         if (index < 0) {
             return;
         }
-        throw CanNotAssignUtil.canNotAssign(fromFile,
+        throw CanNotAssignUtil.canNotAssign(
+                fromFile,
                 constructorHave.getParam(index).getType().getRawType().getPosition(),
                 "constructor param not matched at index of: " + index
         );

@@ -5,7 +5,7 @@ import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.context.ConstructorContext;
 import org.harvey.compiler.declare.context.StructureType;
 import org.harvey.compiler.declare.context.TypeAlias;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.exception.CompileMultipleFileException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
@@ -38,7 +38,7 @@ public interface StatementResource {
      */
     boolean isStatic();
 
-    IdentifierManager getManager();
+    DIdentifierManager getManager();
 
     ParameterizedType<ReferenceElement> getSuperComplexStructure();
 
@@ -76,7 +76,7 @@ public interface StatementResource {
 
     default TypeAlias getTypeAlias(FullIdentifierString identifier, String joinedFullnameString) {
         File resourceFile = this.getFile();
-        IdentifierManager manager = this.getManager();
+        DIdentifierManager manager = this.getManager();
         List<TypeAlias> aliasList = this.getTypeAliases();
         ReferenceElement referenceOfDeclare = manager.getFromDeclare(identifier.getFullname());
         if (referenceOfDeclare == null || referenceOfDeclare.getType() != ReferenceType.IDENTIFIER) {

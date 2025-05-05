@@ -24,7 +24,7 @@ import java.io.OutputStream;
  */
 @Getter
 public class ReferenceElement extends ExpressionElement implements RawType, ItemString {
-      private final ReferenceType type;
+    private final ReferenceType type;
     private final int reference;
 
     public ReferenceElement(SourcePosition position, ReferenceType type, int reference) {
@@ -81,7 +81,6 @@ public class ReferenceElement extends ExpressionElement implements RawType, Item
     public String toString() {
         return getPosition() + "" + getReference();
     }
-
 
 
     public static class Serializer implements StreamSerializer<ReferenceElement> {

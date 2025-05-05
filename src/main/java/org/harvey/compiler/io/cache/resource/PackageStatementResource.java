@@ -6,7 +6,7 @@ import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.context.ConstructorContext;
 import org.harvey.compiler.declare.context.StructureType;
 import org.harvey.compiler.declare.context.TypeAlias;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.PackageMessage;
@@ -40,7 +40,7 @@ public final class PackageStatementResource implements StatementResource {
     }
 
     @Override
-    public IdentifierManager getManager() {
+    public DIdentifierManager getManager() {
         throw new CompilerException("resource is a package", new UnsupportedOperationException());
     }
 

@@ -3,7 +3,7 @@ package org.harvey.compiler.exception.io;
 import org.harvey.compiler.exception.VieCompilerException;
 
 /**
- *   VieIO的异常
+ * VieIO的异常
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

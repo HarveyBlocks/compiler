@@ -1,6 +1,6 @@
 package org.harvey.compiler.execute.test.version2.handler;
 
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisControlException;
 import org.harvey.compiler.execute.test.version2.msg.ControlContext;
 
 /**
@@ -11,15 +11,15 @@ import org.harvey.compiler.execute.test.version2.msg.ControlContext;
  * @date 2025-04-07 19:59
  */
 public interface ExecutableControlHandler {
+    static void handleNext(ControlContext context, ExecutableControlHandler handler) {
+        context.nowHandler(handler);
+        handler.handle(context);
+    }
+
     void handle(ControlContext context);
 
     default void nextIsWhile(ControlContext context) {
         handleNext(context, context.whileHandler());
-    }
-
-    static void handleNext(ControlContext context, ExecutableControlHandler handler) {
-        context.nowHandler(handler);
-        handler.handle(context);
     }
 
     default void nextIsDo(ControlContext context) {
@@ -60,7 +60,7 @@ public interface ExecutableControlHandler {
 
 
     default void nextIsBodyEnd(ControlContext controlContext) {
-        throw new AnalysisExpressionException(controlContext.now(), "except {");
+        throw new AnalysisControlException(controlContext.now(), "except {");
     }
 }
 

@@ -24,6 +24,7 @@ public interface Assignable {
      * 特别的, 不考虑{@link RelatedParameterizedType}
      */
     void assign(RelationUsing from);
+
     void assign(RelatedLocalParameterizedType from);
 
     void selfConsistent();

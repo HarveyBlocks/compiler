@@ -23,6 +23,9 @@ import static org.harvey.compiler.io.serializer.StreamSerializerUtil.collectionO
  * @date 2025-03-23 20:35
  */
 public interface StatementFileSerializer {
+    SourceStringStreamSerializer SOURCE_STRING_SERIALIZER = StreamSerializerRegister.get(
+            SourceStringStreamSerializer.class);
+
     static void skip(InputStream is, int skip) {
         try {
             if (is.skip(skip) != skip) {
@@ -32,13 +35,6 @@ public interface StatementFileSerializer {
             throw new CompilerFileReadException(e);
         }
     }
-
-    SourceStringStreamSerializer SOURCE_STRING_SERIALIZER = StreamSerializerRegister.get(
-            SourceStringStreamSerializer.class);
-
-    File getFile();
-
-    Object getResource();
 
     static int writePool(OutputStream os, List<? extends List<SourceString>> executablePool) {
         int len = 0;
@@ -55,6 +51,10 @@ public interface StatementFileSerializer {
         }
         return result;
     }
+
+    File getFile();
+
+    Object getResource();
 
     void updateStage(CompileStage stage);
 

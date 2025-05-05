@@ -3,27 +3,17 @@ package org.harvey.compiler.common.collecction;
 import org.harvey.compiler.exception.self.CompilerException;
 
 /**
- * TODO  
+ * TODO
  *
- * @date 2025-04-03 21:28
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-04-03 21:28
  */
 public class SimpleLinkedList<E> {
     int size;
     Node<E> begin;
     Node<E> end;
 
-
-    public static class Node<E> {
-        Node<E> previous;
-        E value;
-        Node<E> next;
-
-        public Node(E value) {
-            this.value = value;
-        }
-    }
 
     public SimpleLinkedList() {
         this.size = 0;
@@ -111,6 +101,16 @@ public class SimpleLinkedList<E> {
             }
         }
         return x;
+    }
+
+    public static class Node<E> {
+        Node<E> previous;
+        E value;
+        Node<E> next;
+
+        public Node(E value) {
+            this.value = value;
+        }
     }
 
 }

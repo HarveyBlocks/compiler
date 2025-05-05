@@ -62,7 +62,7 @@ public class StreamSerializerUtil {
         return list;
     }
 
-    public static  <E> E[] readArray(InputStream is, E[] result, StreamSerializer<E> serializer) {
+    public static <E> E[] readArray(InputStream is, E[] result, StreamSerializer<E> serializer) {
         for (int l = 0; l < result.length; l++) {
             result[l] = (serializer.in(is));
         }

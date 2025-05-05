@@ -8,9 +8,9 @@ import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.analysis.Embellish;
 import org.harvey.compiler.declare.define.Definition;
 import org.harvey.compiler.declare.define.StructureDefinition;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.exception.analysis.AnalysisException;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.expression.ReferenceType;
@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class StructureContext implements DeclaredContext {
 
-
     // ----------------------------第一阶段加载----------------------------
     private final int outerStructure;
     /**
@@ -44,7 +43,7 @@ public class StructureContext implements DeclaredContext {
     private final int depth;
     private final AccessControl accessControl;
     private final Embellish embellish;
-    private StructureType type;
+    private final StructureType type;
     private final ReferenceElement identifierReference;
     /**
      * 不可以为null. 包含`<>`
@@ -61,7 +60,7 @@ public class StructureContext implements DeclaredContext {
      * }</pre>,应该算到implement里面去
      */
     private final List<ParameterizedType<ReferenceElement>> interfaceList;
-    private final IdentifierManager manager;
+    private final DIdentifierManager manager;
     private final List<TypeAlias> typeAliases;
     private final List<Integer> innerStructureReferences;
     // ----------------------------第二阶段加载----------------------------
@@ -89,8 +88,9 @@ public class StructureContext implements DeclaredContext {
         this.type = definition.getType();
         this.depth = definition.getDepth();
         this.outerStructure = definition.getOuterStructure();
-        this.genericMessage = map2Context(definition.getGenericDefine(),
-                p -> GenericFactory.genericForDefine(GenericFactory.rawType2Reference(p.getKey(), manager),
+        this.genericMessage = map2Context(
+                definition.getGenericDefine(),
+                p -> GenericFactory.genericForDefine(p.getKey(),
                         p.getValue(), manager
                 )
         ).toArray(GenericDefine[]::new);
@@ -106,7 +106,8 @@ public class StructureContext implements DeclaredContext {
         this.fieldTable = map2Context(definition.getFields(), d -> new ValueContext(d, manager, poolFactory));
         this.methodTable = new ArrayList<>();
         this.constructors = new ArrayList<>();
-        List<CallableContext> callables = map2Context(definition.getMethods(),
+        List<CallableContext> callables = map2Context(
+                definition.getMethods(),
                 d -> new CallableContext(d, manager, poolFactory, d.getType() == CallableType.CONSTRUCTOR)
         );
         for (CallableContext callable : callables) {
@@ -130,19 +131,19 @@ public class StructureContext implements DeclaredContext {
      * @param superSource nullable
      */
     private static ParameterizedType<ReferenceElement> getParameterizedTypeAsUpper(
-            Pair<RawType, SourceTextContext> superSource, IdentifierManager manager) {
+            Pair<RawType, SourceTextContext> superSource, DIdentifierManager manager) {
         if (superSource == null) {
             return null;
         }
         ReferenceElement reference = GenericFactory.rawType2Reference(superSource.getKey(), manager);
         if (reference.getType() == ReferenceType.GENERIC_IDENTIFIER) {
-            throw new AnalysisException(reference.getPosition(), "can not be a generic");
+            throw new AnalysisDeclareException(reference.getPosition(), "can not be a generic");
         }
         ListIterator<SourceString> it = superSource.getValue().listIterator();
         ParameterizedType<ReferenceElement> parameterizedType = GenericFactory.parameterizedType(
                 reference, it, manager);
         if (it.hasNext()) {
-            throw new AnalysisExpressionException(it.previous().getPosition(), "expected {");
+            throw new AnalysisDeclareException(it.previous().getPosition(), "expected {");
         }
         return parameterizedType;
     }
@@ -160,7 +161,8 @@ public class StructureContext implements DeclaredContext {
         // 内部类不能是upper
         Definition.notNullValid(identifierReference, "identifier reference");
         if (upperReference.getType() != ReferenceType.IDENTIFIER) {
-            throw new AnalysisExpressionException(upperReference.getPosition(),
+            throw new AnalysisDeclareException(
+                    upperReference.getPosition(),
                     upperReference.getType() + " can not be upper"
             );
         }
@@ -168,7 +170,7 @@ public class StructureContext implements DeclaredContext {
         FullIdentifierString now = manager.getIdentifier(identifierReference);
         int firstDifferenceIndex = now.firstDifferenceIndex(upper);
         if (firstDifferenceIndex == now.length()) {
-            throw new AnalysisExpressionException(upper.getPosition(), "structure's member(or self) can not be upper.");
+            throw new AnalysisDeclareException(upper.getPosition(), "structure's member(or self) can not be upper.");
         }
     }
 

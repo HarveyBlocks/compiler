@@ -1,6 +1,6 @@
 package org.harvey.compiler.execute.test.version2.handler;
 
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisControlException;
 import org.harvey.compiler.execute.test.version2.msg.ControlContext;
 
 /**
@@ -13,52 +13,52 @@ import org.harvey.compiler.execute.test.version2.msg.ControlContext;
 public interface OneControlSentenceHandler extends ExecutableControlHandler {
     @Override
     default void nextIsWhile(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsDo(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsIf(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsElse(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void notHaveNext(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsExpression(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsBlockStart(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsDeclareType(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsBreakSentence(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
     @Override
     default void nextIsContinueSentence(ControlContext context) {
-        throw new AnalysisExpressionException(context.now(), "except ;");
+        throw new AnalysisControlException(context.now(), "except ;");
     }
 
 }

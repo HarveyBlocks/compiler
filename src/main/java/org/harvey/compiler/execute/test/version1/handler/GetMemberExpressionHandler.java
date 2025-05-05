@@ -24,46 +24,13 @@ import org.harvey.compiler.type.generic.using.ParameterizedType;
  */
 @SuppressWarnings("unused")
 public class GetMemberExpressionHandler implements ExpressionHandler {
-    @Override
-    public boolean handle(ExpressionContext context) {
-        int a = 0;
-        SourceString next = context.next();
-        if (!Operator.GET_MEMBER.nameEquals(next.getValue())) {
-            context.previousMove();
-            return false;
-        }
-        ExpressionElement previous = null;
-        if (context.expressionHasPrevious()) {
-            previous = context.getPrevious();
-        }
-
-
-        if (!(previous instanceof MemberSupplier)) {
-            throw new AnalysisExpressionException(next.getPosition(),
-                    "can not get any member for no member supplier previous"
-            );
-        }
-        MemberType memberBefore = ((MemberSupplier) previous).getType();
-        context.add(new NormalOperatorString(next.getPosition(), Operator.GET_MEMBER));
-        // 检查后面的重载运算符
-        SourceString item = context.next();
-        SourcePosition position = item.getPosition();
-        if (Operators.get(item.getValue()) == null) {
-            context.previousMove();
-            return true;
-        }
-        // 是重载运算符
-        tryReloadOperation(context, item, memberBefore, position);
-        return true;
-    }
-
     private static void tryReloadOperation(
             ExpressionContext context,
             SourceString operatorItem,
             MemberType memberBefore,
             SourcePosition position) {
         if (Operator.CALL_PRE.nameEquals(operatorItem.getValue())) {
-           SourceString item = context.next();
+            SourceString item = context.next();
             if (Operator.CALL_POST.nameEquals(item.getValue())) {
                 PossibleCallableSupplier callableRelatedDeclares = memberBefore.find(
                         position,
@@ -71,7 +38,7 @@ public class GetMemberExpressionHandler implements ExpressionHandler {
                 );
                 context.add(callableRelatedDeclares);
             } else {
-                PossibleCallableSupplier callableRelatedDeclares =tryCast(context, memberBefore, position);
+                PossibleCallableSupplier callableRelatedDeclares = tryCast(context, memberBefore, position);
                 item = context.next();
                 if (!Operator.CALL_POST.nameEquals(item.getValue())) {
                     throw new AnalysisExpressionException(position, "expected: " + Operator.CALL_PRE);
@@ -80,7 +47,7 @@ public class GetMemberExpressionHandler implements ExpressionHandler {
                 context.add(callableRelatedDeclares);
             }
         } else if (Operator.ARRAY_AT_PRE.nameEquals(operatorItem.getValue())) {
-            SourceString  item = context.next();
+            SourceString item = context.next();
             if (Operator.ARRAY_AT_POST.nameEquals(item.getValue())) {
                 PossibleCallableSupplier callableRelatedDeclares = memberBefore.find(position, Operator.ARRAY_DECLARE);
                 context.add(callableRelatedDeclares);
@@ -98,14 +65,57 @@ public class GetMemberExpressionHandler implements ExpressionHandler {
         }
     }
 
+    /**
+     * 可能是重载了类型转换运算符
+     *
+     * @param context
+     * @param memberBefore
+     * @param position
+     * @return
+     */
     private static PossibleCallableSupplier tryCast(
             ExpressionContext context, MemberType memberBefore, SourcePosition position) {
         // 可能是cast
-        ParameterizedType<ReferenceElement> parameterizedType = GenericFactory.parameterizedType(context,
+        ParameterizedType<ReferenceElement> parameterizedType = GenericFactory.parameterizedType(
+                context,
                 context.getEnvironment().getIdentifierManager()
         );
         MemberType relateParameterizedType = context.getEnvironment()
                 .relateParameterizedType(parameterizedType);
-        return memberBefore.findCast(position, relateParameterizedType);
+        return memberBefore.findCastOperator(position, relateParameterizedType);
+    }
+
+    @Override
+    public boolean handle(ExpressionContext context) {
+        int a = 0;
+        SourceString next = context.next();
+        if (!Operator.GET_MEMBER.nameEquals(next.getValue())) {
+            context.previousMove();
+            return false;
+        }
+        ExpressionElement previous = null;
+        if (context.expressionHasPrevious()) {
+            previous = context.getPrevious();
+        }
+
+
+        if (!(previous instanceof MemberSupplier)) {
+            throw new AnalysisExpressionException(
+                    next.getPosition(),
+                    "can not get any member for no member supplier previous"
+            );
+        }
+        MemberType memberBefore = ((MemberSupplier) previous).getType();
+        context.add(new NormalOperatorString(next.getPosition(), Operator.GET_MEMBER));
+        // 检查后面的重载运算符
+        SourceString item = context.next();
+        SourcePosition position = item.getPosition();
+        if (Operators.get(item.getValue()) == null) {
+            context.previousMove();
+            return true;
+        }
+        // 是重载运算符
+        tryReloadOperation(context, item, memberBefore, position);
+        return true;
     }
 }

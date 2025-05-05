@@ -9,11 +9,10 @@ import org.harvey.compiler.io.source.SourcePosition;
  */
 public interface MemberManager {
     /**
-     *
      * @param name
      * @return null for not find
      */
-    MemberSupplier create(SourcePosition using,String name);
+    MemberSupplier create(SourcePosition using, String name);
 
-    PossibleCallableSupplier createPossibleCallable(SourcePosition using,String callableName);
+    PossibleCallableSupplier createPossibleCallable(SourcePosition using, String callableName);
 }

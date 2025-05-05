@@ -2,13 +2,15 @@ package org.harvey.compiler.core;
 
 import lombok.Getter;
 import org.harvey.compiler.common.collecction.Pair;
+import org.harvey.compiler.common.constant.CompileFileConstant;
+import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.common.util.ExceptionUtil;
 import org.harvey.compiler.common.util.StringUtil;
 import org.harvey.compiler.declare.context.FileContext;
 import org.harvey.compiler.declare.context.StructureContext;
 import org.harvey.compiler.declare.define.DefinitionFactory;
 import org.harvey.compiler.declare.define.FileDefinition;
-import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
+import org.harvey.compiler.declare.identifier.DIdentifierPoolFactory;
 import org.harvey.compiler.exception.io.VieIOException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.io.PackageMessage;
@@ -22,7 +24,6 @@ import org.harvey.compiler.text.SimpleTextDecomposer;
 import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.text.decomposer.CheckTypeDecomposer;
 import org.harvey.compiler.text.decomposer.CommitClearChecker;
-import org.harvey.compiler.text.decomposer.SourceFileRebuilder;
 import org.harvey.compiler.text.decomposer.TextDecomposerChain;
 import org.harvey.compiler.text.depart.*;
 import org.harvey.compiler.text.mixed.MixedTextDecomposer;
@@ -78,12 +79,10 @@ public class CoreCompiler {
         // blocks 也可以有内部方法
         RecursivelyDepartedBody depart = RecursivelyDepartedBodyFactory.depart(departedBody);
         departedBody = null;
-
         String packagePath = StringUtil.join(
-                beforeFilePackage.getFullname(file.getName()), IdentifierPoolFactory.MEMBER);
+                beforeFilePackage.getFullname(file.getName()), SourceFileConstant.PACKAGE_SEPARATOR);
         FileDefinition fileDefinition = new DefinitionFactory().buildReferredDepartedBody(
                 packagePath, depart);
-
         depart = null;
         // 1. 表达式的使用
         // 2. identifier的映射
@@ -105,13 +104,14 @@ public class CoreCompiler {
         //      3. Executable解析阶段(允许循环依赖)
         //
         System.gc();
-        System.out.println("end");
+        // System.out.println("end");
         return fileDefinition;
     }
 
     public static TextDecomposerChain registerChain() {
         TextDecomposerChain chain = new TextDecomposerChain();
-        chain.register(new CommitClearChecker()).register(new SourceFileRebuilder()).register(new MixedTextDecomposer())
+        chain.register(new CommitClearChecker())/*.register(new SourceFileRebuilder())*/.register(
+                        new MixedTextDecomposer())
                 // .register(new SourceFileRebuilder())
                 // .register(new StringDecomposer())
                 // .register(new SourceFileRebuilder())
@@ -126,8 +126,8 @@ public class CoreCompiler {
                         SourceType.FLOAT32, // 浮点数
                         SourceType.FLOAT64, // 浮点数
                         SourceType.IGNORE_IDENTIFIER,  // 用于忽略的字符传, 例如`_`
-                        SourceType.SCIENTIFIC_NOTATION_FLOAT32, // 科学计数法
-                        SourceType.SCIENTIFIC_NOTATION_FLOAT64, // 科学计数法
+                        // SourceType.SCIENTIFIC_NOTATION_FLOAT32, // 科学计数法
+                        // SourceType.SCIENTIFIC_NOTATION_FLOAT64, // 科学计数法
                         SourceType.IDENTIFIER, // 源码中是标识符
                         SourceType.KEYWORD
                 )));

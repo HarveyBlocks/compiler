@@ -21,6 +21,21 @@ import org.harvey.compiler.io.source.SourceString;
  * @date 2025-04-06 23:58
  */
 public class NormalOperatorHandler implements ExpressionHandler {
+    private static Operator decide(ExpressionElement previous, Operator sign, Operator calculate) {
+        if (previous instanceof ItemString) {
+            return sign;
+        }
+        if (!(previous instanceof OperatorString)) {
+            return calculate;
+        }
+        OperandCount operandCount = ((OperatorString) previous).getOperandCount();
+        Associativity associativity = ((OperatorString) previous).getAssociativity();
+        if (associativity == Associativity.RIGHT || operandCount == OperandCount.UNARY) {
+            return sign;
+        }
+        return calculate;
+    }
+
     @Override
     public boolean handle(ExpressionContext context) {
         SourceString exceptedOperator = context.next();
@@ -74,20 +89,5 @@ public class NormalOperatorHandler implements ExpressionHandler {
         }
         // ++++a 报错
         return left;
-    }
-
-    private static Operator decide(ExpressionElement previous, Operator sign, Operator calculate) {
-        if (previous instanceof ItemString) {
-            return sign;
-        }
-        if (!(previous instanceof OperatorString)) {
-            return calculate;
-        }
-        OperandCount operandCount = ((OperatorString) previous).getOperandCount();
-        Associativity associativity = ((OperatorString) previous).getAssociativity();
-        if (associativity == Associativity.RIGHT || operandCount == OperandCount.UNARY) {
-            return sign;
-        }
-        return calculate;
     }
 }

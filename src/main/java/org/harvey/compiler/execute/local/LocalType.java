@@ -3,7 +3,7 @@ package org.harvey.compiler.execute.local;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.declare.define.LocalTypeDefinition;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.serializer.StreamSerializer;
 import org.harvey.compiler.io.serializer.StreamSerializerRegister;
@@ -31,7 +31,7 @@ public class LocalType {
     private final SourcePosition finalPosition;
     private final ParameterizedType<ReferenceElement> sourceType;
 
-    public LocalType(LocalTypeDefinition definition, IdentifierManager manager) {
+    public LocalType(LocalTypeDefinition definition, DIdentifierManager manager) {
         this.constPosition = definition.getMarkConst();
         this.finalPosition = definition.getMarkFinal();
         ListIterator<SourceString> iterator = definition.getTypeParameter().listIterator();

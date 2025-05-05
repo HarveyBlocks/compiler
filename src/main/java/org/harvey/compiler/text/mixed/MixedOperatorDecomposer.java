@@ -7,7 +7,6 @@ import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;
-import org.harvey.compiler.text.context.SourceTextContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -39,8 +38,8 @@ public class MixedOperatorDecomposer {
     /**
      * 不检查正确与否, 只确定类型
      */
-    public SourceTextContext phase() {
-        return new SourceTextContext(phaseValue());
+    public List<SourceString> phase() {
+        return phaseValue();
     }
 
     private List<SourceString> phaseValue() {

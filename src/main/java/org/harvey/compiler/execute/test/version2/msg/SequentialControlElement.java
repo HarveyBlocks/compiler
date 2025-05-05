@@ -14,10 +14,10 @@ import java.util.Collection;
  * @date 2025-04-07 21:11
  */
 public class SequentialControlElement {
-    @Getter
-    private SequentialCommand command;
     private final Collection<Label> labels;
     private final LineWarp line;
+    @Getter
+    private SequentialCommand command;
 
     public SequentialControlElement(int line, SequentialCommand command) {
         this.line = new LineWarp(line);

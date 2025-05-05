@@ -5,6 +5,7 @@ import org.harvey.compiler.io.source.SourceType;
 import org.harvey.compiler.text.context.SourceTextContext;
 import org.harvey.compiler.text.decomposer.TextDecomposer;
 
+import java.util.List;
 import java.util.ListIterator;
 
 /**
@@ -26,13 +27,13 @@ public class MixedTextDecomposer implements TextDecomposer {
             SourceString item = it.next();
             if (item.getType() == SourceType.ITEM) {
                 it.remove();
-                SourceTextContext phasedItemContext = new MixedItemDecomposer(item).phase();
+                List<SourceString> phasedItemContext = new MixedItemDecomposer(item).phase();
                 for (SourceString phasedItem : phasedItemContext) {
                     it.add(phasedItem);
                 }
             } else if (item.getType() == SourceType.OPERATOR) {
                 it.remove();
-                SourceTextContext phasedItemContext = new MixedOperatorDecomposer(item).phase();
+                List<SourceString> phasedItemContext = new MixedOperatorDecomposer(item).phase();
                 for (SourceString phasedItem : phasedItemContext) {
                     it.add(phasedItem);
                 }

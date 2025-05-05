@@ -1,16 +1,14 @@
 package org.harvey.compiler.execute.test.version1.env;
 
 
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.test.version1.manager.MemberManager;
 import org.harvey.compiler.execute.test.version1.manager.RelationManager;
 import org.harvey.compiler.execute.test.version1.msg.MemberSupplier;
 import org.harvey.compiler.execute.test.version1.msg.MemberType;
 import org.harvey.compiler.execute.test.version1.msg.PossibleCallableSupplier;
-import org.harvey.compiler.execute.test.version1.msg.UnsureConstructorSupplier;
 import org.harvey.compiler.io.source.SourcePosition;
-import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.type.generic.using.ParameterizedType;
 
 /**
@@ -21,7 +19,7 @@ import org.harvey.compiler.type.generic.using.ParameterizedType;
  * @date 2025-04-05 22:48
  */
 public interface OuterEnvironment {
-    public static final int
+    int
             IN_CALLABLE_EXECUTABLE_CONTROL = 0,
             IN_BLOCK_EXECUTABLE_CONTROL = 1,
             IN_CALLABLE_ARGUMENT = 2,
@@ -38,7 +36,7 @@ public interface OuterEnvironment {
 
     PossibleCallableSupplier createPossibleFromMemberManager(SourcePosition using, String callableName);
 
-    IdentifierManager getIdentifierManager();
+    DIdentifierManager getIdentifierManager();
 
     MemberType relateParameterizedType(ParameterizedType<ReferenceElement> element);
 

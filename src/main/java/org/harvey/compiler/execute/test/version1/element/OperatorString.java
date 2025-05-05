@@ -18,9 +18,28 @@ import org.harvey.compiler.execute.expression.IExpressionElement;
  * @date 2025-04-05 20:24
  */
 public interface OperatorString extends IExpressionElement {
+    /**
+     * 优先级值越大, 优先级越低
+     *
+     * @return a<b
+     */
+    static boolean priorityLower(OperatorString a, OperatorString b) {
+        return a.getPriority() > b.getPriority();
+    }
+
     int getPriority();
+
 
     Associativity getAssociativity();
 
     OperandCount getOperandCount();
+
+
+    boolean isPost();
+
+    boolean isPre();
+
+    OperatorString pair();
+
+    boolean operatorEquals(OperatorString string);
 }

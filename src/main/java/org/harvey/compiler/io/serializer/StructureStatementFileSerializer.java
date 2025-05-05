@@ -5,8 +5,8 @@ import org.harvey.compiler.common.util.ByteUtil;
 import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.analysis.Embellish;
 import org.harvey.compiler.declare.context.*;
-import org.harvey.compiler.declare.identifier.DefaultIdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.declare.identifier.DeprecatedIdentifierManager;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
@@ -86,7 +86,7 @@ public class StructureStatementFileSerializer implements StatementFileSerializer
         ReferenceElement identifierReference = src.getIdentifierReference();
         GenericDefine[] genericMessage = src.getGenericMessage();
         List<ParameterizedType<ReferenceElement>> interfaceList = src.getInterfaceList();
-        IdentifierManager manager = src.getManager();
+        DIdentifierManager manager = src.getManager();
         int importReferenceAfterIndex = manager.getImportReferenceAfterIndex();
         int preLength = manager.getPreLength();
         List<FullIdentifierString> allIdentifierTable = manager.getAllIdentifierTable();
@@ -225,8 +225,8 @@ public class StructureStatementFileSerializer implements StatementFileSerializer
             ArrayList<ImportString> importStrings = readElements(is, importStringsSize, IMPORT_STRING_SERIALIZER);
             int disableSetSize = (int) headMap[20].getUnsignedValue();
             HashSet<Integer> disableSet = new HashSet<>(readNumbers(is, disableSetSize, 32, false));
-            IdentifierManager manager = new DefaultIdentifierManager(importStrings, importReferenceAfterIndex,
-                    preLength, allIdentifierTable,disableSet
+            DIdentifierManager manager = new DeprecatedIdentifierManager(importStrings, importReferenceAfterIndex,
+                    preLength, allIdentifierTable
             );
             List<TypeAlias> typeAliases = readElements(is, typeAliasesSize, TYPE_ALIAS_SERIALIZER);
             List<Integer> innerStructureReferences = readNumbers(is, innerStructureReferencesSize, 16, false);

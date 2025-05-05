@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import org.harvey.compiler.declare.EnumConstantDeclarable;
 import org.harvey.compiler.declare.analysis.*;
 import org.harvey.compiler.declare.context.ImportString;
-import org.harvey.compiler.exception.analysis.AnalysisException;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisTextException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.IdentifierString;
@@ -40,7 +39,7 @@ public class RecursivelyDepartedBodyFactory {
 
     public static RecursivelyDepartedBody depart(DepartedBody fileBody) {
         if (fileBody.getBlocks() != null && !fileBody.getBlocks().isEmpty()) {
-            throw new AnalysisException(
+            throw new AnalysisTextException(
                     fileBody.getBlocks().getFirst().getBody().getFirst().getPosition(),
                     "blocks is not allowed here"
             );
@@ -70,7 +69,7 @@ public class RecursivelyDepartedBodyFactory {
                 // 删除内部函数声明, 内部函数需要像lambda表达式一样实现
                 functionList.add(part);
             } else {
-                throw new AnalysisException(statement.getStart(), "What kind of structure you are?");
+                throw new AnalysisTextException(statement.getStart(), "What kind of structure you are?");
             }
         }
     }
@@ -83,7 +82,7 @@ public class RecursivelyDepartedBodyFactory {
         for (Declarable declarable : declarableSentenceList) {
             List<SourceTypeAlias> aliasExpression = tryPhaseTypeAlias(declarable);
             if (aliasExpression == null) {
-                throw new AnalysisException(declarable.getStart(), "file variable is not allowed");
+                throw new AnalysisTextException(declarable.getStart(), "file variable is not allowed");
             }
             aliasList.addAll(aliasExpression);
         }
@@ -103,7 +102,7 @@ public class RecursivelyDepartedBodyFactory {
         SourceTextContext expression = declarable.getAttachment();
         expression.addFirst(declarable.getIdentifier());
         if (expression.isEmpty()) {
-            throw new AnalysisException(declarable.getStart(), "expected alias using");
+            throw new AnalysisTextException(declarable.getStart(), "expected alias using");
         }
         return fileAliasMap(permissions, staticPosition, expression);
     }
@@ -113,7 +112,7 @@ public class RecursivelyDepartedBodyFactory {
             SourceTextContext expression) {
         if (expression.isEmpty()) {
             if (!permissions.isEmpty()) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisTextException(
                         permissions.removeLast().getPosition(),
                         "empty alias map is illegal"
                 );
@@ -136,12 +135,12 @@ public class RecursivelyDepartedBodyFactory {
             if (inGeneric == 0 && Operator.ASSIGN.nameEquals(ss.getValue())/*是=*/) {
                 type.removeLast();
                 if (type.isEmpty()) {
-                    throw new AnalysisExpressionException(ss.getPosition(), "need a type");
+                    throw new AnalysisTextException(ss.getPosition(), "need a type");
                 }
                 if (alias == null) {
                     alias = type;
                 } else {
-                    throw new AnalysisException(ss.getPosition(), "expected , or ;");
+                    throw new AnalysisTextException(ss.getPosition(), "expected , or ;");
                 }
                 type = new SourceTextContext();
                 continue;
@@ -151,10 +150,10 @@ public class RecursivelyDepartedBodyFactory {
                 }
                 type.removeLast();
                 if (type.isEmpty()) {
-                    throw new AnalysisExpressionException(ss.getPosition(), "need a type");
+                    throw new AnalysisTextException(ss.getPosition(), "need a type");
                 }
                 if (alias == null) {
-                    throw new AnalysisException(ss.getPosition(), "expected  =");
+                    throw new AnalysisTextException(ss.getPosition(), "expected  =");
                 }
                 aliasList.add(fileAliasMap(permissions, staticPosition, alias, type, ss.getPosition()));
                 alias = null;
@@ -165,18 +164,18 @@ public class RecursivelyDepartedBodyFactory {
             } else if (Operator.GENERIC_LIST_POST.nameEquals(ss.getValue())/*是post*/) {
                 inGeneric--;
             } else {
-                throw new AnalysisException(ss.getPosition(), "unexpected operator");
+                throw new AnalysisTextException(ss.getPosition(), "unexpected operator");
             }
 
             if (inGeneric < 0) {
-                throw new AnalysisException(ss.getPosition(), "illegal generic `<>` match");
+                throw new AnalysisTextException(ss.getPosition(), "illegal generic `<>` match");
             }
         }
         if (inGeneric != 0) {
-            throw new AnalysisException(expression.getLast().getPosition(), "excepted `>`");
+            throw new AnalysisTextException(expression.getLast().getPosition(), "excepted `>`");
         }
         if (alias == null) {
-            throw new AnalysisException(expression.removeLast().getPosition(), "expected  =");
+            throw new AnalysisTextException(expression.removeLast().getPosition(), "expected  =");
         }
         aliasList.add(fileAliasMap(permissions, staticPosition, alias, type, expression.getLast().getPosition()));
         return aliasList;
@@ -188,15 +187,15 @@ public class RecursivelyDepartedBodyFactory {
         // 进行验收
 
         if (origin.isEmpty()) {
-            throw new AnalysisExpressionException(sp, "origin type is needed");
+            throw new AnalysisTextException(sp, "origin type is needed");
         }
         SourcePosition originStart = origin.getFirst().getPosition();
         if (alias.isEmpty()) {
-            throw new AnalysisExpressionException(originStart, "alias type is needed");
+            throw new AnalysisTextException(originStart, "alias type is needed");
         }
         SourceString identifier = alias.removeFirst();
         if (identifier.getType() != SourceType.IDENTIFIER) {
-            throw new AnalysisExpressionException(identifier.getPosition(), "must be identifier");
+            throw new AnalysisTextException(identifier.getPosition(), "must be identifier");
         }
         return new SourceTypeAlias(permissions, staticPosition, new IdentifierString(identifier), alias, origin);
     }
@@ -237,7 +236,7 @@ public class RecursivelyDepartedBodyFactory {
         while (!tobeDepartedFunctionList.isEmpty()) {
             RecursivePartPair structurePair = tobeDepartedFunctionList.removeFirst();
             SimpleCallable newCallable = departSimpleCallable(structurePair, tobeDepartedFunctionList, index);
-            simpleCallableLinkedList.add(newCallable);
+            simpleCallableLinkedList.addIdentifier(newCallable);
             if (newCallable.hasOuterCallable()) {
                 SimpleCallable outerCallable = simpleCallableLinkedList.get(newCallable.getOuterCallable());
                 outerCallable.registerLocalFunction(index);
@@ -285,7 +284,7 @@ public class RecursivelyDepartedBodyFactory {
                 sp = entry.getValue().getPosition();
                 break;
             }
-            throw new AnalysisException(sp, "Import is illegal here");
+            throw new AnalysisTextException(sp, "Import is illegal here");
         }
         List<Declarable> fieldList = new ArrayList<>();
         List<SourceTypeAlias> sourceTypeAliaseList = new ArrayList<>();
@@ -318,22 +317,22 @@ public class RecursivelyDepartedBodyFactory {
 
     private static SourceTextContext removeBodyCircle(SourceTextContext body) {
         if (body == null || body.isEmpty()) {
-            throw new AnalysisException(SourcePosition.UNKNOWN, "body can not be null");
+            throw new AnalysisTextException(SourcePosition.UNKNOWN, "body can not be null");
         }
         if (body.size() == 1) {
-            throw new AnalysisException(body.remove().getPosition(), "It is imposible for body only has one size");
+            throw new AnalysisTextException(body.remove().getPosition(), "It is imposible for body only has one size");
         }
         // 括号
         SourceString first = body.removeFirst();
         SourceString last = body.removeLast();
         if (first.getType() != SourceType.SIGN || !BODY_START.equals(first.getValue())) {
-            throw new AnalysisException(
+            throw new AnalysisTextException(
                     first.getPosition(),
                     "Body should start with `" + BODY_START + "`, but not: " + first.getValue()
             );
         }
         if (last.getType() != SourceType.SIGN || !BODY_END.equals(last.getValue())) {
-            throw new AnalysisException(
+            throw new AnalysisTextException(
                     last.getPosition(),
                     "Body should end with `" + BODY_END + "`, but not: " + last.getValue()
             );

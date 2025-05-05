@@ -27,7 +27,7 @@ import java.util.Arrays;
  */
 @Getter
 public class FullIdentifierString implements SourcePositionSupplier, RawType {
-    private final SourcePosition position;
+
     /**
      * fullname, separator is .
      */
@@ -38,16 +38,35 @@ public class FullIdentifierString implements SourcePositionSupplier, RawType {
      * @param sp can not be empty
      */
     public FullIdentifierString(SourcePosition[] sp, String[] fullname) {
-        position = sp[0];
         this.positionList = sp;
         this.fullname = fullname;
     }
 
+    /**
+     * <pre> {@code
+     *       this.positionList = new SourcePosition[]{sp};
+     *       this.fullname = new String[]{fullname};
+     * }</pre>
+     */
     public FullIdentifierString(SourcePosition sp, String fullname) {
-        position = sp;
         this.positionList = new SourcePosition[]{sp};
         this.fullname = new String[]{fullname};
     }
+
+    public static FullIdentifierString union(FullIdentifierString pre, FullIdentifierString post) {
+        SourcePosition[] unionSourcePosition = new SourcePosition[pre.length() + post.length()];
+        String[] unionFullname = new String[pre.length() + post.length()];
+        System.arraycopy(pre.positionList, 0, unionSourcePosition, 0, pre.length());
+        System.arraycopy(pre.fullname, 0, unionFullname, 0, pre.length());
+        System.arraycopy(post.positionList, 0, unionSourcePosition, pre.length(), post.length());
+        System.arraycopy(post.fullname, 0, unionFullname, pre.length(), post.length());
+        return new FullIdentifierString(unionSourcePosition, unionFullname);
+    }
+
+    public static FullIdentifierString emptyFullname() {
+        return new FullIdentifierString(new SourcePosition[0], new String[0]);
+    }
+
 
     @Override
     public String toString() {
@@ -120,6 +139,11 @@ public class FullIdentifierString implements SourcePositionSupplier, RawType {
      */
     public int firstDifferenceIndex(FullIdentifierString other) {
         return ArrayUtil.firstDifferenceIndex(this.fullname, other.fullname);
+    }
+
+    @Override
+    public SourcePosition getPosition() {
+        return positionList.length == 0 ? SourcePosition.UNKNOWN : positionList[0];
     }
 
     public static class Serializer implements StreamSerializer<FullIdentifierString> {

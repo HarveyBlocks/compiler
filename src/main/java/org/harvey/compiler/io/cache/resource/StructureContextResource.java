@@ -6,7 +6,7 @@ import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.declare.context.ConstructorContext;
 import org.harvey.compiler.declare.context.StructureType;
 import org.harvey.compiler.declare.context.TypeAlias;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.serializer.StructureStatementFileSerializer;
 import org.harvey.compiler.text.depart.RecursivelyDepartedBodyFactory;
@@ -66,7 +66,7 @@ public class StructureContextResource extends AbstractStructureStatementResource
     }
 
     @Override
-    public IdentifierManager getManager() {
+    public DIdentifierManager getManager() {
         return serializer.getResource().getManager();
     }
 

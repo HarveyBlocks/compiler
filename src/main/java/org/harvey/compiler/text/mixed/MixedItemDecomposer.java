@@ -12,7 +12,6 @@ import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.io.source.SourceType;
-import org.harvey.compiler.text.context.SourceTextContext;
 
 import java.util.List;
 
@@ -52,13 +51,13 @@ public class MixedItemDecomposer {
     /**
      * 不检查正确与否, 只确定类型
      */
-    public SourceTextContext phase() {
-        return new SourceTextContext(List.of(phaseValue()));
+    public List<SourceString> phase() {
+        return List.of(phaseValue());
     }
 
     private SourceString phaseValue() {
         if (source.length() == 1 && source.charAt(0) == SourceFileConstant.ITEM_SEPARATE_SIGN) {
-            origin(SourceType.IGNORE_IDENTIFIER);
+            return origin(SourceType.IGNORE_IDENTIFIER);
         }
         char begin = source.charAt(0);
         // 小数点

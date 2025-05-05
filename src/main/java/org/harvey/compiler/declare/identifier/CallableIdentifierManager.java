@@ -20,22 +20,22 @@ import java.util.Set;
  * @version 1.0
  * @date 2025-03-22 20:51
  */
-public class CallableIdentifierManager implements IdentifierManager {
-    private final IdentifierManager identifierManager;
+public class CallableIdentifierManager implements DIdentifierManager {
+    private final DIdentifierManager identifierManager;
     private final Map<String, Integer> genericMap;
     @Getter
     private final boolean[] visited;
 
     private boolean visitedGenericCheck;
 
-    public CallableIdentifierManager(Map<String, Integer> genericMap, IdentifierManager identifierManager) {
+    public CallableIdentifierManager(Map<String, Integer> genericMap, DIdentifierManager identifierManager) {
         this.genericMap = genericMap;
         this.identifierManager = identifierManager;
         this.visited = new boolean[genericMap.size()];
     }
 
     public static ReferenceElement getFromDeclare(SourcePosition position, ReferenceElement referenceElement) {
-        if (referenceElement.getType() == ReferenceType.CALLABLE_GENERIC_IDENTIFIER &&
+        if (referenceElement.getType() == ReferenceType.ALIAS_GENERIC_IDENTIFIER &&
             referenceElement.getPosition() == null) {
             return new ReferenceElement(position, referenceElement.getType(), referenceElement.getReference());
         }
@@ -52,9 +52,19 @@ public class CallableIdentifierManager implements IdentifierManager {
     }
 
     @Override
+    public ReferenceElement getReference(FullIdentifierString fullname) {
+        ReferenceElement genericReference = tryGeneric(fullname.getPosition(), fullname.getFullname());
+        if (genericReference != null) {
+            return genericReference;
+        }
+        return identifierManager.getReference(fullname);
+    }
+
+    @Override
     public boolean isImport(FullIdentifierString fullname) {
         return identifierManager.isImport(fullname);
     }
+
 
     @Override
     public int getPreLength() {
@@ -78,7 +88,7 @@ public class CallableIdentifierManager implements IdentifierManager {
         visited[genericReference] = true;
         return new ReferenceElement(
                 position,
-                ReferenceType.CALLABLE_GENERIC_IDENTIFIER,
+                ReferenceType.ALIAS_GENERIC_IDENTIFIER,
                 genericReference
         );
     }

@@ -1,6 +1,6 @@
 package org.harvey.compiler.execute.test.version2.handler.impl;
 
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisControlException;
 import org.harvey.compiler.execute.test.version2.handler.NoneNextHandler;
 import org.harvey.compiler.execute.test.version2.msg.ControlContext;
 
@@ -18,7 +18,7 @@ public class DefaultNoneNextHandler implements NoneNextHandler {
             return;
         }
         if (!context.bodyStack.empty()) {
-            throw new AnalysisExpressionException(context.now(), "expect }");
+            throw new AnalysisControlException(context.now(), "expect }");
         }
     }
 }

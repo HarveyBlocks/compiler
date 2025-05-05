@@ -40,7 +40,7 @@ public class RelatedLocalParameterizedType {
     /**
      * @see ParameterizedType#toString()
      */
-    public String toString(Function<RelationUsing,String> toString) {
+    public String toString(Function<RelationUsing, String> toString) {
         return MessageFormat.format(
                 "{0} {1} {2}", finalMark ? "" : "finale", constMark ? "" : "const", type.toString(toString));
     }

@@ -8,7 +8,7 @@ import org.harvey.compiler.common.constant.CompileFileConstant;
 import org.harvey.compiler.common.constant.SourceFileConstant;
 import org.harvey.compiler.declare.analysis.AccessControl;
 import org.harvey.compiler.exception.CompileException;
-import org.harvey.compiler.exception.analysis.AnalysisException;
+import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.exception.command.CommandException;
 import org.harvey.compiler.exception.io.VieIOException;
 import org.harvey.compiler.exception.self.CompilerException;
@@ -117,6 +117,21 @@ public class PackageMessageFactory {
         }
     }
     // -----------------------------------文件关系, 用于访问控制---------------------------------------
+
+    /**
+     * @return identifier[identifier.length - 1];
+     */
+    public static String getNameIfAlias(String[] fullnameFromFile, String[] identifier) {
+        if (fullnameFromFile.length + 1 != identifier.length) {
+            return null;
+        }
+        for (int i = 0; i < fullnameFromFile.length; i++) {
+            if (fullnameFromFile[i].equals(identifier[i])) {
+                return null;
+            }
+        }
+        return identifier[identifier.length - 1];
+    }
 
     public File getOuterStructureFile(FullIdentifierString string) {
         return getOuterStructureFileStack(string).peek();
@@ -249,7 +264,7 @@ public class PackageMessageFactory {
 
         String[] consumerStructureIdentifier = structureIdentifier.getRange(
                 0, consumerStructureFileInTarget.getIndex());
-        LinkedList<String> identifierMaker =  CollectionUtil.toLinkedList(consumerStructureIdentifier);
+        LinkedList<String> identifierMaker = CollectionUtil.toLinkedList(consumerStructureIdentifier);
         while (identifierMaker.size() > consumerFileListPoint.getIndex() + 1) {
             String[] path = identifierMaker.toArray(new String[0]);
             ListPoint<File> fileInTarget = findFileInTarget(path);
@@ -297,7 +312,6 @@ public class PackageMessageFactory {
     public PackageMessage create(String[] packages) {
         return new PackageMessage(sourceAbsoluteFilePathPre, targetAbsoluteFilePathPre, packages);
     }
-
 
     /**
      * @param identifier org.harvey.demo.file.Entity
@@ -365,7 +379,7 @@ public class PackageMessageFactory {
         // 不在源码, TODO 可能在库, 但还不支持
         if (file == null) {
             SourcePosition illegalPoint = fullIdentifier.getPositionAt(findNotExistFileIndexInSource(fullname));
-            throw new AnalysisException(illegalPoint, "not exist");
+            throw new AnalysisExpressionException(illegalPoint, "not exist");
         }
         // package
         return new ListPoint<>(fileListPoint.getIndex(), null);
@@ -397,13 +411,28 @@ public class PackageMessageFactory {
                 throw new VieIOException(new FileNotFoundException(directory.getAbsolutePath()));
             }
             if (!directory.isDirectory()) {
-                throw new AnalysisException(
+                throw new AnalysisExpressionException(
                         position,
                         directory.getAbsolutePath() + " expect a package!"
                 );
             }
         }
         return directory;
+    }
+
+    public boolean isPackage(String[] fullIdentifier) {
+        StringBuilder pathBuilder = new StringBuilder(targetAbsoluteFilePathPre);
+        for (String each : fullIdentifier) {
+            pathBuilder.append(each);
+            File directory = new File(pathBuilder.toString());
+            if (!directory.exists()) {
+                throw new VieIOException(new FileNotFoundException(directory.getAbsolutePath()));
+            }
+            if (!directory.isDirectory()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public File findAsPackage(FullIdentifierString fullIdentifier) {
@@ -418,7 +447,7 @@ public class PackageMessageFactory {
                 throw new VieIOException(new FileNotFoundException(directory.getAbsolutePath()));
             }
             if (!directory.isDirectory()) {
-                throw new AnalysisException(
+                throw new AnalysisExpressionException(
                         fullIdentifier.getPositionAt(i),
                         directory.getAbsolutePath() + " expect a package!"
                 );
@@ -427,20 +456,6 @@ public class PackageMessageFactory {
         return directory;
     }
 
-    /**
-     * @return identifier[identifier.length - 1];
-     */
-    public static String getNameIfAlias(String[] fullnameFromFile, String[] identifier) {
-        if (fullnameFromFile.length + 1 != identifier.length) {
-            return null;
-        }
-        for (int i = 0; i < fullnameFromFile.length; i++) {
-            if (fullnameFromFile[i].equals(identifier[i])) {
-                return null;
-            }
-        }
-        return identifier[identifier.length - 1];
-    }
     /**
      * @return file 特指 源码的文件, 而不是structure在编译时会产生的类
      */

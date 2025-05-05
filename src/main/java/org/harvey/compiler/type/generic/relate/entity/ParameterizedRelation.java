@@ -12,9 +12,9 @@ import org.harvey.compiler.type.raw.RelationRawType;
  * @date 2025-03-27 16:23
  */
 public interface ParameterizedRelation {
-    void setSelfConsistentInspection(Tense tense);
-
     Tense getSelfConsistentInspection();
+
+    void setSelfConsistentInspection(Tense tense);
 
     RelationRawType getRawType();
 

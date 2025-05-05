@@ -23,7 +23,9 @@ public enum SourceType {
     FLOAT32, // 浮点数
     FLOAT64, // 浮点数
     IGNORE_IDENTIFIER,  // 用于忽略的字符传, 例如`_`
+    @Deprecated
     SCIENTIFIC_NOTATION_FLOAT32, // 科学计数法
+    @Deprecated
     SCIENTIFIC_NOTATION_FLOAT64, // 科学计数法
     IDENTIFIER, // 源码中是标识符
     // VARIABLE_IDENTIFIER, // 变量

@@ -2,8 +2,7 @@ package org.harvey.compiler.text.context;
 
 import org.harvey.compiler.common.collecction.CollectionUtil;
 import org.harvey.compiler.common.reflect.VieConstructor;
-import org.harvey.compiler.exception.analysis.AnalysisException;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisTextException;
 import org.harvey.compiler.exception.io.CompileFileException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
@@ -92,13 +91,12 @@ public class SourceTextContext extends LinkedList<SourceString> {
             result = CollectionUtil.skipNest(it, ss -> pre.equals(ss.getValue()), ss -> post.equals(ss.getValue()),
                     SourceTextContext::new
             );
-
         } catch (CompilerException ce) {
-            throw new AnalysisExpressionException(it.previous().getPosition(), ce.getMessage());
+            throw new AnalysisTextException(it.previous().getPosition(), ce.getMessage());
         }
 
         if (mustHaveNest && result.isEmpty()) {
-            throw new AnalysisException(it.previous().getPosition(), "expected " + pre);
+            throw new AnalysisTextException(it.previous().getPosition(), "expected " + pre);
         }
         return result;
     }
@@ -134,9 +132,9 @@ public class SourceTextContext extends LinkedList<SourceString> {
                     iterator.previous();
                     beforeComma.addAll(skipNest(iterator, AT_INDEX_PRE_NAME, AT_INDEX_POST_NAME, true));
                 } else if (PARENTHESES_POST_NAME.equals(value)) {
-                    throw new AnalysisExpressionException(next.getPosition(), "illegal matching of `{}`");
+                    throw new AnalysisTextException(next.getPosition(), "illegal matching of `{}`");
                 } else if (AT_INDEX_POST_NAME.equals(value)) {
-                    throw new AnalysisExpressionException(next.getPosition(), "illegal matching of `{}`");
+                    throw new AnalysisTextException(next.getPosition(), "illegal matching of `{}`");
                 } else {
                     // method的引用,如何分辨
                     // bool l = a[A,X]() , y = a[B]();
@@ -144,12 +142,12 @@ public class SourceTextContext extends LinkedList<SourceString> {
                 }
             } else if (type == SourceType.SIGN) {
                 if (SENTENCE_END.equals(value)) {
-                    throw new AnalysisExpressionException(next.getPosition(), "do not expect ;");
+                    throw new AnalysisTextException(next.getPosition(), "do not expect ;");
                 } else if (BODY_START.equals(value)) {
                     iterator.previous();
                     beforeComma.addAll(skipNest(iterator, BODY_START, BODY_END, true));
                 } else if (BODY_END.equals(value)) {
-                    throw new AnalysisExpressionException(next.getPosition(), "illegal matching of `{}`");
+                    throw new AnalysisTextException(next.getPosition(), "illegal matching of `{}`");
                 } else {
                     throw new CompilerException("unknown sign of: " + next);
                 }
@@ -161,13 +159,6 @@ public class SourceTextContext extends LinkedList<SourceString> {
     }
 
     /**
-     * 不要以逗号分割, 以等号分割
-     * 在第一个等号, 定位, 找下一个等号, 等号前面一定是identifier
-     * 对于param, 再前面是type,type前是','
-     * 对于declare, 再前面是',', 否则就不正确
-     * ','前就是表达式
-     * 如果找不到下一个等号, 那么前面的就都是表达式
-     * 当然要skip一些东西
      * @param iterator <br>
      *                 1. map -> id<br>
      *                 2. map -> id = exp<br>

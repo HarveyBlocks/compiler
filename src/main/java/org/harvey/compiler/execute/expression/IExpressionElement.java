@@ -10,4 +10,7 @@ import org.harvey.compiler.io.source.SourcePositionSupplier;
  * @date 2025-04-06 15:56
  */
 public interface IExpressionElement extends SourcePositionSupplier {
+    default String show() {
+        return this.toString();
+    }
 }

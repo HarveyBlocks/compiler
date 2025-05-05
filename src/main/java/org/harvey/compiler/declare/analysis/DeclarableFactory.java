@@ -1,8 +1,10 @@
 package org.harvey.compiler.declare.analysis;
 
-import org.harvey.compiler.common.collecction.*;
+import org.harvey.compiler.common.collecction.CollectionUtil;
+import org.harvey.compiler.common.collecction.ListPoint;
+import org.harvey.compiler.common.collecction.RandomlyIterator;
 import org.harvey.compiler.declare.EnumConstantDeclarable;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.calculate.Operators;
@@ -113,18 +115,17 @@ public final class DeclarableFactory {
     }
 
 
-
     /**
      * 不认为class这种是类型, 括号开头的也不算
      */
     public static SourceTextContext getType(ListIterator<SourceString> it, SourcePosition start) {
         SourceTextContext rawType = getGeneralizedType(it, start);
         if (rawType.size() == 1 && Keywords.isStructure(rawType.getFirst().getValue())) {
-            throw new AnalysisExpressionException(start, "Unknown type");
+            throw new AnalysisDeclareException(start, "Unknown type");
         }
         // 括号开头的不算
         if (!rawType.isEmpty() && nextIsOperator(rawType.listIterator(), Operator.PARENTHESES_PRE)) {
-            throw new AnalysisExpressionException(start, "Unknown type");
+            throw new AnalysisDeclareException(start, "Unknown type");
         }
         return rawType;
     }
@@ -159,7 +160,7 @@ public final class DeclarableFactory {
         // 迭代器结束之前的?
         SourceTextContext type = new SourceTextContext();
         if (!it.hasNext()) {
-            throw new AnalysisExpressionException(start, "type is needed");
+            throw new AnalysisDeclareException(start, "type is needed");
         }
         if (nextIsTypeAvailableKeyword(it)) {
             type.add(it.next());
@@ -187,7 +188,7 @@ public final class DeclarableFactory {
                     Operator.PARENTHESES_POST.getName(), true
             );
         } else {
-            throw new AnalysisExpressionException(start, "Unknown type");
+            throw new AnalysisDeclareException(start, "Unknown type");
         }
     }
 
@@ -220,7 +221,7 @@ public final class DeclarableFactory {
             if (full.isEmpty()) {
                 throw new CompilerException("it's impossible for full identifier is empty");
             }
-            throw new AnalysisExpressionException(full.getLast().getPosition(), "expected an identifier");
+            throw new AnalysisDeclareException(full.getLast().getPosition(), "expected an identifier");
         }
         return full;
     }
@@ -335,13 +336,13 @@ public final class DeclarableFactory {
         if (!it.hasNext()) {
             // 特别的enum元素的声明, 无返回值
             /*不太对 if (type.size() != 1) {
-                throw new AnalysisExpressionException(start, "identifier is expected");
+                throw new AnalysisDeclareException(start, "identifier is expected");
             }*/
             if (type.isEmpty()) {
-                throw new AnalysisExpressionException(start, "identifier is expected");
+                throw new AnalysisDeclareException(start, "identifier is expected");
             }
             if (type.size() != 1) {
-                throw new AnalysisExpressionException(type.getFirst().getPosition(), type.getLast().getPosition(),
+                throw new AnalysisDeclareException(type.getFirst().getPosition(), type.getLast().getPosition(),
                         "unknown declaration"
                 );
             }
@@ -349,7 +350,7 @@ public final class DeclarableFactory {
             // 暂且认为type为identifier
             SourceString identifier = type.removeLast();
             if (identifier.getType() != SourceType.IDENTIFIER) {
-                throw new AnalysisExpressionException(identifier.getPosition(), type.getLast().getPosition(),
+                throw new AnalysisDeclareException(identifier.getPosition(), type.getLast().getPosition(),
                         "unknown declaration"
                 );
             }
@@ -364,18 +365,18 @@ public final class DeclarableFactory {
             if (Keywords.isBasicType(identifier.getValue())) {
                 return identifier;
             } else {
-                throw new AnalysisExpressionException(identifier.getPosition(), "identifier is expected");
+                throw new AnalysisDeclareException(identifier.getPosition(), "identifier is expected");
             }
-            // throw new AnalysisExpressionException(identifier.getPosition(), "identifier is expected");
+            // throw new AnalysisDeclareException(identifier.getPosition(), "identifier is expected");
         } else if (identifierType != SourceType.OPERATOR) {
-            throw new AnalysisExpressionException(identifier.getPosition(), "identifier is expected");
+            throw new AnalysisDeclareException(identifier.getPosition(), "identifier is expected");
         }
         if (Operator.CALL_PRE.nameEquals(identifier.getValue())) {
             // 猜测是重载运算符() or 构造器 or 类型转换的重载运算符
             // 找和这个(匹配的), 如果到最后了, 就是构造器 or 类型转换的重载运算符
             // 如果没有到最后, 就是重载运算符
             if (!it.hasNext()) {
-                throw new AnalysisExpressionException(identifier.getPosition(), "Unknown operator");
+                throw new AnalysisDeclareException(identifier.getPosition(), "Unknown operator");
             }
             SourceString next = it.next();
             if (next.getType() == SourceType.OPERATOR && Operator.CALL_POST.nameEquals(next.getValue()) &&
@@ -396,14 +397,14 @@ public final class DeclarableFactory {
         while (true) {
             if (!it.hasNext()) {
                 // 没找到Call pre
-                throw new AnalysisExpressionException(identifier.getPosition(), position,
+                throw new AnalysisDeclareException(identifier.getPosition(), position,
                         "Operator can't be identifier here"
                 );
             }
             // 一直找, 直到找到一个是(的为止
             boolean nextIsOperator = CollectionUtil.nextIs(it, ss -> ss.getType() == SourceType.OPERATOR);
             if (!nextIsOperator) {
-                throw new AnalysisExpressionException(it.next().getPosition(), "unknown cache");
+                throw new AnalysisDeclareException(it.next().getPosition(), "unknown cache");
             }
             boolean nextIsCallPre = CollectionUtil.nextIs(it, ss -> CALL_PRE.nameEquals(ss.getValue()));
             if (nextIsCallPre) {
@@ -415,7 +416,7 @@ public final class DeclarableFactory {
         }
         String operator = sb.toString();
         if (!Operators.is(operator)) {
-            throw new AnalysisExpressionException(startOperator, position, "Unknown operator");
+            throw new AnalysisDeclareException(startOperator, position, "Unknown operator");
         }
         return new SourceString(SourceType.OPERATOR, operator, identifier.getPosition());
 
@@ -454,7 +455,7 @@ public final class DeclarableFactory {
             if (next.getType() == SourceType.OPERATOR) {
                 if (inTuple == 0 && Operator.COMMA.nameEquals(next.getValue())) {
                     if (enumConst.isEmpty()) {
-                        throw new AnalysisExpressionException(next.getPosition(), "enum constant cannot be empty");
+                        throw new AnalysisDeclareException(next.getPosition(), "enum constant cannot be empty");
                     }
                     enumConstDeclarableList.add(enumConstantPhase(enumConst));
                     enumConst = new SourceTextContext();
@@ -465,13 +466,13 @@ public final class DeclarableFactory {
                     inTuple--;
                 }
                 if (inTuple < 0) {
-                    throw new AnalysisExpressionException(next.getPosition(), "illegal parentheses match");
+                    throw new AnalysisDeclareException(next.getPosition(), "illegal parentheses match");
                 }
             }
             enumConst.add(next);
         }
         if (enumConst.isEmpty()) {
-            throw new AnalysisExpressionException(last.getPosition(), "enum constant cannot be empty");
+            throw new AnalysisDeclareException(last.getPosition(), "enum constant cannot be empty");
         }
         enumConstDeclarableList.add(enumConstantPhase(enumConst));
         return enumConstDeclarableList;
@@ -483,21 +484,21 @@ public final class DeclarableFactory {
         }
         SourceString name = enumConst.removeFirst();
         if (name.getType() != SourceType.IDENTIFIER) {
-            throw new AnalysisExpressionException(name.getPosition(), "Illegal enum constant name");
+            throw new AnalysisDeclareException(name.getPosition(), "Illegal enum constant name");
         }
         if (enumConst.isEmpty()) {
             // 给个空进去, 结束
             return new EnumConstantDeclarable(new IdentifierString(name), Collections.emptyList());
         }
         if (enumConst.size() == 1) {
-            throw new AnalysisExpressionException(enumConst.getFirst().getPosition(), "Illegal enum constant");
+            throw new AnalysisDeclareException(enumConst.getFirst().getPosition(), "Illegal enum constant");
         }
         SourceString first = enumConst.removeFirst();
         SourceString last = enumConst.removeLast();
         if (!(first.getType() == SourceType.OPERATOR) || !(last.getType() == SourceType.OPERATOR) ||
             !(Operator.CALL_PRE.nameEquals(first.getValue())) ||
             !(Operator.CALL_POST.nameEquals(last.getValue()))) {
-            throw new AnalysisExpressionException(first.getPosition(), last.getPosition(),
+            throw new AnalysisDeclareException(first.getPosition(), last.getPosition(),
                     "Illegal enum constant define"
             );
         }
@@ -509,10 +510,10 @@ public final class DeclarableFactory {
                 break;
             }
             if (!CollectionUtil.skipIf(iterator, s -> Operator.COMMA.nameEquals(s.getValue()))) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "expected (");
+                throw new AnalysisDeclareException(iterator.next().getPosition(), "expected (");
             }
             if (!iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.previous().getPosition(), "empty argument is illegal");
+                throw new AnalysisDeclareException(iterator.previous().getPosition(), "empty argument is illegal");
             }
 
         }

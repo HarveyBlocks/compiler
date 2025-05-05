@@ -1,8 +1,7 @@
 package org.harvey.compiler.text.depart;
 
 import org.harvey.compiler.common.constant.SourceFileConstant;
-import org.harvey.compiler.exception.analysis.AnalysisException;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisTextException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.io.source.SourceString;
 import org.harvey.compiler.text.context.SourceTextContext;
@@ -44,7 +43,7 @@ public class SimpleDepartedBodyFactory {
             if (sentenceEnd) {
                 body = SourceTextContext.empty();
             } else if (!iterator.hasNext()) {
-                throw new AnalysisException(context.getLast().getPosition(), "expected ;");
+                throw new AnalysisTextException(context.getLast().getPosition(), "expected ;");
             } else {
                 // body
                 body = SourceTextContext.skipNest(iterator, BODY_START, BODY_END, true);
@@ -76,6 +75,6 @@ public class SimpleDepartedBodyFactory {
                 statement.addAll(SourceTextContext.skipNest(iterator, PARENTHESES_PRE, PARENTHESES_POST, true));
             }
         }
-        throw new AnalysisExpressionException(iterator.previous().getPosition(), "expected ';'");
+        throw new AnalysisTextException(iterator.previous().getPosition(), "expected ';'");
     }
 }

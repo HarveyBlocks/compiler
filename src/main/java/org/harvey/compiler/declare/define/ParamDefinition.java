@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.harvey.compiler.declare.analysis.Declarable;
 import org.harvey.compiler.declare.analysis.DeclarableFactory;
 import org.harvey.compiler.declare.analysis.EmbellishSource;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.IdentifierString;
@@ -64,7 +64,7 @@ public class ParamDefinition {
 
         public Builder identifier(SourceString identifierSource, SourcePosition forNull) {
             if (identifierSource == null) {
-                throw new AnalysisExpressionException(forNull, "expected identifier");
+                throw new AnalysisDeclareException(forNull, "expected identifier");
             }
             this.identifier = new IdentifierString(identifierSource);
             return this;
@@ -89,7 +89,7 @@ public class ParamDefinition {
 
         private static void permissions(SourceTextContext permissions) {
             if (permissions != null && !permissions.isEmpty()) {
-                throw new AnalysisExpressionException(permissions.getFirst().getPosition(),
+                throw new AnalysisDeclareException(permissions.getFirst().getPosition(),
                         permissions.getLast().getPosition(), "permissions is illegal on param"
                 );
             }
@@ -102,7 +102,7 @@ public class ParamDefinition {
             // 不认为会有什么
             SourceTextContext paramInit = SourceTextContext.skipUntilComma(attachmentIterator);
             if (paramInit.isEmpty()) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisDeclareException(
                         attachmentIterator.previous().getPosition(), "param init can not be empty");
             }
             return paramInit;
@@ -120,17 +120,17 @@ public class ParamDefinition {
             }
             ParamDefinition last = params.get(params.size() - 1);
             if (last.isMultipleType() && last.hasAssign()) {
-                throw new AnalysisExpressionException(last.getPosition(), "multiple type can not init");
+                throw new AnalysisDeclareException(last.getPosition(), "multiple type can not init");
             }
             boolean afterFirstAssign = true;
             for (int i = params.size() - 2; i >= 0; i--) {
                 ParamDefinition param = params.get(i);
                 if (param.isMultipleType()) {
-                    throw new AnalysisExpressionException(last.getPosition(), "only last can be multiply type");
+                    throw new AnalysisDeclareException(last.getPosition(), "only last can be multiply type");
                 } else if (afterFirstAssign && !param.hasAssign()) {
                     afterFirstAssign = false;
                 } else if (!afterFirstAssign && param.hasAssign()) {
-                    throw new AnalysisExpressionException(param.getPosition(), "default assign should be at last");
+                    throw new AnalysisDeclareException(param.getPosition(), "default assign should be at last");
                 }
 
             }

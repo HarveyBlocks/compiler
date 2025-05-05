@@ -52,11 +52,18 @@ public class ArrayInitHandler implements ExpressionHandler {
         int index = 0;
         while (iterator.hasNext()) {
             List<SourceString> eachElement = SourceTextContext.skipUntilComma(iterator, ArrayList::new);
-            if (!CollectionUtil.skipIf(iterator, s -> Operator.COMMA.nameEquals(s.getValue()))) {
-                throw new AnalysisExpressionException(iterator.next().getPosition(), "expected (");
+            if (iterator.hasNext()) {
+                if (!CollectionUtil.skipIf(iterator, s -> Operator.COMMA.nameEquals(s.getValue()))) {
+                    throw new AnalysisExpressionException(
+                            iterator.next().getPosition(), "expected , for array element");
+                }
+                if (!iterator.hasNext()) {
+                    throw new AnalysisExpressionException(iterator.previous().getPosition(), "not except empty");
+                }
             }
-            if (!iterator.hasNext()) {
-                throw new AnalysisExpressionException(iterator.previous().getPosition(), "not except empty");
+            if (eachElement.isEmpty()) {
+                throw new AnalysisExpressionException(
+                        iterator.previous().getPosition(), "except more for array element");
             }
             ArrayInitEachWarp argumentWrap = new ArrayInitEachWarp(eachElement.get(0).getPosition(), arrayElementOuter,
                     index

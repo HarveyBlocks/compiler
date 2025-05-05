@@ -13,13 +13,13 @@ import java.util.Stack;
  * @date 2025-04-08 21:08
  */
 class OneSentenceFrame {
-    OneSentenceFrame() {
-    }
     Label skipOtherElse;
-
     Stack<Label> lastIfFalse = new Stack<>();
     boolean startSentenceIf;
     boolean stillSentence;
+
+    OneSentenceFrame() {
+    }
 
     public void reset() {
         stillSentence = false;
@@ -28,7 +28,7 @@ class OneSentenceFrame {
         if (!this.lastIfFalse.empty()) {
             throw new CompilerException("未处理的last if false label");
         }
-        if (this.skipOtherElse!=null){
+        if (this.skipOtherElse != null) {
             throw new CompilerException("未处理的skip other else");
         }
     }

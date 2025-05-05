@@ -20,6 +20,12 @@ import org.harvey.compiler.type.generic.relate.entity.RelatedGenericDefineRefere
 public class RelationUsing implements SourcePositionSupplier {
     private final SourcePosition position;
     private final RelationRawType rawType;
+    /**
+     * 在检查的时候, 发现对面是泛型, 且对构造器有需求, 就进行一一对应<br>
+     * nullable
+     */
+    @Setter
+    private int[] constructorReferenceIfNeeded;
 
     /**
      * @param position at using
@@ -28,13 +34,6 @@ public class RelationUsing implements SourcePositionSupplier {
         this.position = position;
         this.rawType = rawType;
     }
-
-    /**
-     * 在检查的时候, 发现对面是泛型, 且对构造器有需求, 就进行一一对应<br>
-     * nullable
-     */
-    @Setter
-    private int[] constructorReferenceIfNeeded;
 
     public String toString(RelatedGenericDefineCache relatedGenericDefineCache) {
         return toString(relatedGenericDefineCache, null);

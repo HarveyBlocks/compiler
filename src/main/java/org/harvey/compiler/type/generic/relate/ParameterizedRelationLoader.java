@@ -47,6 +47,18 @@ public class ParameterizedRelationLoader {
         this.relatedParameterizedTypeBuilderFactory = relatedParameterizedTypeBuilderFactory;
         this.parameterizedRelationCache = new ParameterizedRelationCache();
     }
+
+    /**
+     * 不加入缓存
+     */
+    public static KeywordString loadBasic(RelationRawType rawType) {
+        if (!rawType.isBasicType()) {
+            return new KeywordString(rawType.getPosition(), null);
+        }
+        KeywordBasicType basicType = (KeywordBasicType) rawType;
+        return new KeywordString(basicType.getPosition(), basicType.getBasicType());
+    }
+
     @Deprecated
     public RelatedParameterizedAlias loadAlias(RelationRawType rawType) throws IOException {
         if (!rawType.isAlias()) {
@@ -164,7 +176,7 @@ public class ParameterizedRelationLoader {
             }
         }
         RelatedParameterizedStructure result = new RelatedParameterizedStructure(rawType, relatedGenericDefines,
-                relatedSuperParameterizedType, relatedInterfaceList, relatedConstructorList,null/*TODO*/
+                relatedSuperParameterizedType, relatedInterfaceList, relatedConstructorList, null/*TODO*/
         );
         parameterizedRelationCache.put(result);
         return result;
@@ -203,16 +215,5 @@ public class ParameterizedRelationLoader {
             throw new CompilerException(
                     "expected a generic define on callable reference raw type!", new IllegalArgumentException());
         }
-    }
-
-    /**
-     * 不加入缓存
-     */
-    public static KeywordString loadBasic(RelationRawType rawType) {
-        if (!rawType.isBasicType()) {
-            return new KeywordString(rawType.getPosition(), null);
-        }
-        KeywordBasicType basicType = (KeywordBasicType) rawType;
-        return new KeywordString(basicType.getPosition(), basicType.getBasicType());
     }
 }

@@ -1,393 +1,193 @@
 package org.harvey.compiler.declare.identifier;
 
-import lombok.Getter;
-import org.harvey.compiler.common.collecction.CollectionUtil;
-import org.harvey.compiler.common.constant.SourceFileConstant;
-import org.harvey.compiler.common.util.ArrayUtil;
-import org.harvey.compiler.common.util.StringUtil;
-import org.harvey.compiler.declare.analysis.DetailedDeclarationType;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.calculate.Operator;
-import org.harvey.compiler.execute.calculate.Operators;
-import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.NormalOperatorString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.execute.expression.ReferenceType;
 import org.harvey.compiler.io.source.SourcePosition;
-import org.harvey.compiler.io.source.SourceString;
-import org.harvey.compiler.io.source.SourceType;
-import org.harvey.compiler.text.context.SourceTextContext;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * 1. using, type, generic中对于引用的解析, 依据当前环境, 获取期望的声明
- * - 此时Permission的检查(仅限于文件内)
- * 2. identifier注册时保证不与import重叠
- * - 特别的, 如果import本质上指向的就是当前文件的一部分, 且指向正确, 则无视这条import
- * 3. 不同类型重名
- * - alias全路径和类名全路径不得重名
- * - 除了构造器的callable与类名重名了, 由于构造器的调用主要看new, 所以可以和类名重名
- * - callable和field重名了, 由于value可以重载运算符, 所以不允许和callable重名
- * - method和function重名了, 设置限定file, 表示当前文件级别的
- * - 局部变量和callable重名, 一律优先看作局部变量, 如果要表示callable, 可用file/this
- * 3. 同类型之间, callable可以重名, Class内全路径不可重名
- * callable  不得和field重名
- * inner_class 不得和field重名
- * alias 不得和field重名
- * field 不可和同级所有成员重名
- * <p>
- * 除了add能查询, 其余不能查询
+ * TODO
+ * 更进, name 指向field的索引, callable的索引, inner class的索引. alias的索引, 如何?
+ * 构造:
+ * 1. 文件级别的, 直接存储自己在文件中的索引, 没有outer
+ * 2. class 是 中继, field, callable, alias 是端点, 端点绝无可能含有inner
+ * 3. field 由于声明的复杂性, 存在一个声明有多个field的情况
+ * 3.1. 在field所在类里建立索引表, 例如第一个声明有2个field, 第二个声明有3个field, 第三个声明有1个field, 就建立表
+ * start
+ * 0
+ * 2
+ * 5
+ * 要多存储一张表
+ * 3.2 存储 index_of_declare, offset两个字段
+ * - 可读性更强, 检索速度快
+ * - 要存储两个字段, 在identifier pool 处消耗空间
+ * 4. callable 由于可以重名, 有两种方案:
+ * 4.1. list存储所有索引
+ * 4.2. callable按名称排序, 然后存储start, offset两个字段, 或设计reference指针, 蕴含这两个字段(同理)
+ * - 可读性更强, 检索速度快
+ * - 要存储两个字段, 在identifier pool 处消耗空间
+ * 4.3. callable存储一张start表, 然后reference指向start表中的同名callable的位置
+ * - 在reference存储效率高
+ * - 需要访问一次表
+ * 5. 否则,自己的outer一定是个类, 而outer一定会在这个pool里, 指向这个outer在pool里的identifier fullname
+ * 6. 在获取outer的对象, 即可获取索引
+ * 7. 由于不同的端点需要不同的, 对reference的解释, 所以需要一个字段, 标注这个identifier是个啥...?!非常悲伤, 这消耗空间
+ * - 为了减少空间的浪费, 可以使用重构这个 int reference 在 bit上的解释 也就是 位图
+ * - 在内存阶段是否就需要这么考虑? 还是说, 内存以效率优先, 所以就增加字段?
+ * -   Fullname, DeclareType, Reference, OuterReference
+ * - OuterReference: (nullable or 0 表示no outer,其他情况下, 要获取outer就要-1获取真索引?)
+ * 指向pool中的元素,
+ * - Fullname, 对于是否需要按Dot拆分, 保持怀疑
+ * - DeclareType, complex-structure, file, package, field, method_or_function, constructor, operator, cast
+ * 大概需要4bit, 剩下的7个, 可以用作拓展, 还蛮占用空间的
+ * - Reference, 简单的索引, 16bit比较合适了, 因为outer不会给成员超过16bit, 还是说20bit, 和4bit凑24bit?
+ * 由于指向的的是中间表, 所以要么就12bit, 也就是说, outer中的表项也只能有12bit吗?
+ * 使用:
+ * 1. 先获取到outer的reference,如果outer没有outer了(就是文件了), 进入3
+ * 2. 返回1
+ * 3. 获取自己的索引, 从对文件对象中获取自己的对象
+ * 4. 将获取到的自己的对象往回传递, inner可以根据这个对象获取inner的对象
+ * 5. identifier pool 只有一个存储的功能, 所以需要一个Manager来解释identifier pool 中的索引的意义
+ * 6. 由于有manager来处理identifier pool中的逻辑, 那么就要跟进identifier manager的结构
+ * - identifier manager, 由于把本文件内declare和import混为一谈, 所以解析极为痛苦!
+ * - 既然有了manager, 那就分开存储几个pool吧,
+ * - 由于field要注意检查不能向前引用, 虽然能在pool里找到field, 但是位置在后面的field不能获取, 非法向前引用
+ *      也就是说, field的解析是有序的, 不允许循环依赖
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
- * @date 2025-02-25 20:02
+ * @date 2025-04-25 16:21
  */
 public class IdentifierPoolFactory {
-    public static final String MEMBER = String.valueOf(SourceFileConstant.PACKAGE_SEPARATOR);
-    public static final String GENERIC_LIST_POST_NAME = Operator.GENERIC_LIST_POST.getName();
-    public static final String GENERIC_LIST_PRE_NAME = Operator.GENERIC_LIST_PRE.getName();
-    private final Set<Integer> structure;
-    private final Set<Integer> fields;
-    private final Set<Integer> callables;
-    private final Set<String> genericDefinitions;
-    @Getter
-    private final String outerPre;
-    @Getter
-    private final List<IdentifierString> declaredIdentifierPool;
-    private final Map<String, Integer> declaredIdentifierMap;
-    @Getter
-    private final int preLength;
-    @Getter
-    private final Set<Integer> disableSet;
-    private String outer = null;
+    private static final int NO_OUTER = 0;
+    private final List<DeclareIdentifierString> pool;
+    private final Map<String, Integer> aliasMap = new HashMap<>();
+    private final Map<String, List<Integer>> callableMap = new HashMap<>();
+    private final Map<String, Integer> fieldMap = new HashMap<>();
+    private final Map<String, Integer> innerComplexStructureMap = new HashMap<>();
+    private int outerReference;
 
-    public IdentifierPoolFactory(String filePathPre) {
-        this.outerPre = filePathPre;
-        preLength = StringUtil.count(outerPre, SourceFileConstant.GET_MEMBER) - 1;
-        structure = new HashSet<>();
-        fields = new HashSet<>();
-        callables = new HashSet<>();
-        genericDefinitions = new HashSet<>();
-        declaredIdentifierPool = new ArrayList<>();
-        declaredIdentifierMap = new HashMap<>();
-        disableSet = new HashSet<>();
+    public IdentifierPoolFactory(IdentifierPoolFactory outer, int outerReference) {
+        this(outer.pool, outerReference(outerReference));
     }
 
-    private IdentifierPoolFactory(
-            IdentifierPoolFactory outerFactory, Stack<ReferenceElement> referenceStack, String outerPathPre) {
-        this.outerPre = outerPathPre;
-        preLength = StringUtil.count(outerPre, SourceFileConstant.GET_MEMBER) - 1;
-        structure = new HashSet<>(outerFactory.structure);
-        fields = new HashSet<>(outerFactory.fields);
-        callables = new HashSet<>(outerFactory.callables);
-        genericDefinitions = new HashSet<>(outerFactory.genericDefinitions);
-        declaredIdentifierPool = new ArrayList<>(outerFactory.declaredIdentifierPool);
-        declaredIdentifierMap = new HashMap<>(outerFactory.declaredIdentifierMap);
-        List<String> ablePres = referenceStack.stream()
-                .map(ReferenceElement::getReference)
-                .map(outerFactory.declaredIdentifierPool::get)
-                .map(IdentifierString::getValue)
-                .collect(Collectors.toList());
-        disableSet = new HashSet<>(outerFactory.disableSet);
-        removeDisable(ablePres);
+    public IdentifierPoolFactory(List<DeclareIdentifierString> pool, int outerReference) {
+        this.pool = pool;
+        this.outerReference = outerReference;
     }
 
-    private void removeDisable(List<String> ablePres) {
-        for (int i = 0; i < declaredIdentifierPool.size(); i++) {
-            if (disableSet.contains(i)) {
-                continue;
-            }
-            IdentifierString identifierString = declaredIdentifierPool.get(i);
-            String value = identifierString.getValue();
-            boolean able = false;
-            for (String ablePre : ablePres) {
-                if (!value.endsWith(GENERIC_LIST_POST_NAME) || value.startsWith(ablePre)) {
-                    able = true;
-                    break;
-                }
-                // 不对
-            }
-            if (!able) {
-                genericDefinitions.remove(value);
-                disableSet.add(i);
-                declaredIdentifierMap.remove(value);
-            }
+    public IdentifierPoolFactory() {
+        this(new ArrayList<>(), NO_OUTER);
+    }
+
+    private static int outerReference(int outerReference) {
+        return outerReference + 1;
+    }
+
+    private static List<Integer> computeOnCallableMap(int reference, List<Integer> callables) {
+        if (callables == null) {
+            callables = new ArrayList<>();
+            callables.add(reference);
+        } else {
+            callables.add(reference);
         }
+        return callables;
     }
 
-
-    /**
-     * @return 新类型的identifier reference, clone出来的factory
-     */
-    public IdentifierPoolFactory cloneForInner(ReferenceElement thisReference, Stack<ReferenceElement> referenceStack) {
-        return new IdentifierPoolFactory(
-                this, referenceStack,
-                this.declaredIdentifierPool.get(thisReference.getReference()).getValue() + MEMBER
-        );
-    }
-
-
-    /**
-     * @param type FIELD CALLABLE STRUCTURE
-     */
-    public ReferenceElement add(DetailedDeclarationType type, String identifier, SourcePosition position) {
-        if (type == DetailedDeclarationType.GENERIC_DEFINITION) {
-            throw new CompilerException("generic define should use method of 'addStructureGeneric'");
+    public ReferenceElement addFile(String[] packages, String filename) {
+        if (outerReference != NO_OUTER) {
+            throw new CompilerException("outer exists,then it should obey the `outer`'s packages and filename");
         }
-        String identifierToAdd = outerPre + identifier;
-        int reference = indexOf(identifierToAdd);
-        return testRepeatedAndReAdd(type, identifierToAdd, position, reference);
-
+        for (String each : packages) {
+            pool.add(new DeclareIdentifierString(NO_OUTER, SourcePosition.PROPERTY, each,
+                    DeclareIdentifierString.DeclareType.PACKAGE, DeclareIdentifierString.MEANINGLESS_OBJECT_REFERENCE
+            ));
+        }
+        outerReference = pool.size();
+        pool.add(new DeclareIdentifierString(NO_OUTER, SourcePosition.PROPERTY, filename,
+                DeclareIdentifierString.DeclareType.FILE, DeclareIdentifierString.MEANINGLESS_OBJECT_REFERENCE
+        ));
+        return new ReferenceElement(SourcePosition.PROPERTY, ReferenceType.IDENTIFIER, outerReference);
     }
 
-    /**
-     * @param type FIELD CALLABLE STRUCTURE
-     */
-    private ReferenceElement testRepeatedAndReAdd(
-            DetailedDeclarationType type, String identifierToAdd, SourcePosition position, int reference) {
+    public ReferenceElement addIdentifier(
+            SourcePosition position, String name,
+            DeclareIdentifierString.DeclareType type,
+            int objectReference) {
+        int reference = pool.size();
+        if (duplicateName(name, type, reference)) {
+            pool.add(new DeclareIdentifierString(outerReference, position, name, type, objectReference));
+        } else {
+            throw new AnalysisDeclareException(position, "identifier has declared");
+        }
+        return new ReferenceElement(position, ReferenceType.IDENTIFIER, reference);
+    }
+
+    private boolean duplicateName(String name, DeclareIdentifierString.DeclareType type, int reference) {
         switch (type) {
+            case COMPLEX_STRUCTURE:
+                if (aliasMap.containsKey(name) ||
+                    callableMap.containsKey(name) ||
+                    fieldMap.containsKey(name) ||
+                    innerComplexStructureMap.containsKey(name)) {
+                    return false;
+                }
+                innerComplexStructureMap.put(name, reference);
+                return true;
+            case ALIAS:
+                if (aliasMap.containsKey(name) ||
+                    callableMap.containsKey(name) ||
+                    fieldMap.containsKey(name) ||
+                    innerComplexStructureMap.containsKey(name)) {
+                    return false;
+                }
+                aliasMap.put(name, reference);
+                return true;
             case FIELD:
-                // 不在identifierPool内
-                boolean newIdentifier = reference == -1;
-                if (!newIdentifier) {
-                    throw new AnalysisExpressionException(
-                            position, "Identifier already exist at" + positionAt(reference));
-                } else {
-                    reference = add(position, identifierToAdd);
-                    fields.add(reference);
+                if (aliasMap.containsKey(name) ||
+                    callableMap.containsKey(name) ||
+                    fieldMap.containsKey(name) ||
+                    innerComplexStructureMap.containsKey(name)) {
+                    return false;
                 }
-                return new ReferenceElement(position, ReferenceType.IDENTIFIER, reference);
-            case CALLABLE:
-                // 可以在CALLABLE内
-                if (reference == -1) {
-                    reference = add(position, identifierToAdd);
-                    callables.add(reference);
-                    return new ReferenceElement(position, ReferenceType.IDENTIFIER, reference);
+                fieldMap.put(name, reference);
+                return true;
+            case FUNCTION_OR_METHOD:
+                // 其余全部不重名, 方法可以重名
+                if (aliasMap.containsKey(name) ||
+                    fieldMap.containsKey(name) ||
+                    innerComplexStructureMap.containsKey(name)) {
+                    return false;
                 }
-                callables.add(reference);
-                // identifier 不在fields内
-                if (fields.contains(reference)) {
-                    throw new AnalysisExpressionException(
-                            position, "Identifier already exist at" + positionAt(reference));
-                }
-                return new ReferenceElement(position, ReferenceType.IDENTIFIER, reference);
-            case STRUCTURE:
-                // 不在STRUCTURE内
-                if (reference == -1) {
-                    reference = add(position, identifierToAdd);
-                    structure.add(reference);
-                    return new ReferenceElement(position, ReferenceType.IDENTIFIER, reference);
-                }
-                if (structure.contains(reference)) {
-                    throw new AnalysisExpressionException(
-                            position, "Identifier already exist at" + positionAt(reference));
-                }
-                structure.add(reference);
-                // identifier 不在fields内
-                if (fields.contains(reference)) {
-                    throw new AnalysisExpressionException(
-                            position, "Identifier already exist at" + positionAt(reference));
-                }
-                return new ReferenceElement(position, ReferenceType.IDENTIFIER, reference);
-            case GENERIC_DEFINITION:
-                throw new CompilerException("generic define should use method of 'addStructureGeneric'");
-            default:
-                throw new CompilerException("not support type");
-        }
-
-    }
-
-
-    private int add(SourcePosition position, String identifierToAdd) {
-        this.declaredIdentifierPool.add(new IdentifierString(position, identifierToAdd));
-        int reference = this.declaredIdentifierPool.size() - 1;
-        declaredIdentifierMap.put(identifierToAdd, reference);
-        return reference;
-    }
-
-    private SourcePosition positionAt(int reference) {
-        return this.declaredIdentifierPool.get(reference).getPosition();
-    }
-
-    private int indexOf(String identifier) {
-        if (identifier == null || identifier.isEmpty()) {
-            throw new CompilerException("identifier can not be empty");
-        }
-
-        Integer reference = declaredIdentifierMap.get(identifier);
-        return reference == null ? -1 : reference;
-    }
-
-    /**
-     * @param referenceStack 索引从前到后, 结构从里到外,
-     *                       索引0表示泛型定义的位置的identifierReference
-     *                       到第一个static的structure, 或者文件级为止(有且仅仅有最后一个是static或文件级)
-     *                       如果本身是static, 那么size只有1
-     */
-    public ReferenceElement addStructureGeneric(
-            Stack<ReferenceElement> referenceStack, String genericName, SourcePosition position) {
-        if (referenceStack.isEmpty()) {
-            throw new CompilerException("outerStructuresList can not be empty", new IllegalArgumentException());
-        }
-        String identifierToAdd = genericIdentifier(genericName, referenceStack.peek());
-        int reference = indexOf(identifierToAdd);
-        reference = resetGenericReference(reference, genericName, identifierToAdd, position, referenceStack);
-        return new ReferenceElement(position, ReferenceType.GENERIC_IDENTIFIER, reference);
-    }
-
-    private String genericIdentifier(String genericName, ReferenceElement outerReference) {
-        return declaredIdentifierPool.get(outerReference.getReference()).getValue() +
-               MEMBER +
-               GENERIC_LIST_PRE_NAME +
-               genericName +
-               GENERIC_LIST_POST_NAME;
-    }
-
-    private int resetGenericReference(
-            int genericReference,
-            String genericName,
-            String identifierToAdd,
-            SourcePosition position,
-            Stack<ReferenceElement> referenceStack) {
-        if (genericReference != -1) {
-            // 同级重复
-            throw new AnalysisExpressionException(position, "declared in pre generic definition in this structure");
-        }
-        genericReference = add(position, identifierToAdd);
-        testGenericReference(genericName, position, referenceStack);
-        // 没有冲突, 加入缓存
-        genericDefinitions.add(declaredIdentifierPool.get(genericReference).getValue());
-        return genericReference;
-    }
-
-    public void testGenericReference(
-            String genericName, SourcePosition position, Stack<ReferenceElement> referenceStack) {
-        Stack<ReferenceElement> referenceStackVar = CollectionUtil.cloneStack(referenceStack);
-        // 不在STRUCTURE内
-        // 例如class的内部类, identifier会在外部类存一份, 本类类名会在本类文件存一份
-        // 泛型类型由于只会在本类中出现
-        // 如果内部类要访问外部类的泛型, 该怎么办呢?
-        // generic应该以什么形式存在于pool?
-        // 加载静态内部类的时候不会加载外部类, 怎么办?
-        // 对于泛型, 由于static的内部类不能访问外部泛型
-        // 而对于非static的内部类, 能访问泛型, 但一定要能优先加载外部类
-        // 那么, 以下是对非static内部类如何存储Generic泛型的思考, OuterReference<GenericDefinitionIndex>
-        // 非静态类的IdentifierReference, 要不停地往外找, 直到找到一个static修饰的类型
-        // 这是因为一个类是static的了, 而generic define是非static的, generic 无法影响static的类的内部元素
-        while (!referenceStackVar.empty()) {
-            // 前面的重复
-            ReferenceElement outerReference = referenceStackVar.pop();
-            String key = genericIdentifier(genericName, outerReference);
-            if (genericDefinitions.contains(key)) {
-                throw new AnalysisExpressionException(
-                        position,
-                        "declared in pre generic definition in outer structure of: " +
-                        declaredIdentifierPool.get(outerReference.getReference())
+                callableMap.compute(
+                        name,
+                        (k, v) -> computeOnCallableMap(reference, v)
                 );
-            }
+                return true;
+            case PACKAGE:
+            case FILE:
+            case CONSTRUCTOR:
+            case OPERATOR:
+            case CAST:
+                throw new CompilerException("type: [" + type + "] should not check on duplicating name");
+            default:
+                throw new IllegalStateException("Unexpected value: " + type);
         }
-        // Generic的泛型定义不能在泛型定义内有重复
-        // 不能和外界的T有重合
-        // 可以接受和同级的同名static类型的重合, 因为泛型类型不允许用DOT来获取, 而类型可以
     }
 
-    public ReferenceElement normalMethodReference(SourceString identifier) {
-        return suitableCallableIdentifier(identifier, SourceType.IDENTIFIER, SourceType.OPERATOR);
+    public ReferenceElement operatorCallable(SourcePosition position, Operator operator, int objectReference) {
+        // type name outer-refer
+        this.pool.add(new DeclareIdentifierString(outerReference, position, operator,
+                DeclareIdentifierString.DeclareType.OPERATOR, objectReference
+        ));
+        return ReferenceElement.of(new NormalOperatorString(position, operator));
     }
-
-    /**
-     * @param identifier can not be null
-     */
-    public ReferenceElement functionIdentifier(SourceString identifier) {
-        return suitableCallableIdentifier(identifier, SourceType.IDENTIFIER);
-    }
-
-    /**
-     * @param suitableType can't be null
-     */
-    private ReferenceElement suitableCallableIdentifier(SourceString identifier, SourceType... suitableType) {
-        if (identifier == null) {
-            throw new CompilerException("identifier can not be null", new IllegalArgumentException());
-        }
-        SourceType type = identifier.getType();
-        SourcePosition position = identifier.getPosition();
-        if (!ArrayUtil.contains(suitableType, type)) {
-            throw new AnalysisExpressionException(position, "the identifier is:" + type + " is not suitable at file.");
-        }
-        String value = identifier.getValue();
-        if (type == SourceType.OPERATOR) {
-            Operator[] oper = Operators.reloadableOperator(value);
-            if (oper == null) {
-                throw new CompilerException("Unknown operator");
-            }
-            return ReferenceElement.of(new NormalOperatorString(position, oper[0]));
-        }
-        if (suitableType == null) {
-            throw new CompilerException("suitable type can not be null");
-        }
-        return add(DetailedDeclarationType.CALLABLE, value, position);
-    }
-
-    /**
-     * 构造器 or cast
-     * 如果是和外部类的类名一致, 认为是构造器, 否则, 不管是否合法, 认为是cast, 然后返回
-     */
-    public ReferenceElement noIdentifierMethodReference(SourceTextContext type) {
-        // 构造器 or cast
-        if (type.isEmpty()) {
-            throw new CompilerException("expected type");
-        }
-        SourcePosition position = type.get(0).getPosition();
-        if (type.size() == 1) {
-            SourceString typeString = type.get(0);
-            String structureName = getSimpleNameFromOuter();
-            if (typeString.getType() == SourceType.IDENTIFIER && structureName.equals(typeString.getValue())) {
-                //  构造器
-                // 返回值的rawType和simpleStructureName一致
-                return ReferenceElement.ofConstructor(position);
-            } else {
-                return ReferenceElement.ofCast(position);
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        boolean expectedDot = false;
-        for (SourceString sourceString : type) {
-            if (expectedDot) {
-                if (sourceString.getType() != SourceType.OPERATOR ||
-                    !Operator.GET_MEMBER.nameEquals(sourceString.getValue())) {
-                    // 不符合构造器
-                    return ReferenceElement.ofCast(position);
-                }
-                sb.append(Operator.GET_MEMBER.getName());
-            } else {
-                if (sourceString.getType() != SourceType.IDENTIFIER) {
-                    // 不符合构造器
-                    return ReferenceElement.ofCast(position);
-                }
-                sb.append(sourceString.getValue());
-            }
-            expectedDot = !expectedDot;
-        }
-        // 如果从根目录来的呢?
-        return getOuter().contentEquals(sb) ? ReferenceElement.ofConstructor(position) :
-                ReferenceElement.ofCast(position);
-    }
-
-    private String getOuter() {
-        if (this.outer == null) {
-            this.outer = outerPre.substring(0, outerPre.length() - MEMBER.length());/*最后一位一定是MEMBER*/
-        }
-        return this.outer;
-    }
-
-    private String getSimpleNameFromOuter() {
-        int i = getOuter().lastIndexOf(MEMBER);
-        return i >= 0 ? outerPre.substring(i + 1) : outerPre;
-    }
-
-
 }
-

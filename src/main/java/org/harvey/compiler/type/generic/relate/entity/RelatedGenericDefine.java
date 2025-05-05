@@ -55,7 +55,7 @@ public class RelatedGenericDefine implements SourcePositionSupplier {
         checkValidIfAllSet();
     }
 
-    public RelatedGenericDefine(File defineFile, IdentifierString name, boolean multiple,AssignManager assignManager) {
+    public RelatedGenericDefine(File defineFile, IdentifierString name, boolean multiple, AssignManager assignManager) {
         this.defineFile = defineFile;
         this.name = name;
         this.multiple = multiple;

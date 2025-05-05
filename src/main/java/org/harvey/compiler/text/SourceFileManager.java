@@ -2,7 +2,7 @@ package org.harvey.compiler.text;
 
 import org.harvey.compiler.common.collecction.StringIterator;
 import org.harvey.compiler.common.constant.SourceFileConstant;
-import org.harvey.compiler.exception.analysis.AnalysisException;
+import org.harvey.compiler.exception.analysis.AnalysisTextException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
@@ -128,7 +128,7 @@ public abstract class SourceFileManager {
         int commitEnd = endIndexFinder.apply(
                 sit.toString(),
                 commitPreEnd
-        );// sit.toString().add(post, commitPreEnd);
+        );// sit.toString().addIdentifier(post, commitPreEnd);
         if (commitEnd == -1) {
             // 不能在这次做完
             add(type, sit.toString().substring(index), oldPosition.clone(0, -preLen), true);
@@ -250,7 +250,7 @@ public abstract class SourceFileManager {
             if (last.getType() == SourceType.SINGLE_LINE_COMMENTS) {
                 phasedText.removeLast();
             } else {
-                throw new AnalysisException(last.getPosition(), "Need the post part of sign");
+                throw new AnalysisTextException(last.getPosition(), "Need the post part of sign");
             }
         }
         return new SourceTextContext(phasedText);

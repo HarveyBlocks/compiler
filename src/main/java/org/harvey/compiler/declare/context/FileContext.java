@@ -5,15 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.harvey.compiler.declare.define.FileDefinition;
 import org.harvey.compiler.declare.define.StructureDefinition;
-import org.harvey.compiler.declare.identifier.DefaultIdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.declare.identifier.DeprecatedIdentifierManager;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
 import org.harvey.compiler.io.source.SourceString;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,7 @@ public class FileContext {
     // ---------------------第一阶段加载------------------------
     private final List<TypeAlias> aliasList;
     private final List<ReferenceElement> complexStructureTable;
-    private final IdentifierManager identifierManager;
+    private final DIdentifierManager identifierManager;
     // ---------------------第二阶段加载------------------------
     private final List<CallableContext> functionTable;
     // ---------------------第三阶段加载------------------------
@@ -55,8 +54,8 @@ public class FileContext {
     }
 
     public static FileContext empty() {
-        DefaultIdentifierManager emptyIdentifierManager = new DefaultIdentifierManager(
-                Collections.emptyList(), 0, 0, new ArrayList<>(), new HashSet<>());
+        DeprecatedIdentifierManager emptyIdentifierManager = new DeprecatedIdentifierManager(
+                Collections.emptyList(), 0, 0, new ArrayList<>());
         return new FileContext(Collections.emptyList(), Collections.emptyList(), emptyIdentifierManager,
                 Collections.emptyList(), Collections.emptyList(), null
         );

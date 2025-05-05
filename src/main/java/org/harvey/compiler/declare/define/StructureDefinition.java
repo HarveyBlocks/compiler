@@ -7,10 +7,10 @@ import org.harvey.compiler.declare.EnumConstantDeclarable;
 import org.harvey.compiler.declare.analysis.*;
 import org.harvey.compiler.declare.context.ImportString;
 import org.harvey.compiler.declare.context.StructureType;
-import org.harvey.compiler.declare.identifier.DefaultIdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierPoolFactory;
-import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierPoolFactory;
+import org.harvey.compiler.declare.identifier.DeprecatedIdentifierManager;
+import org.harvey.compiler.exception.analysis.AnalysisDeclareException;
 import org.harvey.compiler.execute.calculate.Operator;
 import org.harvey.compiler.execute.expression.IdentifierString;
 import org.harvey.compiler.execute.expression.ReferenceElement;
@@ -39,12 +39,12 @@ import static org.harvey.compiler.text.depart.RecursivelyDepartedBodyFactory.UNS
 public class StructureDefinition implements Definition {
 
     // 声明
-    private final IdentifierManager identifierManager;
+    private final DIdentifierManager identifierManager;
     private final AccessControl permissions;
     private final Embellish embellish;
     private final StructureType type;
     private final ReferenceElement identifierReference;
-    private final List<Pair<ReferenceElement, SourceTextContext>> genericDefine;
+    private final List<Pair<IdentifierString, SourceTextContext>> genericDefine;
     /**
      * super  nullable
      */
@@ -65,14 +65,14 @@ public class StructureDefinition implements Definition {
 
     public static class Builder {
         private final Environment thisEnvironment;
-        private IdentifierPoolFactory identifierPoolFactoryForInner;
+        private DIdentifierPoolFactory identifierPoolFactoryForInner;
         // 声明
-        private IdentifierManager identifierManager;
+        private DIdentifierManager identifierManager;
         private AccessControl permissions;
         private Embellish embellish;
         private StructureType type;
         private ReferenceElement identifierReference;
-        private List<Pair<ReferenceElement, SourceTextContext>> genericDefine;
+        private List<Pair<IdentifierString, SourceTextContext>> genericDefine;
         private Pair<RawType, SourceTextContext> superType;
         private List<Pair<RawType, SourceTextContext>> implementsList;
         // 结构
@@ -86,7 +86,6 @@ public class StructureDefinition implements Definition {
         // 关系
         private int outerStructure = UNSURE_OUTER;
         private int depth = -1;
-        private Stack<ReferenceElement> referenceStack;
         private Environment environmentToInner;
 
         public Builder(Environment thisEnvironment) {
@@ -95,34 +94,26 @@ public class StructureDefinition implements Definition {
 
         public Builder identifierManager(Map<String, ImportString> importTable) {
             Definition.notNullValid(identifierPoolFactoryForInner, "identifier pool factory for inner");
-            Definition.notNullValid(referenceStack, "identifier pool factory for inner");
-            this.identifierManager = new DefaultIdentifierManager(importTable,
+            this.identifierManager = new DeprecatedIdentifierManager(
+                    importTable,
                     identifierPoolFactoryForInner.getDeclaredIdentifierPool(),
-                    identifierPoolFactoryForInner.getPreLength(),
-                    identifierPoolFactoryForInner.getDisableSet()
+                    identifierPoolFactoryForInner.getPreLength()
             );
             return this;
         }
 
 
-        public Builder identifierReference(IdentifierPoolFactory identifierPoolFactory, SourceString identifier) {
-            this.identifierReference = identifierPoolFactory.add(DetailedDeclarationType.STRUCTURE,
+        public Builder identifierReference(DIdentifierPoolFactory identifierPoolFactory, SourceString identifier) {
+            this.identifierReference = identifierPoolFactory.addIdentifier(DetailedDeclarationType.STRUCTURE,
                     identifier.getValue(), identifier.getPosition()
             );
             return this;
         }
 
-        public Builder referenceStack(Stack<ReferenceElement> outerReferenceStack) {
-            Definition.notNullValid(embellish, "embellish");
-            this.referenceStack = Definition.resetReferenceStack(
-                    outerReferenceStack, identifierReference, false, embellish.isMarkedStatic());
-            return this;
-        }
 
-        public Builder identifierPoolFactoryForInner(IdentifierPoolFactory identifierPoolFactory) {
+        public Builder identifierPoolFactoryForInner(DIdentifierPoolFactory identifierPoolFactory) {
             Definition.notNullValid(identifierReference, "identifier reference");
-            Definition.notNullValid(referenceStack, "reference stack");
-            identifierPoolFactoryForInner = identifierPoolFactory.cloneForInner(identifierReference, referenceStack);
+            identifierPoolFactoryForInner = identifierPoolFactory.cloneForInner(identifierReference);
             return this;
         }
 
@@ -145,16 +136,16 @@ public class StructureDefinition implements Definition {
 
         public Builder type(SourceTextContext type) {
             if (type.size() != 1) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisDeclareException(
                         type.getFirst().getPosition(), type.getLast().getPosition(), "expected class");
             }
             SourceString mayType = type.get(0);
             if (mayType.getType() != SourceType.KEYWORD && !Keywords.isStructure(mayType.getValue())) {
-                throw new AnalysisExpressionException(mayType.getPosition(), "expected class");
+                throw new AnalysisDeclareException(mayType.getPosition(), "expected class");
             }
             Keyword keyword = Keyword.get(mayType.getValue());
             if (!Keywords.isStructure(keyword)) {
-                throw new AnalysisExpressionException(mayType.getPosition(), "expected class");
+                throw new AnalysisDeclareException(mayType.getPosition(), "expected class");
             }
             this.type = StructureType.get(keyword);
             return this;
@@ -163,17 +154,17 @@ public class StructureDefinition implements Definition {
 
         public Builder genericDefine(ListIterator<SourceString> attachmentIterator) {
             Definition.notNullValid(identifierPoolFactoryForInner, "identifier pool factory for inner");
-            Definition.notNullValid(referenceStack, "reference stack");
+            Definition.notNullValid(embellish, "embellish");
             if (!GenericFactory.genericPreCheck(attachmentIterator)) {
                 this.genericDefine = Collections.emptyList();
                 return this;
             }
-            List<Pair<IdentifierString, SourceTextContext>> pairs = GenericFactory.defineSourceDepart(
-                    attachmentIterator);
-            this.genericDefine = Definition.mapStructureGenericReference(
-                    pairs, identifierPoolFactoryForInner, this.referenceStack);
+            this.genericDefine = GenericFactory.defineSourceDepart(attachmentIterator);
+            Definition.notRepeat(this.genericDefine);
+            // 同级不存在
             return this;
         }
+
 
         public Builder superType(ListIterator<SourceString> attachmentIterator) {
             if (!attachmentIterator.hasNext()) {
@@ -186,7 +177,7 @@ public class StructureDefinition implements Definition {
             }
             Definition.notNullValid(type, "structure type");
             if (type == StructureType.ENUM) {
-                throw new AnalysisExpressionException(meyExtends.getPosition(), "enum can not extends");
+                throw new AnalysisDeclareException(meyExtends.getPosition(), "enum can not extends");
             }
             if (type == StructureType.INTERFACE) {
                 this.implementsList = new ArrayList<>();
@@ -211,7 +202,7 @@ public class StructureDefinition implements Definition {
             }
             Definition.notNullValid(type, "structure type");
             if (type == StructureType.INTERFACE) {
-                throw new AnalysisExpressionException(
+                throw new AnalysisDeclareException(
                         mayImplements.getPosition(), "please use " + Keyword.EXTENDS.getValue());
             }
             this.implementsList = new ArrayList<>();
@@ -233,7 +224,7 @@ public class StructureDefinition implements Definition {
 
         public Builder noMore(ListIterator<SourceString> attachmentIterator) {
             if (attachmentIterator.hasNext()) {
-                throw new AnalysisExpressionException(attachmentIterator.next().getPosition(), "expected {");
+                throw new AnalysisDeclareException(attachmentIterator.next().getPosition(), "expected {");
             }
             return this;
         }
@@ -256,7 +247,7 @@ public class StructureDefinition implements Definition {
             Definition.notNullValid(identifierPoolFactoryForInner, "identifier pool factory for inner");
             for (EnumConstantDeclarable declarable : enumConstantDeclarableList) {
                 IdentifierString name = declarable.getName();
-                ReferenceElement reference = identifierPoolFactoryForInner.add(DetailedDeclarationType.FIELD,
+                ReferenceElement reference = identifierPoolFactoryForInner.addIdentifier(DetailedDeclarationType.FIELD,
                         name.getValue(), name.getPosition()
                 );
                 enumConstants.add(new EnumConstant(reference, declarable.getArgumentList()));
@@ -284,7 +275,7 @@ public class StructureDefinition implements Definition {
             }
             this.aliases = sourceTypeAliaseList.stream()
                     .map(a -> DefinitionFactory.buildAliasDefinition(a, identifierPoolFactoryForInner,
-                            environmentToInner, referenceStack
+                            environmentToInner
                     ))
                     .collect(Collectors.toList());
             return this;
@@ -309,7 +300,6 @@ public class StructureDefinition implements Definition {
 
         public Builder methods(List<DeclaredDepartedPart> methodTable) {
             Definition.notNullValid(identifierPoolFactoryForInner, "identifier pool factory for inner");
-            Definition.notNullValid(referenceStack, "reference stack");
             if (this.environmentToInner == null) {
                 Definition.notNullValid(embellish, "embellish");
                 Definition.notNullValid(type, "type");
@@ -317,7 +307,7 @@ public class StructureDefinition implements Definition {
             }
             this.methods = methodTable.stream()
                     .map(c -> DefinitionFactory.buildCallableDefinition(c, identifierPoolFactoryForInner,
-                            environmentToInner, referenceStack
+                            environmentToInner
                     ))
                     .collect(Collectors.toList());
             return this;
@@ -357,7 +347,6 @@ public class StructureDefinition implements Definition {
             Definition.notNullValid(innerStructures, "inner structures");
             Definition.notEqualsValid(outerStructure, UNSURE_OUTER, "outer structure");
             Definition.notEqualsValid(depth, -1, "outer structure");
-
         }
     }
 }

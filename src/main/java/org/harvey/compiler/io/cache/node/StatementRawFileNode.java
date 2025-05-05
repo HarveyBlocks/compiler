@@ -29,7 +29,7 @@ public class StatementRawFileNode extends AbstractRawFileNode {
     }
 
     public StatementRawFileNode(String simpleName, String joinedFullname, StatementResource resource) {
-        super(simpleName, joinedFullname,  resource.getFile(), resource);
+        super(simpleName, joinedFullname, resource.getFile(), resource);
     }
 
     @Override

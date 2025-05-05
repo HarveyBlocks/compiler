@@ -3,6 +3,7 @@ package org.harvey.compiler.execute.test.version1.pipeline;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.exception.analysis.AnalysisExpressionException;
 import org.harvey.compiler.execute.expression.Expression;
+import org.harvey.compiler.execute.test.version0.ExpressionPhaser0;
 import org.harvey.compiler.execute.test.version1.element.ComplexExpressionWrap;
 import org.harvey.compiler.execute.test.version1.element.DefaultComplexExpressionWrap;
 import org.harvey.compiler.execute.test.version1.env.OuterEnvironment;
@@ -11,8 +12,8 @@ import org.harvey.compiler.io.source.SourcePosition;
 import org.harvey.compiler.io.source.SourceString;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * 全集 = unknown + local_variable + 非 local_variable
@@ -24,16 +25,16 @@ import java.util.Stack;
  * parameterized type只能在[]中作为参数类型出现
  * 当[被认定为generic list
  *
- * @date 2025-04-04 16:31
- * @author  <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
+ * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
+ * @date 2025-04-04 16:31
  */
 public class ExpressionPhaser {
 
+    List<ExpressionHandler> expressionHandlers = new ArrayList<>();
+
     public ExpressionPhaser() {
     }
-
-    List<ExpressionHandler> expressionHandlers = new ArrayList<>();
 
     public ExpressionPhaser register(ExpressionHandler expressionHandler) {
         expressionHandlers.add(expressionHandler);
@@ -41,16 +42,17 @@ public class ExpressionPhaser {
     }
 
     public Expression phase(List<SourceString> source, OuterEnvironment outerEnvironment) {
-        ExpressionContext context = new ExpressionContext(source, outerEnvironment);
+        ExpressionContext context = new ExpressionContext(source, outerEnvironment, new ExpressionPhaser0());
         return phase0(context);
     }
 
     private Expression phase0(ExpressionContext context) {
-        Stack<Pair<ComplexExpressionWrap, ExpressionContext>> stack = new Stack<>();
-        ComplexExpressionWrap root = new DefaultComplexExpressionWrap(SourcePosition.UNKNOWN){};
-        stack.push(new Pair<>(root, context));
-        while (!stack.empty()) {
-            Pair<ComplexExpressionWrap, ExpressionContext> top = stack.peek();
+        LinkedList<Pair<ComplexExpressionWrap, ExpressionContext>> queue = new LinkedList<>();
+        ComplexExpressionWrap root = new DefaultComplexExpressionWrap(SourcePosition.UNKNOWN) {
+        };
+        queue.addFirst(new Pair<>(root, context));
+        while (!queue.isEmpty()) {
+            Pair<ComplexExpressionWrap, ExpressionContext> top = queue.peek();
             ExpressionContext topContext = top.getValue();
             if (topContext.hasNext()) {
                 phaseOneLoop(topContext);
@@ -58,14 +60,15 @@ public class ExpressionPhaser {
                     TodoTask todoTask = topContext.popTodoTask();
                     ExpressionContext newContext = new ExpressionContext(
                             todoTask.getTodoSource(),
-                            todoTask.getOuterEnvironment()
+                            todoTask.getOuterEnvironment(),
+                            topContext.expressionPhaser0
                     );
-                    stack.push(new Pair<>(todoTask.getWrap(), newContext));
+                    queue.addLast(new Pair<>(todoTask.getWrap(), newContext));
                 }
             }
             if (!topContext.hasNext()) {
                 top.getKey().setExpression(topContext.result());
-                stack.pop();
+                queue.removeFirst();
             }
         }
         return root.getExpression();
@@ -95,7 +98,7 @@ public class ExpressionPhaser {
                 // int a(int i){return i+1;};
                 // print(a(a(a(a(a(a(1)))))));
                 ExpressionContext newContext = new ExpressionContext(
-                        todoTask.getTodoSource(), todoTask.getOuterEnvironment());
+                        todoTask.getTodoSource(), todoTask.getOuterEnvironment(), context.expressionPhaser0);
                 recursivelyPhase0(newContext);
                 todoTask.getWrap().setExpression(newContext.result());
             }

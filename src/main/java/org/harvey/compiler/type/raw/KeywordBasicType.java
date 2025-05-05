@@ -39,7 +39,7 @@ public enum KeywordBasicType implements RelationRawType {
         this.basicType = basicType;
     }
 
-    public static RelationRawType get(Keyword keyword) {
+    public static KeywordBasicType get(Keyword keyword) {
         switch (keyword) {
             case BOOL:
                 return BOOL;

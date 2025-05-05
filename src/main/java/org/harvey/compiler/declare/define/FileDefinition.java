@@ -2,7 +2,7 @@ package org.harvey.compiler.declare.define;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 
 import java.util.List;
 
@@ -19,5 +19,5 @@ public class FileDefinition {
     private final List<AliasDefinition> aliases;
     private final List<StructureDefinition> structures;
     private final List<CallableDefinition> functions;
-    private final IdentifierManager identifierManager;
+    private final DIdentifierManager identifierManager;
 }

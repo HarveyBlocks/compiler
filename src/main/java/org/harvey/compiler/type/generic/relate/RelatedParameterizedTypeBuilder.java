@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.harvey.compiler.common.collecction.BaseReference;
 import org.harvey.compiler.common.collecction.Pair;
 import org.harvey.compiler.declare.context.StructureType;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
 import org.harvey.compiler.exception.CompileMultipleFileException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
@@ -46,7 +46,7 @@ public class RelatedParameterizedTypeBuilder {
     private final RelatedGenericDefineCache relatedGenericDefineCache;
     private final File typeFromFile;
     private final CompileStage compileStage;
-    private final IdentifierManager identifierManager;
+    private final DIdentifierManager identifierManager;
     private final AssignManager assignManager;
 
     public RelatedParameterizedTypeBuilder(
@@ -56,7 +56,7 @@ public class RelatedParameterizedTypeBuilder {
             RelatedGenericDefineCache relatedGenericDefineCache,
             File typeFromFile,
             CompileStage compileStage,
-            IdentifierManager identifierManager) {
+            DIdentifierManager identifierManager) {
         this.genericDefineReader = genericDefineReader;
         this.rawTypeRelationshipLoader = rawTypeRelationshipLoader;
         this.relatedGenericDefineCache = relatedGenericDefineCache;
@@ -83,7 +83,7 @@ public class RelatedParameterizedTypeBuilder {
         // 1. 检查缓存是否存在, 存在就直接返回
         String[] fullname = declareFromIdentifier.getFullname();
         String key = RelatedGenericDefineCache.geDeclareFromKey(fullname);
-        Pair<BaseReference,BaseReference> fromCache = relatedGenericDefineCache.getIndexInDeclare(key);
+        Pair<BaseReference, BaseReference> fromCache = relatedGenericDefineCache.getIndexInDeclare(key);
         if (fromCache != null) {
             // return referToCache(key, fullname, fromCache.getValue(), fromCache.getKey());
             return fromCache(key);
@@ -117,16 +117,6 @@ public class RelatedParameterizedTypeBuilder {
             );
         }
         return fromCacheReference;
-    }
-
-    @AllArgsConstructor
-    private static class QueueElement {
-        private ParameterizedType<ReferenceElement> toBeMap;
-        private Consumer<RelatedParameterizedType> consumer;
-
-        private void set(RelatedParameterizedType reference) {
-            consumer.accept(reference);
-        }
     }
 
     // ---------------------------------分析ParameterType-----------------------------------------\
@@ -232,7 +222,6 @@ public class RelatedParameterizedTypeBuilder {
         return result;
     }
 
-
     private RelationRawType parameterizedType(
             ReferenceElement reference,
             LinkedList<QueueElement> queue,
@@ -255,7 +244,7 @@ public class RelatedParameterizedTypeBuilder {
                         genericFullIdentifier.get(genericFullIdentifier.length() - 1)
                 );
                 return mapRelatedGenericDefineReference(declareFromIdentifier, genericIdentifier, queue);
-            case CALLABLE_GENERIC_IDENTIFIER:
+            case ALIAS_GENERIC_IDENTIFIER:
                 if (onCallable == null) {
                     throw new CompileMultipleFileException(
                             typeFromFile, reference.getPosition(), "Generics defined on callables are not allowed");
@@ -329,7 +318,7 @@ public class RelatedParameterizedTypeBuilder {
             GenericDefine define, LinkedList<QueueElement> queue) throws IOException {
         // 解决递归和向前引用
         // 对于向前引用, 在identifier pool-reference阶段已经解决
-        IdentifierString name = identifierManager.getGenericIdentifier(define.getName());
+        IdentifierString name = define.getName();
 
         RelatedGenericDefine result = new RelatedGenericDefine(typeFromFile, name, define.isMultiple(), assignManager);
         // RelatedParameterizedType param = parameterizedType(define.getDefaultType());
@@ -384,5 +373,15 @@ public class RelatedParameterizedTypeBuilder {
         }
         RelationRawType load = rawTypeRelationshipLoader.load(typeFromFile, identifierManager.getIdentifier(rawType));
         return load.getType() == StructureType.INTERFACE;
+    }
+
+    @AllArgsConstructor
+    private static class QueueElement {
+        private ParameterizedType<ReferenceElement> toBeMap;
+        private Consumer<RelatedParameterizedType> consumer;
+
+        private void set(RelatedParameterizedType reference) {
+            consumer.accept(reference);
+        }
     }
 }

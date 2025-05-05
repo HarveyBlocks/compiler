@@ -28,6 +28,8 @@ import static org.harvey.compiler.io.serializer.StreamSerializerUtil.writeNumber
 @AllArgsConstructor
 public class SourcePosition implements Cloneable, Comparable<SourcePosition> {
     public static final SourcePosition UNKNOWN = new SourcePosition(-1, -1);
+    public static final SourcePosition PROPERTY = new SourcePosition(-2, -2);
+    public static final SourcePosition NOT_EXIST = new SourcePosition(-3, -3);
     /**
      * 行, 第几行
      */

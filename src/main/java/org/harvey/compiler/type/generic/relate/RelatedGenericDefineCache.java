@@ -38,6 +38,10 @@ public class RelatedGenericDefineCache {
         genericDefinePool = new ArrayList<>();
     }
 
+    public static String geDeclareFromKey(String[] declarePlace) {
+        return StringUtil.join(declarePlace, GET_MEMBER);
+    }
+
     /**
      * @return <pre>{@code
      * <basic declare index on generic defines, generic define index offset>
@@ -131,10 +135,6 @@ public class RelatedGenericDefineCache {
 
     public RelatedGenericDefine get(int base, int offset) {
         return genericDefinePool.get(base + offset);
-    }
-
-    public static String geDeclareFromKey(String[] declarePlace) {
-        return StringUtil.join(declarePlace, GET_MEMBER);
     }
 
     public boolean contains(String[] declarePlace) {

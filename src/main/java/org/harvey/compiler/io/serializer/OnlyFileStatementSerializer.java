@@ -8,8 +8,8 @@ import org.harvey.compiler.declare.context.CallableContext;
 import org.harvey.compiler.declare.context.FileContext;
 import org.harvey.compiler.declare.context.ImportString;
 import org.harvey.compiler.declare.context.TypeAlias;
-import org.harvey.compiler.declare.identifier.DefaultIdentifierManager;
-import org.harvey.compiler.declare.identifier.IdentifierManager;
+import org.harvey.compiler.declare.identifier.DIdentifierManager;
+import org.harvey.compiler.declare.identifier.DeprecatedIdentifierManager;
 import org.harvey.compiler.exception.io.CompilerFileReadException;
 import org.harvey.compiler.exception.self.CompilerException;
 import org.harvey.compiler.execute.expression.FullIdentifierString;
@@ -33,6 +33,7 @@ import static org.harvey.compiler.io.serializer.StreamSerializerUtil.*;
  * @date 2025-03-23 20:31
  */
 
+@Getter
 public class OnlyFileStatementSerializer implements StatementFileSerializer {
     public static final int[] HEAD_LENGTH_BITS = {16, 16, 8, 8, 16, 16, 16, 16, 24};
     public static final int HEAD_BYTE = Serializes.bitCountToByteCount(ArrayUtil.sum(HEAD_LENGTH_BITS));
@@ -48,10 +49,8 @@ public class OnlyFileStatementSerializer implements StatementFileSerializer {
 
     private static final CallableContext.Serializer CALLABLE_CONTEXT_SERIALIZER = StreamSerializerRegister.get(
             CallableContext.Serializer.class);
-
-    private HeadMap[] headMap;
-    @Getter
     private final File file;
+    private HeadMap[] headMap;
     @Getter
     private CompileStage stage;
     @Getter
@@ -65,7 +64,7 @@ public class OnlyFileStatementSerializer implements StatementFileSerializer {
     }
 
     public static void out(DequeueOutputStream os, FileContext src) {
-        IdentifierManager identifierManager = src.getIdentifierManager();
+        DIdentifierManager identifierManager = src.getIdentifierManager();
         int importReferenceAfterIndex = identifierManager.getImportReferenceAfterIndex();
         List<FullIdentifierString> allIdentifierTable = identifierManager.getAllIdentifierTable();
         Set<Integer> disableSet = identifierManager.getDisableSet();
@@ -150,8 +149,8 @@ public class OnlyFileStatementSerializer implements StatementFileSerializer {
             ArrayList<ReferenceElement> complexStructureTable = readElements(
                     is, complexStructureTableSize, REFERENCE_ELEMENT_SERIALIZER);
             return resource = new FileContext(typeAliases, complexStructureTable,
-                    new DefaultIdentifierManager(importStrings, importReferenceAfterIndex, preLength,
-                            allIdentifierTable, disableSet
+                    new DeprecatedIdentifierManager(importStrings, importReferenceAfterIndex, preLength,
+                            allIdentifierTable
                     ), null, null, null
             );
         } else if (stage == CompileStage.LINKING) {

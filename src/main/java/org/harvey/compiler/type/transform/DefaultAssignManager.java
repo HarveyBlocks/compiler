@@ -64,19 +64,26 @@ public class DefaultAssignManager implements AssignManager {
         );
     }
 
+    private static Stack<PTSCTask> pushPTSCTask(
+            RelatedParameterizedType type) {
+        Stack<PTSCTask> taskStack = new Stack<>();
+        LinkedList<ParameterizedType<RelationUsing>> rawTypeQueue = new LinkedList<>();
+        rawTypeQueue.addLast(type.getValue());
+        while (!rawTypeQueue.isEmpty()) {
+            ParameterizedType<RelationUsing> first = rawTypeQueue.removeFirst();
+            RelationUsing rawType = first.getRawType();
+            ParameterizedType<RelationUsing>[] children = first.getChildren();
+            taskStack.push(new PTSCTask(rawType, children));
+            for (ParameterizedType<RelationUsing> child : children) {
+                rawTypeQueue.addLast(child);
+            }
+        }
+        return taskStack;
+    }
+
     @Override
     public void selfConsistent(RelatedGenericDefine define) {
         //
-    }
-
-
-    /**
-     * P T S C, short for Parameterized Type Self Consistent
-     */
-    static class PTSCTask extends Pair<RelationUsing, ParameterizedType<RelationUsing>[]> {
-        public PTSCTask(RelationUsing rawType, ParameterizedType<RelationUsing>[] children) {
-            super(rawType, children);
-        }
     }
 
     @Override
@@ -122,23 +129,6 @@ public class DefaultAssignManager implements AssignManager {
 
     }
 
-    private static Stack<PTSCTask> pushPTSCTask(
-            RelatedParameterizedType type) {
-        Stack<PTSCTask> taskStack = new Stack<>();
-        LinkedList<ParameterizedType<RelationUsing>> rawTypeQueue = new LinkedList<>();
-        rawTypeQueue.addLast(type.getValue());
-        while (!rawTypeQueue.isEmpty()) {
-            ParameterizedType<RelationUsing> first = rawTypeQueue.removeFirst();
-            RelationUsing rawType = first.getRawType();
-            ParameterizedType<RelationUsing>[] children = first.getChildren();
-            taskStack.push(new PTSCTask(rawType, children));
-            for (ParameterizedType<RelationUsing> child : children) {
-                rawTypeQueue.addLast(child);
-            }
-        }
-        return taskStack;
-    }
-
     @Override
     public void assignable(RelatedGenericDefine to, RelatedGenericDefine from) {
 
@@ -160,6 +150,15 @@ public class DefaultAssignManager implements AssignManager {
     public void assignable(
             RelatedParameterizedType to, RelatedParameterizedType from) {
 
+    }
+
+    /**
+     * P T S C, short for Parameterized Type Self Consistent
+     */
+    static class PTSCTask extends Pair<RelationUsing, ParameterizedType<RelationUsing>[]> {
+        public PTSCTask(RelationUsing rawType, ParameterizedType<RelationUsing>[] children) {
+            super(rawType, children);
+        }
     }
 
 

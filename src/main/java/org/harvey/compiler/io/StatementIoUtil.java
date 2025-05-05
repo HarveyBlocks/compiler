@@ -79,7 +79,7 @@ public class StatementIoUtil {
                     StatementFileSerializer serializer = new StructureStatementFileSerializer(compiledFile);
                     serializer.updateStage(CompileStage.STATEMENT);
                     serializer.in(is);
-                    return  serializer;
+                    return serializer;
                 case LINKING:
                 case COMPILED:
                     break;
@@ -103,7 +103,7 @@ public class StatementIoUtil {
                     StatementFileSerializer serializer = new OnlyFileStatementSerializer(compiledFile);
                     serializer.updateStage(CompileStage.STATEMENT);
                     serializer.in(is);
-                    return  serializer;
+                    return serializer;
                 case LINKING:
                 case COMPILED:
                     break;

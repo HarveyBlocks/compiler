@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.harvey.compiler.execute.calculate.Associativity;
 import org.harvey.compiler.execute.calculate.OperandCount;
 import org.harvey.compiler.execute.calculate.Operator;
+import org.harvey.compiler.execute.calculate.Operators;
 import org.harvey.compiler.execute.test.version1.element.OperatorString;
 import org.harvey.compiler.io.source.SourcePosition;
 
@@ -25,8 +26,7 @@ public class NormalOperatorString extends ExpressionElement implements OperatorS
 
 
     /**
-     *
-     * @param element null for false
+     * @param element  null for false
      * @param operator
      * @return
      */
@@ -34,20 +34,56 @@ public class NormalOperatorString extends ExpressionElement implements OperatorS
         return element instanceof NormalOperatorString && ((NormalOperatorString) element).value == operator;
     }
 
-    public String getName(){
+    public String getName() {
         return value.getName();
     }
+
     @Override
-    public int getPriority(){
+    public int getPriority() {
         return value.getPriority();
     }
+
     @Override
-    public Associativity getAssociativity(){
+    public Associativity getAssociativity() {
         return value.getAssociativity();
     }
+
     @Override
-    public OperandCount getOperandCount(){
+    public OperandCount getOperandCount() {
         return value.getOperandCount();
     }
 
+    @Override
+    public String show() {
+        return this.value.getName();
+    }
+
+    @Override
+    public boolean isPost() {
+        return Operators.isPost(this.value);
+    }
+
+    @Override
+    public boolean isPre() {
+        return Operators.isPre(this.value);
+    }
+
+    @Override
+    public OperatorString pair() {
+        return new NormalOperatorString(this.getPosition(), Operators.pair(this.value));
+    }
+
+    @Override
+    public boolean operatorEquals(OperatorString string) {
+        return string instanceof NormalOperatorString && ((NormalOperatorString) string).value == this.value;
+    }
+
+    public boolean isOperator(Operator operator) {
+        return value == operator;
+    }
+
+    @Override
+    public String toString() {
+        return value.name();
+    }
 }
